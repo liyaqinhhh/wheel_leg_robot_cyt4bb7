@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"d:\\\\Yao_Port_4bb7_01 - backups\\\\Yao_Port_4bb7_01\\\\Seekfree_CYT4BB_Opensource_Library_\" && rm -rf .git)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "d:\\Yao_Port_4bb7_01 - backups\\Yao_Port_4bb7_01\\Seekfree_CYT4BB_Opensource_Library_"
+    ]
+  }
+}

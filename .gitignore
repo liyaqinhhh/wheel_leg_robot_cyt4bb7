@@ -1,0 +1,65 @@
+# IAR 编译产物
+*.o
+*.obj
+*.hex
+*.bin
+*.elf
+*.out
+*.sim
+*.map
+*.lst
+*.pbd
+*.xcl
+*.dnx
+*.srec
+*.browse
+*.tmp
+
+# IAR 项目输出目录
+Debug*/
+Release*/
+
+# Keil 编译产物
+*.axf
+*.htm
+*.lnp
+*.sct
+*.crf
+*.d
+*.axf
+*.tra
+*.dep
+
+# Visual Studio / VS Code
+.vs/
+*.suo
+*.user
+*.sln.docstates
+*.pdb
+*.exe
+*.dll
+*.cache
+
+# 编译缓存
+*.ninja_deps
+*.ninja_log
+*.cyt4bb7_cm_7_0_build_cache
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 备份文件
+*.bak
+*.old
+*~
+
+# 压缩包（可选）
+# *.zip
+# *.rar
+# *.7z
+
+# IDE 配置（可选保留）
+# .idea/
+# .vscode/
