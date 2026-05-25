@@ -21,6 +21,7 @@ extern uint8  Change_Control;
 
 int key_detect(key_index_enum key_n, key_state_enum state);
 
+void IPS200_Show1(void);
 void store_or_read_DATA(int way);
 void switch_unit();
 void data_operate(float *data);

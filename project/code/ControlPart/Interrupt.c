@@ -1,7 +1,7 @@
 /*
  * Interrupt.c
  *
- *  Created on: 2024�???2�???�???
+ *  Created on: 2024�???2�???�???
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -15,23 +15,31 @@
 #include "kalman.h"
 #include "Math_Advanced.h"
 #include "Init.h"
+#include "ins_interface.h"
+#include "Ins.h"
 
 Center_struct Yao;
+
+// 开机角度校准变量
+volatile uint8_t calibrate_state = 0;   // 0:未开始 1:采集中 2:完成
+volatile float calibrate_offset = 0;    // 校准得到的角度偏移
+volatile uint16_t calibrate_count = 0;  // 采集计数
+volatile float calibrate_sum = 0;       // 角度累加和
 
 uint16 adc0;
 float Battery_voltage;
 
-uint8 steer_control_mode = 0; // 0:瑙掑害鎺у埗锛岀伅鍝ュ紑�???
-                              // 1:PWM鎺у埗锛岄€愰鏂规锛屾棤閫熷害�???
-uint8 turn_mode = 2;          // 0:鍏抽�??
-                              // 1:閫愰鍙孭D杞�??
-                              // 2:涓茬骇杞�??
-                              // 3:yaw瑙掗棴鐜蛋鐩寸�??
+uint8 steer_control_mode = 0; // 0:瑙掑害鎺у埗锛岀伅鍝ュ紑�???
+                              // 1:PWM鎺у埗锛岄€愰鏂规锛屾棤閫熷害�???
+uint8 turn_mode = 2;          // 0:鍏抽�??
+                              // 1:閫愰鍙孭D杞�??
+                              // 2:涓茬骇杞�??
+                              // 3:yaw瑙掗棴鐜蛋鐩寸�??
 uint8 fuzzy_mode = 0;         // 0:鍏抽棴妯＄硦锛屼娇鐢↘P
-                              // 1:寮€鍚ā绯婏紝浣跨敤KP浣滀负鏈€灏忥紝KI浣滀负鏈€澶у幓妯＄硦�???
+                              // 1:寮€鍚ā绯婏紝浣跨敤KP浣滀负鏈€灏忥紝KI浣滀负鏈€澶у幓妯＄硦�???
 uint8 menu_open = 1;          // 0:鍏抽棴鑿滃崟鍜宖lash浠ヤ繚璇佹祴璇曚笉浼氳浼lash
                               // 1:鎵撳紑鑿滃崟
-                              // 2:鍙墦寮€璇诲彇锛屼笉鎵撳紑鑿滃�??
+                              // 2:鍙墦寮€璇诲彇锛屼笉鎵撳紑鑿滃�??
 uint8 flag_yawan = 1;         // 0
                               // 1:鎵撳紑yawan
 uint8 flag_stop = 1;
@@ -160,7 +168,7 @@ void Interrupt_2ms(void)
         time_j = 0;
     key_scanner();
     /*if (menu_open == 1)
-        //menu();
+        menu();
     else
         menu_mode = 1;*/
 
@@ -196,13 +204,28 @@ void Interrupt_2ms(void)
     //    pwm_set_duty(ATOM0_CH1_P21_3, 1500);
     //    pwm_set_duty(ATOM0_CH2_P21_4, 1500);
     //    pwm_set_duty(ATOM0_CH3_P21_5, 1500);
-
+     //date_handle();
     //    get_eulerAngle();
     // 闄€铻轰华鏁版嵁
+    date_handle();
+
+    // 开机角度校准逻辑
+    /*if (calibrate_state == 1)
+    {
+        calibrate_sum += imu660ra.eulerAngle.pitch;
+        calibrate_count++;
+
+        if (calibrate_count >= CALIBRATE_SAMPLES)
+        {
+            calibrate_offset = calibrate_sum / calibrate_count;
+            calibrate_state = 2;  // 标记完成
+        }
+         ips200_show_float( 30 , 80 , calibrate_offset , 3 , 3 );
+    }*/
     if (menu_mode)
     {
         //        if(num_t >= 3000)
-        date_handle();
+        //date_handle();
         if (IMU_JF_Flag)
         {
             Z_Yaw += imu660ra.data_Raw.gyro_z / 500;
@@ -231,12 +254,12 @@ void Interrupt_2ms(void)
     //    }
     //    ips200_show_float( 0, 3*8, integer1, 5,5 );
     //    ips200_show_float( 0, 4*8, (integer1/num_t1), 5,5 );
-    // 涓茬骇瑙掗€熷害�???
-    y1 = 0.1f * (float)imu660rb_gyro_y + 0.9 * y1;
-    Yao.Outp_Gyro_Pitch = limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, Yao.Outp_Angle_Pitch), 8000.0f);
+    // 涓茬骇瑙掗€熷害�???
+    y1 = 0.1f * ((float)-imu660ra_gyro_x) + 0.9 * y1;
+    Yao.Outp_Gyro_Pitch = -limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, -Yao.Outp_Angle_Pitch), 8000.0f);
     Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, -Yao.Outp_turn), 8000.0f);
 
-} // 2ms缁撴�??
+} // 2ms缁撴�??
 
 volatile float aa1 = 0;
 volatile float dd = 0;
@@ -265,29 +288,40 @@ void Interrupt_4ms(void)
     //    V_trans = (float)(motor_value.receive_left_speed_data-motor_value.receive_right_speed_data);
     imu963ra_kalman_filter_update(&imu);
     //    imu963ra_menc15a_kalman_filter_Update(&vel_kf, 0, imu.ay_linear);
-    imu660ra.eulerAngle.roll = imu.roll - imu660ra.offset_angle.roll;
-    imu660ra.eulerAngle.pitch = imu.pitch - imu660ra.offset_angle.pitch;
+    imu.roll -= imu660ra.offset_angle.roll;
+    imu.pitch -= imu660ra.offset_angle.pitch;
+    imu660ra.eulerAngle.roll = imu.pitch;
+    imu660ra.eulerAngle.pitch = imu.roll;
+
+    //if(imu660ra.eulerAngle.pitch<0.5&&imu660ra.eulerAngle.pitch>-0.5)
+    //    imu660ra.eulerAngle.pitch = 0;
 
     if (TCount_falg_4ms)
         TCount_4ms++;
     else
         TCount_4ms = 0;
 
-    // 涓茬骇瑙掑害�???
+    //角速度环
+    /*float pitch_corrected = imu660ra.eulerAngle.pitch;
+    if (calibrate_state == 2)  // 校准完成后才补偿
+    {
+        pitch_corrected -= calibrate_offset;
+    }*/
     aa1 = 0.1f * imu660ra.eulerAngle.pitch + 0.9f * aa1;
     if (steer_control_mode == 0)
     {
-        Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, aa1, 0);
+        Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, aa1, Yao.Outp_Speed_Pitch);
         Yao.Outp_Angle_Pitch = -limit(Yao.Outp_Angle_Pitch, 12000.0f);
     }
     else
     {
-        Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, aa1, 0);
+        Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, aa1, Yao.Outp_Speed_Pitch);
         Yao.Outp_Angle_Pitch = -limit(Yao.Outp_Angle_Pitch, 12000.0f);
     }
 
     dd = 0.1f * Deviation_Value + 0.9f * dd;
 
+    //get_realtime_coordinate((float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data) / 2.0f,0.004f,imu660ra.eulerAngle.yaw);
     // 杞悜鐜?
     if (turn_mode == 1)
     {
@@ -373,7 +407,7 @@ void Interrupt_4ms(void)
         Yao.Outp_turn = 0;
     }
 
-} // 4ms缁撴�??
+} // 4ms缁撴�??
 
 int16 recordL = 0;
 int16 recordR = 0;
@@ -409,14 +443,27 @@ void Interrupt_8ms(void)
     //    else
     //        time_j = 0;
     // 鍗曡竟妗ユ帶鍒堕儴鍒?
+
+
+
+/************************************************************** */
+
     if (flag_Single)
     {
         Single_Control();
     }
-    if (menu_mode == 1 /*&& flag_jump == 0 && Element_State != Jump_State */ && steer_control_mode == 0)
-        Adapt_Terrain();
-    else if (menu_mode == 1 && flag_jump == 0 && steer_control_mode == 1)
+    //if (menu_mode == 1 /*&& flag_jump == 0 && Element_State != Jump_State */ && steer_control_mode == 0)
+        //Adapt_Terrain();
+    //else 
+    if (menu_mode == 1 && flag_jump == 0 && steer_control_mode == 1)
         servo_balance();
+
+/******************************************************************** */
+
+
+
+
+
 
     /*if (menu_open == 1)
        // menu();
@@ -437,8 +484,8 @@ void Interrupt_8ms(void)
     //    small_driver_set_duty(0, 0);
     //    processImage();
 
-} // 8ms缁撴�??
-
+} // 8ms缁撴�??
+volatile float aa11 = 0;
 void Interrupt_16ms(void)
 {
 
@@ -469,10 +516,12 @@ void Interrupt_16ms(void)
     //        Yao.Encoder_Left = 0;
     //        Yao.Encoder_Right = 0;
     //    }
-    Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, (float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data), (float)Yao.Target_Speed);
+    aa11 = 0.1f * (((float)(motor_value.receive_left_speed_data-motor_value.receive_right_speed_data))/2.0f) + 0.9f * aa11;
+    Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, aa11, 0);
     Yao.Outp_Speed_Pitch = limit(Yao.Outp_Speed_Pitch, 100.0f);
 
-} // 16ms缁撴�??
+} // 16ms缁撴�??
+
 
 extern uint8 Zebra_Count_Flag;
 uint16 TCount_40ms = 0;
@@ -495,6 +544,6 @@ void Interrupt_40ms(void)
     //    yaokong_data_deal();
 
     //    if(IMU_JF_Flag)
-    imu660ra.eulerAngle.yaw += 0.008;
+    imu660ra.eulerAngle.yaw += 0.000;
 
-} // 40ms缁撴�??
+} // 40ms缁撴�??

@@ -31,11 +31,16 @@ pwm_channel_enum get_pwm_channel(leg_enum leg) {
 
     switch(leg)
     {
-        case LF:return TCPWM_CH36_P21_6;break;
-        case LB:return TCPWM_CH34_P21_5;break;
-        case RF:return TCPWM_CH28_P19_3;break;
-        case RB:return TCPWM_CH27_P19_2;break;
-        default:return TCPWM_CH36_P21_6;break; // 移植：补全 default 避免无返回值警告
+        case LF:return TCPWM_CH11_P01_1;break;
+        case LB:return TCPWM_CH28_P19_3;break;
+        case RF:return TCPWM_CH12_P01_0;break;
+        case RB:return TCPWM_CH13_P00_3;break;
+        default:return TCPWM_CH11_P01_1;break; // 移植：补全 default 避免无返回值警告
+        // case LF:return TCPWM_CH12_P01_0;break;
+        // case LB:return TCPWM_CH13_P00_3;break;
+        // case RF:return TCPWM_CH11_P01_1;break;
+        // case RB:return TCPWM_CH28_P19_3;break;
+        // default:return TCPWM_CH12_P01_0;break; // 移植：补全 default 避免无返回值警告
     }
 }
 

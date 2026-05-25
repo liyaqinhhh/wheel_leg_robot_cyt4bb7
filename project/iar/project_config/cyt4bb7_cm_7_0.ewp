@@ -372,11 +372,12 @@
                     <state>$PROJ_DIR$\..\..\..\libraries\zf_driver</state>
                     <state>$PROJ_DIR$\..\..\..\libraries\zf_device</state>
                     <state>$PROJ_DIR$\..\..\..\libraries\zf_components</state>
-                    <state>$PROJ_DIR$\..\..\user</state>
                     <state>$PROJ_DIR$\..\..\code</state>
                     <state>$PROJ_DIR$\..\..\code\ControlPart</state>
                     <state>$PROJ_DIR$\..\..\code\Menu</state>
                     <state>$PROJ_DIR$\..\..\code\VersionPart</state>
+                    <state>$PROJ_DIR$\..\..\code\ins</state>
+                    <state>$PROJ_DIR$\..\..\user</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1191,6 +1192,39 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\code\ControlPart\yaokong.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\zf_device_lora3a22.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\zf_device_lora3a22.h</name>
+            </file>
+        </group>
+        <group>
+            <name>ins</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\Ins.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\Ins.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_core.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_core.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_track.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_track.h</name>
             </file>
         </group>
         <group>

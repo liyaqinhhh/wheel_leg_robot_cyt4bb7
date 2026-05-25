@@ -57,27 +57,74 @@ void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float 
 
     imu -> T = T;//离散时间
     imu -> resultant_acceleration = 0;
+
+    imu -> imu_offset_fwd  = 0.02f;  // 后方6cm   -0.06
+    imu -> imu_offset_left = -0.03f;  // 右方4cm    -0.04
+    imu -> yaw_accel = 0;
+    imu -> yaw_rate_prev = 0;
+}
+
+// 补偿IMU偏心安装导致的向心/切向加速度
+// 直接修改 imu->ax, imu->ay, imu->az（原始加速度，单位g）
+void imu_offset_compensate_acc(imu963ra_struct *imu)
+{
+    //float dt = imu->T;
+    float yaw_rate = imu->gz;  // rad/s
+
+    // yaw角加速度（一阶低通滤波）
+    float raw_alpha = (yaw_rate - imu->yaw_rate_prev) / dt;
+    imu->yaw_accel = 0.2f * raw_alpha + 0.8f * imu->yaw_accel;
+    imu->yaw_rate_prev = yaw_rate;
+
+    // 向心加速度 (m/s^2)
+    float omega2 = yaw_rate * yaw_rate;
+    float cent_x = -omega2 * imu->imu_offset_fwd;
+    float cent_y = -omega2 * imu->imu_offset_left;
+
+    // 切向加速度 (m/s^2)
+    float tang_x = -imu->yaw_accel * imu->imu_offset_left;
+    float tang_y =  imu->yaw_accel * imu->imu_offset_fwd;
+
+    // 转换为g后补偿（imu->ax/ay/az 单位是g）
+    const float G = 9.80665f;
+
+    // 两足轮腿：身体有pitch角时，水平加速度会投影到z轴
+    float pitch = imu->Xk[1];  // 上一周期的pitch（弧度）
+    float cos_p = cosf(pitch);
+    float sin_p = sinf(pitch);
+
+    // 水平向心/切向加速度总量
+    float horiz_x = cent_x + tang_x;  // 机体前方分量 (m/s^2)
+    float horiz_y = cent_y + tang_y;  // 机体左方分量 (m/s^2)
+
+    // 投影到机体系（考虑pitch倾斜）
+    imu->ax -= (horiz_x * cos_p) / G;
+    imu->ay -= horiz_y / G;            // ay不受pitch影响
+    imu->az -= (-horiz_x * sin_p) / G; // z轴补偿：pitch导致水平分量投影到z
 }
 
 //imu963ra卡尔曼融合滤波更新，六轴（陀螺仪加速度计）
 //示例：imu963ra_kalman_filter_update(&imu);
 void imu963ra_kalman_filter_update(imu963ra_struct * imu)
 {
-    imu660rb_get_acc();
-    imu660rb_get_gyro();
+    imu660ra_get_acc();
+    imu660ra_get_gyro();
 
 //    printf("%f,%f,%f\n",imu -> gx,imu -> gy,imu -> gz);
 //    printf("%f,%f,%f\n",imu -> ax,imu -> ay,imu -> az);
 //    printf("%f,%f,%f\n",imu -> roll,imu -> pitch,imu -> yaw);
-    imu -> gx = imu660rb_gyro_transition(imu660rb_gyro_x) * My_PI / 180.f;//角速度，单位为 rad/s
-    imu -> gy = imu660rb_gyro_transition(imu660rb_gyro_y) * My_PI / 180.f;
-    imu -> gz = imu660rb_gyro_transition(imu660rb_gyro_z) * My_PI / 180.f;
-    imu -> ax = imu660rb_acc_transition(imu660rb_acc_x);//加速度，单位为 g(m/s^2)
-    imu -> ay = imu660rb_acc_transition(imu660rb_acc_y);
-    imu -> az = imu660rb_acc_transition(imu660rb_acc_z);
+    imu -> gx = imu660ra_gyro_transition(imu660ra_gyro_x) * My_PI / 180.f;//角速度，单位为 rad/s
+    imu -> gy = imu660ra_gyro_transition(-imu660ra_gyro_y) * My_PI / 180.f;
+    imu -> gz = imu660ra_gyro_transition(imu660ra_gyro_z) * My_PI / 180.f;
+    imu -> ax = imu660ra_acc_transition(imu660ra_acc_x);//加速度，单位为 g(m/s^2)
+    imu -> ay = imu660ra_acc_transition(imu660ra_acc_y);
+    imu -> az = imu660ra_acc_transition(imu660ra_acc_z);
 
     if(fabsf(imu -> gx) > MAX_READ_VALUE || fabsf(imu -> gy) > MAX_READ_VALUE || fabsf(imu -> gz) > MAX_READ_VALUE || fabsf(imu -> ax) > MAX_READ_VALUE || fabsf(imu -> ay) > MAX_READ_VALUE || fabsf(imu -> az) > MAX_READ_VALUE)
     {return;}
+
+    // IMU偏心安装加速度补偿
+    imu_offset_compensate_acc(imu);
 
     imu -> resultant_acceleration = imu -> ax * imu -> ax + imu -> ay * imu -> ay + imu -> az * imu -> az;
     if(imu -> resultant_acceleration > 0)

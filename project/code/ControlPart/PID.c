@@ -35,8 +35,8 @@ volatile uint16 spin3_hold_ticks = 40;
 // float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };   //
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };   //
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };   //
-float erect_Gyro_Pitch[4] = {1.0, 0, 0, 0};  //  17.522  ,  0  ,  11  ,  0
-float erect_Angle_Pitch[4] = {400, 0, 0, 0}; //  17.49  ,  0  ,  9  ,  0
+float erect_Gyro_Pitch[4] = {0.95, 0, 0, 0};  //  17.522  ,  0  ,  11  ,  0       // ??????1,0,0,0
+float erect_Angle_Pitch[4] = {200, 0, 0}; //  17.49  ,  0  ,  9  ,  0        // ??????400,0,0,0
 float erect_Speed_Pitch[4] = {0, 0, 0, 0};   //
 // 翻滚角平�?
 float erect_Gyro_Roll[4] = {0, 0, 0, 0};  //

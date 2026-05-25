@@ -46,18 +46,22 @@ extern uint8 fuzzy_mode;
 extern uint16 TCount_4ms;
 extern uint16 TCount_40ms;
 extern uint8 TCount_falg_4ms;
-extern volatile float steer_gps_target_bearing_deg;       // deg, [0, 360)
-extern volatile float steer_gps_distance_to_wp_m;         // meter
-
-
+extern volatile float steer_gps_target_bearing_deg; // deg, [0, 360)
+extern volatile float steer_gps_distance_to_wp_m;   // meter
 
 extern float desired_yaw;
 // IMU yaw and geographic heading alignment offset:
 // imu_yaw = geo_heading + steer_gps_to_imu_yaw_offset_deg
 extern volatile float steer_gps_to_imu_yaw_offset_deg;
 
-
 extern volatile float angle_Z;
+
+// 开机角度校准相关
+extern volatile uint8_t calibrate_state;   // 0:未开始 1:采集中 2:完成
+extern volatile float calibrate_offset;    // 校准得到的角度偏移
+extern volatile uint16_t calibrate_count;  // 采集计数
+extern volatile float calibrate_sum;       // 角度累加和
+#define CALIBRATE_SAMPLES 500              // 采集500个样本（1秒@2ms）
 
 void Interrupt_1ms(void);
 void Interrupt_2ms(void);

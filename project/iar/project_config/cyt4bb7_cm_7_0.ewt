@@ -1502,6 +1502,39 @@
             <file>
                 <name>$PROJ_DIR$\..\..\code\ControlPart\yaokong.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\zf_device_lora3a22.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\zf_device_lora3a22.h</name>
+            </file>
+        </group>
+        <group>
+            <name>ins</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\Ins.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\Ins.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_core.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_core.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_track.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_track.h</name>
+            </file>
         </group>
         <group>
             <name>Menu</name>
@@ -1519,6 +1552,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\code\VersionPart\image.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\VersionPart\ips.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\VersionPart\ips.h</name>
             </file>
         </group>
         <file>

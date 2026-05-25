@@ -157,7 +157,7 @@ static uint8 imu660rb_self_check (void)
         }
         dat = imu660rb_read_register(IMU660RB_CHIP_ID);
         system_delay_ms(1);
-    }while(0x6B != dat);                                                        // 读取设备ID是否等于0X24，如果不是0X24则认为没检测到设备
+    }while(0x6A != dat);                                                        // 读取设备ID是否等于0X24，如果不是0X24则认为没检测到设备
     return return_state;
 }
 

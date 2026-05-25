@@ -16,45 +16,45 @@ imu660_struct imu660ra;
 //  @param      六轴数据输入
 //-------------------------------------------------------------------------------------------------------------------
 #define alpha 0.1f
-/*#define imu660ra_acc_x  imu660rb_acc_x
-#define imu660ra_acc_y  imu660rb_acc_y
-#define imu660ra_acc_z  imu660rb_acc_z
+/*#define imu660ra_acc_x  imu660ra_acc_x
+#define imu660ra_acc_y  imu660ra_acc_y
+#define imu660ra_acc_z  imu660ra_acc_z
 
-#define imu660ra_gyro_x  imu660rb_gyro_x
-#define imu660ra_gyro_y  imu660rb_gyro_y
-#define imu660ra_gyro_z  imu660rb_gyro_z*/
+#define imu660ra_gyro_x  imu660ra_gyro_x
+#define imu660ra_gyro_y  imu660ra_gyro_y
+#define imu660ra_gyro_z  imu660ra_gyro_z*/
 
 void date_handle(void)
 {
     // 原始数据获取
-    imu660rb_get_gyro();
-    imu660rb_get_acc();
+    imu660ra_get_gyro();
+    imu660ra_get_acc();
 
     // 零漂处理
-    if (imu660rb_gyro_y < 5.1 && imu660rb_gyro_y > -1.1)
-        imu660rb_gyro_y -= 2.5;
-    if (imu660rb_gyro_x < 5.1 && imu660rb_gyro_x > -1.1)
-        imu660rb_gyro_x -= 1.8;
-    if (imu660rb_gyro_z <= 2 && imu660rb_gyro_z >= -5)
-        imu660rb_gyro_z = 0;
+    if (imu660ra_gyro_y < 5.1 && imu660ra_gyro_y > -1.1)
+        imu660ra_gyro_y -= 2.5;
+    if (imu660ra_gyro_x < 5.1 && imu660ra_gyro_x > -1.1)
+        imu660ra_gyro_x -= 1.8;
+    if (imu660ra_gyro_z <= 2 && imu660ra_gyro_z >= -5)
+        imu660ra_gyro_z = 0;
 
     // 单位转换
     // RC低通滤波,单位m/s2
-    imu660ra.data_Ripen.acc_x = (((float)imu660rb_acc_x) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_x * (1 - alpha);
-    imu660ra.data_Ripen.acc_y = (((float)imu660rb_acc_y) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_y * (1 - alpha);
-    imu660ra.data_Ripen.acc_z = (((float)imu660rb_acc_z) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_z * (1 - alpha);
+    imu660ra.data_Ripen.acc_x = (((float)imu660ra_acc_x) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_x * (1 - alpha);
+    imu660ra.data_Ripen.acc_y = (((float)imu660ra_acc_y) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_y * (1 - alpha);
+    imu660ra.data_Ripen.acc_z = (((float)imu660ra_acc_z) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_z * (1 - alpha);
     // 单位rps
-    imu660ra.data_Ripen.gyro_x = ((float)imu660rb_gyro_x - 1.62f /*- GyroOffset.Xdata*/) * M_PI / 180 / 16.4f;
-    imu660ra.data_Ripen.gyro_y = ((float)imu660rb_gyro_y - 2.5f /*- GyroOffset.Ydata*/) * M_PI / 180 / 16.4f;
-    imu660ra.data_Ripen.gyro_z = ((float)imu660rb_gyro_z /*- GyroOffset.Zdata*/) * M_PI / 180 / 16.4f;
+    imu660ra.data_Ripen.gyro_x = ((float)imu660ra_gyro_x - 19.0f /*- GyroOffset.Xdata*/) * M_PI / 180 / 16.4f;
+    imu660ra.data_Ripen.gyro_y = (-(float)imu660ra_gyro_y + 76.0f /*- GyroOffset.Ydata*/) * M_PI / 180 / 16.4f;
+    imu660ra.data_Ripen.gyro_z = ((float)imu660ra_gyro_z /*- GyroOffset.Zdata*/) * M_PI / 180 / 16.4f;
 
-    imu660ra.data_Raw.acc_x = (float)imu660rb_acc_x;
-    imu660ra.data_Raw.acc_y = (float)imu660rb_acc_y;
-    imu660ra.data_Raw.acc_z = (float)imu660rb_acc_z;
+    imu660ra.data_Raw.acc_x = (float)imu660ra_acc_x;
+    imu660ra.data_Raw.acc_y = (float)imu660ra_acc_y;
+    imu660ra.data_Raw.acc_z = (float)imu660ra_acc_z;
     // 单位dps
-    imu660ra.data_Raw.gyro_x = ((float)imu660rb_gyro_x - 1.62f) / 16.4f;
-    imu660ra.data_Raw.gyro_y = ((float)imu660rb_gyro_y - 2.5f) / 16.4f;
-    imu660ra.data_Raw.gyro_z = ((float)imu660rb_gyro_z) / 16.4f;
+    imu660ra.data_Raw.gyro_x = ((float)imu660ra_gyro_x - 19.0f) / 16.4f;
+    imu660ra.data_Raw.gyro_y = ((float)imu660ra_gyro_y + 76.0f) / 16.4f;
+    imu660ra.data_Raw.gyro_z = ((float)imu660ra_gyro_z) / 16.4f;
 }
 //-------------------------------------------------------------------------------------------------------------------
 //  @brief      四元数滤波    在中断中调用即可

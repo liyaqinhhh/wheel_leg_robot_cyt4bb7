@@ -15,8 +15,10 @@
 #include "kalman.h"
 #include "Math_Advanced.h"
 #include "Init.h"
+#include "small_driver_uart_control.h"
 
-uint8 menu_mode = 0;
+
+uint8 menu_mode = 1;
 int8 page = 0;
 int32 cursor = 0;
 int8 unit = 2;
@@ -26,6 +28,36 @@ uint8 screen_refresh = 1;
 uint16 Image_Gain    = 32;    // 摄像头增益，默认32（对应 MT9V03X_GAIN_DEF）
 uint16 Image_EpTime  = 4000;  // 摄像头曝光时间，默认4000
 uint8  Change_Control = 0;    // 写入后触发摄像头重初始化
+
+void IPS200_Show1(void)
+{
+    ips200_show_int( 0, 0, motor_value.receive_left_speed_data, 5 );
+    ips200_show_int( 60, 0, motor_value.receive_right_speed_data, 5 );
+    ips200_show_float( 0 , 16 ,  Yao.Outp_Gyro_Pitch, 4 , 3 );
+    ips200_show_float( 60 , 16 ,  Yao.Outp_Speed_Pitch  , 3 , 3 );
+    //ips200_show_float( 120 , 16 ,  Yao.Outp_Gyro_Pitch  , 3 , 3 );
+
+    ips200_show_string(0 , 48 , "Roll:");
+    ips200_show_float( 60 , 48 , imu660ra.eulerAngle.roll  , 3 , 3 );
+    
+    ips200_show_string(0 , 64 , "Pitch:");
+    ips200_show_float( 60 , 64 , imu660ra.eulerAngle.pitch , 3 , 3 );
+    
+    //ips200_show_string(0 , 80 , "yaw:");
+    ips200_show_float( 60 , 80 , imu660ra_gyro_z , 3 , 3 );
+   
+    
+
+
+//    ips200_show_float( 0 , 96 , IKParam.XLeft  , 3 , 3 );
+//    ips200_show_float( 60 , 96 , IKParam.XRight  , 3 , 3 );
+//
+//    ips200_show_float( 60 , 80 , stab_roll , 3 , 3 );
+//    ips200_show_float( 0 , 112 , IKParam.YLeft  , 3 , 3 );
+//    ips200_show_float( 60 , 112 , IKParam.YRight  , 3 , 3 );
+
+
+}
 
 void store_or_read_DATA(int way)
 {

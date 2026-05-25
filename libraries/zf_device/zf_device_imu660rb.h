@@ -86,7 +86,7 @@
 #define IMU660RB_TIMEOUT_COUNT      (0x00FF)                                    // IMU660 超时计数
 
 //================================================定义 imu660rb 内部地址================================================
-#define IMU660RB_DEV_ADDR           (0x6B)                                      // SA0接地：0x68 SA0上拉：0x69 模块默认上拉
+#define IMU660RB_DEV_ADDR           (0x6A)                                      // SA0接地：0x68 SA0上拉：0x69 模块默认上拉
 #define IMU660RB_SPI_W              (0x00)
 #define IMU660RB_SPI_R              (0x80)
 

@@ -51,11 +51,17 @@ typedef struct
 
     float T;// = 0.002f;//离散时间
     float resultant_acceleration;
+
+    float imu_offset_fwd;     // IMU相对于旋转中心的前方偏移(m)，后方为负
+    float imu_offset_left;    // IMU相对于旋转中心的左方偏移(m)，右方为负
+    float yaw_accel;          // yaw角加速度(rad/s^2)
+    float yaw_rate_prev;      // 上一次yaw角速度
 }imu963ra_struct;
 extern imu963ra_struct imu;
 
 void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float T);
 void imu963ra_kalman_filter_update(imu963ra_struct * imu);
+void imu_offset_compensate_acc(imu963ra_struct *imu);
 
 // 卡尔曼滤波器结构体定义
 typedef struct {
