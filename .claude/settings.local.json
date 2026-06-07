@@ -8,7 +8,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git branch *)",
       "Bash(git push *)",
-      "Bash(rtk git *)"
+      "Bash(rtk git *)",
+      "Bash(python tools/pid_auto_tuner.py)"
     ],
     "additionalDirectories": [
       "d:\\Yao_Port_4bb7_01 - backups\\Yao_Port_4bb7_01\\Seekfree_CYT4BB_Opensource_Library_"

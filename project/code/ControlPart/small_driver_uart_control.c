@@ -1,4 +1,4 @@
-#include "small_driver_uart_control.h"
+  #include "small_driver_uart_control.h"
 
 small_device_value_struct motor_value;      // 定义通讯参数结构体
 
@@ -10,9 +10,12 @@ small_device_value_struct motor_value;      // 定义通讯参数结构体
 // 使用示例     uart_control_callback(1000, -1000);
 // 备注信息     用于解析接收到的速度数据  该函数需要在对应的串口接收中断中调用
 //-------------------------------------------------------------------------------------------------------------------
+uint16_t num = 0;  
+uint16_t num_1 = 0;
 void uart_control_callback(void)
 {
-    uint8 receive_data;                                                                     // 定义临时变量
+    uint8 receive_data;
+    //static uint16_t num = 0;                                                                     // 定义临时变量
 
     if(uart_query_byte(SMALL_DRIVER_UART, &receive_data))                                   // 接收串口数据
     {
@@ -43,6 +46,7 @@ void uart_control_callback(void)
                         motor_value.receive_left_speed_data  = (((int)motor_value.receive_data_buffer[2] << 8) | (int)motor_value.receive_data_buffer[3]);  // 拟合左侧电机转速数据
 
                         motor_value.receive_right_speed_data = (((int)motor_value.receive_data_buffer[4] << 8) | (int)motor_value.receive_data_buffer[5]);  // 拟合右侧电机转速数据
+                        //num++;
                     }
 
                     motor_value.receive_data_count = 0;                                     // 清除缓冲区计数值

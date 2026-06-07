@@ -5,13 +5,13 @@
 
 // 移植：UART_2 已被 GPS 模块占用，改用 UART_3
 // 移植：P33 端口在 CYT4BB7 不存在，改用 P17
-#define SMALL_DRIVER_UART (UART_4)
+#define SMALL_DRIVER_UART (UART_2)
 
 #define SMALL_DRIVER_BAUDRATE (460800)
 
-#define SMALL_DRIVER_RX (UART4_TX_P14_1) // 无刷驱动 串口接收引脚
+#define SMALL_DRIVER_RX (UART2_TX_P10_1) // 无刷驱动 串口接收引脚
 
-#define SMALL_DRIVER_TX (UART4_RX_P14_0) // 无刷驱动 串口发送引脚
+#define SMALL_DRIVER_TX (UART2_RX_P10_0) // 无刷驱动 串口发送引脚
 
 typedef struct
 {
@@ -30,6 +30,8 @@ typedef struct
 } small_device_value_struct;
 
 extern small_device_value_struct motor_value;
+extern uint16_t num; 
+extern uint16_t num_1;  
 
 void uart_control_callback(void); // 无刷驱动 串口接收回调函数
 

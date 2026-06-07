@@ -1122,6 +1122,12 @@
         <group>
             <name>ControlPart</name>
             <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\AI_Pid_Tuner.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ControlPart\AI_Pid_Tuner.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\code\ControlPart\Buzzer.c</name>
             </file>
             <file>
@@ -1219,6 +1225,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\code\ins\ins_interface.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_segment.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_segment.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\code\ins\ins_track.c</name>
