@@ -1,0 +1,21 @@
+{
+  "erect_Gyro_Pitch": [
+    0.65,
+    0,
+    0,
+    0
+  ],
+  "erect_Angle_Pitch": [
+    215,
+    0,
+    20,
+    0
+  ],
+  "erect_Speed_Pitch": [
+    0.122,
+    0,
+    0,
+    0
+  ],
+  "offset_angle_roll": -8.9
+}

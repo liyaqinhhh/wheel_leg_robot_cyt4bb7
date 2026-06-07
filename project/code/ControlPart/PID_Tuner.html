@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三串级PID调试工具</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #4f8cff;
+    --accent2: #ff6b6b;
+    --accent3: #51cf66;
+    --accent4: #ffd43b;
+    --text: #e0e0e0;
+    --text2: #8a8d9a;
+    --radius: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+}
+
+/* === Header === */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 14px 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+.header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: auto;
+    white-space: nowrap;
+}
+.header h1 span { color: var(--accent); }
+
+.conn-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    outline: none;
+}
+select:focus { border-color: var(--accent); }
+.btn {
+    padding: 7px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.btn:active { transform: scale(0.96); }
+.btn-connect { background: var(--accent); color: #fff; }
+.btn-connect:hover { background: #3d7bf0; }
+.btn-connect:disabled { background: #3a3d4a; cursor: not-allowed; }
+.btn-disconnect { background: var(--accent2); color: #fff; }
+.btn-disconnect:hover { background: #e55a5a; }
+.btn-disconnect:disabled { background: #3a3d4a; cursor: not-allowed; }
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+    transition: background .3s;
+}
+.status-dot.connected { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+
+/* === Grid Layout === */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+}
+
+/* === Card === */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.card-title::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+/* === Data Panel === */
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.data-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+.data-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 4px;
+}
+.data-value {
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.data-value.pitch { color: var(--accent); }
+.data-value.gyro { color: var(--accent2); }
+.data-value.enc { color: var(--accent3); }
+.data-value.batt { color: var(--accent4); }
+.data-value.zero { color: #cc5de8; }
+
+/* === Battery Bar === */
+.batt-bar-wrap {
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.batt-bar {
+    height: 100%;
+    background: var(--accent3);
+    border-radius: 3px;
+    transition: width .3s;
+}
+
+/* === Oscilloscope === */
+.osc-container {
+    position: relative;
+    height: 280px;
+}
+.osc-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.osc-controls .btn {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    padding: 5px 12px;
+}
+.osc-controls .btn:hover { border-color: var(--accent); }
+
+/* === PID Panel === */
+.pid-section {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+.pid-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.pid-section-title.angle { color: var(--accent); }
+.pid-section-title.gyro { color: var(--accent2); }
+.pid-section-title.speed { color: var(--accent3); }
+
+.pid-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.pid-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 100px;
+}
+.pid-field label {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 600;
+}
+.pid-field input {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    width: 100%;
+    transition: border-color .15s;
+}
+.pid-field input:focus { border-color: var(--accent); }
+
+.btn-update {
+    padding: 7px 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-top: 18px;
+}
+.btn-update:hover { background: #3d7bf0; }
+
+.zero-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.zero-section .pid-field { min-width: 140px; }
+.btn-zero {
+    padding: 7px 14px;
+    background: #cc5de8;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-top: 18px;
+}
+.btn-zero:hover { background: #b04dd0; }
+
+.btn-read {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--accent), #845ef7);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity .15s;
+}
+.btn-read:hover { opacity: 0.85; }
+
+/* === Log === */
+.log-area {
+    width: 100%;
+    height: 120px;
+    background: var(--bg);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    resize: vertical;
+    outline: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <h1><span>PID</span> 调试工具</h1>
+    <div class="conn-group">
+        <select id="baudRate">
+            <option value="9600">9600</option>
+            <option value="38400">38400</option>
+            <option value="57600">57600</option>
+            <option value="115200" selected>115200</option>
+            <option value="230400">230400</option>
+            <option value="460800">460800</option>
+            <option value="921600">921600</option>
+        </select>
+        <button class="btn btn-connect" id="btnConnect">连接串口</button>
+        <button class="btn btn-disconnect" id="btnDisconnect" disabled>断开</button>
+        <div class="status-dot" id="statusDot" title="未连接"></div>
+    </div>
+</div>
+
+<!-- Main Grid -->
+<div class="grid">
+
+    <!-- Left: Data Panel + Oscilloscope -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Data Panel -->
+        <div class="card">
+            <div class="card-title">实时数据</div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">Pitch 角度</div>
+                    <div class="data-value pitch" id="vPitch">--</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">角速度</div>
+                    <div class="data-value gyro" id="vGyro">--</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">左轮速度</div>
+                    <div class="data-value enc" id="vEncL">--</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">右轮速度</div>
+                    <div class="data-value enc" id="vEncR">--</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">机械零点 (offset.roll)</div>
+                    <div class="data-value zero" id="vZero">--</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">电池电压</div>
+                    <div class="data-value batt" id="vBatt">--</div>
+                    <div class="batt-bar-wrap"><div class="batt-bar" id="battBar" style="width:0%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Oscilloscope -->
+        <div class="card" style="flex:1;">
+            <div class="card-title">示波器 - Pitch 角度</div>
+            <div class="osc-controls">
+                <button class="btn" id="btnPause">暂停</button>
+                <button class="btn" id="btnClear">清除波形</button>
+                <span style="margin-left:auto;font-size:12px;color:var(--text2);" id="oscInfo">0 点</span>
+            </div>
+            <div class="osc-container">
+                <canvas id="oscChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: PID Controls + Log -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card">
+            <div class="card-title">PID 参数控制</div>
+
+            <!-- Mechanical Zero -->
+            <div class="zero-section">
+                <div class="pid-field">
+                    <label>机械零点 (offset.roll)</label>
+                    <input type="number" id="zeroVal" step="0.01" value="0">
+                </div>
+                <button class="btn-zero" onclick="sendZero()">更新零点</button>
+            </div>
+
+            <!-- Angle Loop -->
+            <div class="pid-section">
+                <div class="pid-section-title angle">角度环 (Angle)</div>
+                <div class="pid-row">
+                    <div class="pid-field"><label>P</label><input type="number" id="aP" step="0.01" value="0"></div>
+                    <div class="pid-field"><label>I</label><input type="number" id="aI" step="0.0001" value="0"></div>
+                    <div class="pid-field"><label>D</label><input type="number" id="aD" step="0.01" value="0"></div>
+                    <button class="btn-update" onclick="sendSingle('A')">更新角度环</button>
+                </div>
+            </div>
+
+            <!-- Gyro Loop -->
+            <div class="pid-section">
+                <div class="pid-section-title gyro">角速度环 (Gyro)</div>
+                <div class="pid-row">
+                    <div class="pid-field"><label>P</label><input type="number" id="gP" step="0.01" value="0"></div>
+                    <div class="pid-field"><label>I</label><input type="number" id="gI" step="0.0001" value="0"></div>
+                    <div class="pid-field"><label>D</label><input type="number" id="gD" step="0.01" value="0"></div>
+                    <button class="btn-update" onclick="sendSingle('G')">更新角速度环</button>
+                </div>
+            </div>
+
+            <!-- Speed Loop -->
+            <div class="pid-section">
+                <div class="pid-section-title speed">速度环 (Speed)</div>
+                <div class="pid-row">
+                    <div class="pid-field"><label>P</label><input type="number" id="sP" step="0.0001" value="0"></div>
+                    <div class="pid-field"><label>I</label><input type="number" id="sI" step="0.000001" value="0"></div>
+                    <div class="pid-field"><label>D</label><input type="number" id="sD" step="0.0001" value="0"></div>
+                    <button class="btn-update" onclick="sendSingle('S')">更新速度环</button>
+                </div>
+            </div>
+
+            <button class="btn-read" onclick="sendRead()">读取当前参数</button>
+        </div>
+
+        <!-- Log -->
+        <div class="card">
+            <div class="card-title">通信日志</div>
+            <textarea class="log-area" id="logArea" readonly></textarea>
+            <button class="btn" style="margin-top:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);font-size:12px;" onclick="clearLog()">清除日志</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ Serial State ============
+let port = null;
+let lineReader = null;     // 全局存储，disconnect 时可 cancel
+let readLoopRunning = false;
+let oscPaused = false;
+let connected = false;     // 用独立标志跟踪连接状态
+
+// ============ DOM ============
+const btnConnect = document.getElementById('btnConnect');
+const btnDisconnect = document.getElementById('btnDisconnect');
+const statusDot = document.getElementById('statusDot');
+const baudSelect = document.getElementById('baudRate');
+const logArea = document.getElementById('logArea');
+
+// Data values
+const vPitch = document.getElementById('vPitch');
+const vGyro = document.getElementById('vGyro');
+const vEncL = document.getElementById('vEncL');
+const vEncR = document.getElementById('vEncR');
+const vBatt = document.getElementById('vBatt');
+const vZero = document.getElementById('vZero');
+const battBar = document.getElementById('battBar');
+
+// PID inputs
+const pidInputs = {
+    aP: document.getElementById('aP'),
+    aI: document.getElementById('aI'),
+    aD: document.getElementById('aD'),
+    gP: document.getElementById('gP'),
+    gI: document.getElementById('gI'),
+    gD: document.getElementById('gD'),
+    sP: document.getElementById('sP'),
+    sI: document.getElementById('sI'),
+    sD: document.getElementById('sD'),
+    zeroVal: document.getElementById('zeroVal'),
+};
+
+// ============ Serial Write (每次临时获取 writer，写完释放) ============
+const encoder = new TextEncoder();
+async function serialWrite(text) {
+    if (!port || !port.writable) throw new Error('端口不可用');
+    const w = port.writable.getWriter();
+    try {
+        await w.write(encoder.encode(text));
+    } finally {
+        w.releaseLock();
+    }
+}
+
+// ============ Chart.js Oscilloscope ============
+const MAX_POINTS = 300;
+const chartLabels = Array.from({length: MAX_POINTS}, (_, i) => i);
+const dataPitch = new Array(MAX_POINTS).fill(null);
+const dataTarget = new Array(MAX_POINTS).fill(null);
+
+// Chart 节流：用 rAF 保证每帧最多更新一次
+let chartDirty = false;
+let chartRafId = null;
+let oscChart = null;
+
+try {
+    const ctx = document.getElementById('oscChart').getContext('2d');
+    oscChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [
+                {
+                    label: '实际 Pitch',
+                    data: dataPitch,
+                    borderColor: '#4f8cff',
+                    backgroundColor: 'rgba(79,140,255,0.08)',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.2,
+                },
+                {
+                    label: '目标角度',
+                    data: dataTarget,
+                    borderColor: '#ff6b6b',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    borderDash: [6, 3],
+                    tension: 0.2,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: { intersect: false, mode: 'index' },
+            scales: {
+                x: { display: false },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: { color: '#8a8d9a', font: { size: 11 } },
+                },
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#e0e0e0', font: { size: 12 }, usePointStyle: true, pointStyleWidth: 10 },
+                },
+            },
+        },
+    });
+} catch (e) {
+    console.warn('Chart.js 初始化失败:', e);
+}
+
+function pushChart(pitch, target) {
+    if (oscPaused || !oscChart) return;
+    dataPitch.push(pitch);
+    dataTarget.push(target);
+    if (dataPitch.length > MAX_POINTS) dataPitch.shift();
+    if (dataTarget.length > MAX_POINTS) dataTarget.shift();
+    chartDirty = true;
+    if (!chartRafId) {
+        chartRafId = requestAnimationFrame(flushChart);
+    }
+}
+
+function flushChart() {
+    chartRafId = null;
+    if (!chartDirty || !oscChart) return;
+    chartDirty = false;
+    oscChart.update('none');
+    document.getElementById('oscInfo').textContent = dataPitch.length + ' 点';
+}
+
+document.getElementById('btnPause').addEventListener('click', () => {
+    oscPaused = !oscPaused;
+    document.getElementById('btnPause').textContent = oscPaused ? '继续' : '暂停';
+});
+document.getElementById('btnClear').addEventListener('click', () => {
+    dataPitch.fill(null);
+    dataTarget.fill(null);
+    if (oscChart) oscChart.update();
+});
+
+// ============ Logging ============
+const MAX_LOG_LINES = 200;
+function log(msg, type = 'info') {
+    const time = new Date().toLocaleTimeString();
+    const prefix = type === 'tx' ? 'TX' : type === 'rx' ? 'RX' : type === 'err' ? '!!' : '>>';
+    const lines = logArea.value.split('\n');
+    if (lines.length > MAX_LOG_LINES) {
+        logArea.value = lines.slice(-100).join('\n');
+    }
+    logArea.value += `[${time}] ${prefix} ${msg}\n`;
+    logArea.scrollTop = logArea.scrollHeight;
+}
+function clearLog() { logArea.value = ''; }
+
+// ============ Serial Connect/Disconnect ============
+btnConnect.addEventListener('click', async () => {
+    try {
+        // 如果上次连接残留，先清理
+        if (port) {
+            readLoopRunning = false;
+            const lr = lineReader;
+            lineReader = null;
+            try { if (lr) await lr.cancel(); } catch (e) {}
+            try { await port.close(); } catch (e) {}
+            port = null;
+        }
+
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: parseInt(baudSelect.value) });
+        connected = true;
+        statusDot.classList.add('connected');
+        statusDot.title = '已连接 @ ' + baudSelect.value;
+        btnConnect.disabled = true;
+        btnDisconnect.disabled = false;
+        baudSelect.disabled = true;
+        log('已连接串口, 波特率 ' + baudSelect.value);
+
+        // Setup reader
+        readLoopRunning = true;
+        readLoop();
+    } catch (e) {
+        log('连接失败: ' + e.message);
+        connected = false;
+        try { if (port) await port.close(); } catch (e2) {}
+        port = null;
+    }
+});
+
+btnDisconnect.addEventListener('click', async () => {
+    readLoopRunning = false;
+    connected = false;
+    // 1. 取消 reader
+    const lr = lineReader;
+    lineReader = null;
+    try { if (lr) await lr.cancel(); } catch (e) {}
+    // 2. 关闭端口（自动释放所有 stream lock）
+    const p = port;
+    port = null;
+    try { if (p) await p.close(); } catch (e) {}
+    // 3. 更新 UI
+    statusDot.classList.remove('connected');
+    statusDot.title = '未连接';
+    btnConnect.disabled = false;
+    btnDisconnect.disabled = true;
+    baudSelect.disabled = false;
+    log('已断开串口');
+});
+
+// ============ Serial Read Loop ============
+async function readLoop() {
+    if (!port || !port.readable) return;
+    const decoder = new TextDecoderStream();
+    const readable = port.readable.pipeThrough(decoder);
+    lineReader = readable.getReader();
+    let buffer = '';
+
+    try {
+        while (readLoopRunning) {
+            const { value, done } = await lineReader.read();
+            if (done) break;
+            buffer += value;
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            for (let i = 0; i < lines.length; i++) {
+                const trimmed = lines[i].trim();
+                if (trimmed.length > 0) {
+                    handleLine(trimmed);
+                }
+            }
+        }
+    } catch (e) {
+        if (readLoopRunning) log('读取错误: ' + e.message);
+    } finally {
+        try { lineReader.releaseLock(); } catch (e) {}
+        lineReader = null;
+    }
+}
+
+// ============ Protocol Handler ============
+function handleLine(line) {
+    if (line.charAt(0) === '{') {
+        try {
+            const obj = JSON.parse(line);
+            if (obj.type === 'data') {
+                handleData(obj);
+            } else if (obj.type === 'params') {
+                handleParams(obj);
+            } else if (obj.type === 'ack') {
+                log('ACK: ' + obj.msg, 'rx');
+            }
+            return;
+        } catch (e) {
+            // fall through
+        }
+    }
+    log(line, 'rx');
+}
+
+// handleData 仅更新文本节点，不触发布局重排
+function handleData(d) {
+    vPitch.textContent = d.pitch.toFixed(2);
+    vGyro.textContent = d.gyro.toFixed(2);
+    vEncL.textContent = d.enc_l;
+    vEncR.textContent = d.enc_r;
+    vBatt.textContent = d.batt.toFixed(2) + ' V';
+
+    let pct = Math.round(((d.batt - 6.0) / (8.4 - 6.0)) * 100);
+    pct = Math.max(0, Math.min(100, pct));
+    battBar.style.width = pct + '%';
+    battBar.style.background = pct > 50 ? '#51cf66' : pct > 20 ? '#ffd43b' : '#ff6b6b';
+
+    pushChart(d.pitch, d.target);
+}
+
+function handleParams(p) {
+    pidInputs.aP.value = p.ap;
+    pidInputs.aI.value = p.ai;
+    pidInputs.aD.value = p.ad;
+    pidInputs.gP.value = p.gp;
+    pidInputs.gI.value = p.gi;
+    pidInputs.gD.value = p.gd;
+    pidInputs.sP.value = p.sp;
+    pidInputs.sI.value = p.si;
+    pidInputs.sD.value = p.sd;
+    pidInputs.zeroVal.value = p.zero;
+    vZero.textContent = p.zero.toFixed(2);
+    log('参数已同步', 'rx');
+}
+
+// ============ Send Commands ============
+async function sendCmd(cmd) {
+    if (!connected || !port) {
+        log('未连接串口');
+        return;
+    }
+    try {
+        await serialWrite(cmd + '\n');
+        log(cmd, 'tx');
+    } catch (e) {
+        log('发送失败: ' + e.message, 'err');
+    }
+}
+
+function sendAll() {
+    const aP = pidInputs.aP.value, aI = pidInputs.aI.value, aD = pidInputs.aD.value;
+    const gP = pidInputs.gP.value, gI = pidInputs.gI.value, gD = pidInputs.gD.value;
+    const sP = pidInputs.sP.value, sI = pidInputs.sI.value, sD = pidInputs.sD.value;
+    sendCmd(`P:${aP},${aI},${aD},${gP},${gI},${gD},${sP},${sI},${sD}`);
+}
+
+function sendSingle(loop) {
+    if (loop === 'A') {
+        sendCmd(`A:${pidInputs.aP.value},${pidInputs.aI.value},${pidInputs.aD.value}`);
+    } else if (loop === 'G') {
+        sendCmd(`G:${pidInputs.gP.value},${pidInputs.gI.value},${pidInputs.gD.value}`);
+    } else if (loop === 'S') {
+        sendCmd(`S:${pidInputs.sP.value},${pidInputs.sI.value},${pidInputs.sD.value}`);
+    }
+}
+
+function sendZero() {
+    sendCmd(`Z:${pidInputs.zeroVal.value}`);
+}
+
+function sendRead() {
+    sendCmd('R');
+}
+</script>
+</body>
+</html>

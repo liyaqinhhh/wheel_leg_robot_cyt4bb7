@@ -206,8 +206,8 @@ void uart2_isr (void)
 {
     if(uart_isr_mask(UART_2))            // 串口2 接收中断
     {
-        gnss_uart_callback();            // GPS 模块回调函数
-
+        //gnss_uart_callback();            // GPS 模块回调函数
+        uart_control_callback();
     }
     else                                 // 串口2 发送中断
     {
@@ -236,10 +236,11 @@ void uart3_isr (void)
 
 void uart4_isr (void)
 {
+    //num_1++;
     if(uart_isr_mask(UART_4))            // 串口4 接收中断
     {
         //uart_receiver_handler();         // 串口接收缓冲回调函数
-        uart_control_callback();
+        //uart_control_callback();
     }
     else                                 // 串口4 发送中断
     {

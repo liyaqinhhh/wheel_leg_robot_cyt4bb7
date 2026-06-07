@@ -58,49 +58,44 @@ void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float 
     imu -> T = T;//离散时间
     imu -> resultant_acceleration = 0;
 
-    imu -> imu_offset_fwd  = 0.02f;  // 后方6cm   -0.06
-    imu -> imu_offset_left = -0.03f;  // 右方4cm    -0.04
+    imu -> imu_offset_fwd  = 0.025f;  // 前+后-，当前=后方2.5cm（原注释"后方6cm -0.06"，需实测确认）
+    imu -> imu_offset_left =  -0.04f;   // 左+右-，当前=左方4cm（原注释"右方4cm -0.04"，符号已翻转，需实测确认）
     imu -> yaw_accel = 0;
     imu -> yaw_rate_prev = 0;
 }
 
-// 补偿IMU偏心安装导致的向心/切向加速度
-// 直接修改 imu->ax, imu->ay, imu->az（原始加速度，单位g）
+// IMU偏心安装向心加速度补偿
+// 仅补偿转弯时IMU偏离旋转中心产生的向心加速度（不含切向/角加速度分量）
+// 不做俯仰投影，避免通过卡尔曼滤波器Xk[1]形成闭环正反馈导致振荡
 void imu_offset_compensate_acc(imu963ra_struct *imu)
 {
-    //float dt = imu->T;
     float yaw_rate = imu->gz;  // rad/s
 
-    // yaw角加速度（一阶低通滤波）
-    float raw_alpha = (yaw_rate - imu->yaw_rate_prev) / dt;
-    imu->yaw_accel = 0.2f * raw_alpha + 0.8f * imu->yaw_accel;
-    imu->yaw_rate_prev = yaw_rate;
+    // 死区：|gz| < 5 deg/s 时向心加速度 < 0.00004g，远低于噪声，跳过
+    const float DEAD_ZONE = 0.087266f;  // 5 deg/s
+    if (fabsf(yaw_rate) < DEAD_ZONE) {
+        return;
+    }
 
-    // 向心加速度 (m/s^2)
+    // 向心加速度：a_c = -omega^2 * r（指向旋转中心）
     float omega2 = yaw_rate * yaw_rate;
-    float cent_x = -omega2 * imu->imu_offset_fwd;
-    float cent_y = -omega2 * imu->imu_offset_left;
+    float cent_x = -omega2 * imu->imu_offset_fwd;   // 机体前方分量 (m/s^2)
+    float cent_y = -omega2 * imu->imu_offset_left;  // 机体左方分量 (m/s^2)
 
-    // 切向加速度 (m/s^2)
-    float tang_x = -imu->yaw_accel * imu->imu_offset_left;
-    float tang_y =  imu->yaw_accel * imu->imu_offset_fwd;
-
-    // 转换为g后补偿（imu->ax/ay/az 单位是g）
     const float G = 9.80665f;
+    float comp_x = cent_x / G;
+    float comp_y = cent_y / G;
 
-    // 两足轮腿：身体有pitch角时，水平加速度会投影到z轴
-    float pitch = imu->Xk[1];  // 上一周期的pitch（弧度）
-    float cos_p = cosf(pitch);
-    float sin_p = sinf(pitch);
+    // 安全限幅：防止陀螺仪异常值注入大误差
+    const float MAX_COMP = 0.5f;
+    if (comp_x >  MAX_COMP) comp_x =  MAX_COMP;
+    if (comp_x < -MAX_COMP) comp_x = -MAX_COMP;
+    if (comp_y >  MAX_COMP) comp_y =  MAX_COMP;
+    if (comp_y < -MAX_COMP) comp_y = -MAX_COMP;
 
-    // 水平向心/切向加速度总量
-    float horiz_x = cent_x + tang_x;  // 机体前方分量 (m/s^2)
-    float horiz_y = cent_y + tang_y;  // 机体左方分量 (m/s^2)
-
-    // 投影到机体系（考虑pitch倾斜）
-    imu->ax -= (horiz_x * cos_p) / G;
-    imu->ay -= horiz_y / G;            // ay不受pitch影响
-    imu->az -= (-horiz_x * sin_p) / G; // z轴补偿：pitch导致水平分量投影到z
+    imu->ax -= comp_x;
+    imu->ay -= comp_y;
+    // az 无需补偿：纯水平向心加速度在机体z轴无投影
 }
 
 //imu963ra卡尔曼融合滤波更新，六轴（陀螺仪加速度计）
@@ -120,11 +115,23 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
     imu -> ay = imu660ra_acc_transition(imu660ra_acc_y);
     imu -> az = imu660ra_acc_transition(imu660ra_acc_z);
 
+
     if(fabsf(imu -> gx) > MAX_READ_VALUE || fabsf(imu -> gy) > MAX_READ_VALUE || fabsf(imu -> gz) > MAX_READ_VALUE || fabsf(imu -> ax) > MAX_READ_VALUE || fabsf(imu -> ay) > MAX_READ_VALUE || fabsf(imu -> az) > MAX_READ_VALUE)
     {return;}
 
     // IMU偏心安装加速度补偿
+    
     imu_offset_compensate_acc(imu);
+    //printf("CMP_ACC: ax=%.4f, ay=%.4f, az=%.4f\r\n", imu->ax, imu->ay, imu->az);
+
+    // 旋转时增大pitch测量噪声，降低卡尔曼对加速度计的信任，避免离心力导致假俯仰角
+    {
+        float yaw_rate_dps = imu->gz * 180.0f / My_PI;
+        float yaw_factor = 1.0f + 0.005f * (yaw_rate_dps * yaw_rate_dps);
+        if (yaw_factor > 100.0f) yaw_factor = 100.0f;
+        imu->R[1] = imu->R[0] * yaw_factor;
+    }
+    
 
     imu -> resultant_acceleration = imu -> ax * imu -> ax + imu -> ay * imu -> ay + imu -> az * imu -> az;
     if(imu -> resultant_acceleration > 0)
@@ -175,6 +182,7 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
     imu -> roll = imu -> Xk[0] / My_PI * 180.f;
     imu -> pitch = imu -> Xk[1] / My_PI * 180.f;
     imu -> yaw = imu -> Xk[2] / My_PI * 180.f;
+    //printf(" %f\n", imu -> roll);
     //calculate the angle,unit: degree
 
     // 新增重力补偿计算 ----------------------------------
