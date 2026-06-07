@@ -14,15 +14,15 @@
 #define L4  6
 #define L5  3.5
 
-/*****************---------缁撴瀯浣?--------*****************/
+/*****************---------结构体--------*****************/
 typedef struct
 {
-    float iError;                 // 璇樊
-    float LastError;              // 涓婃璇樊
-    float PrevError;              // 涓婁笂娆¤宸?
-    float LastData;               // 涓婃鏁版嵁
-    float iErrorHistory[5];       // 鍘嗗彶璇樊
-    float SumError;               // 绱璇樊
+    float iError;                 // 误差
+    float LastError;              // 上次误差
+    float PrevError;              // 上上次误差
+    float LastData;               // 上次数据
+    float iErrorHistory[5];       // 历史误差
+    float SumError;               // 累计误差
 } PID_INFO;
 typedef struct
 {
@@ -44,10 +44,8 @@ typedef struct
     PID_INFO Pid_GOGOGO;
 
     PID_INFO Pid_turn;
-    PID_INFO Pid_turn1;//??
-    PID_INFO Pid_turn2;//??
-    
-
+    PID_INFO Pid_turn1;// [待确认]
+    PID_INFO Pid_turn2;// [待确认]
 } PID_ERECT;
 typedef struct{
     float alphaLeft, betaLeft;
@@ -57,19 +55,19 @@ typedef struct{
 }IKparam;
 
 extern PID_ERECT PID_all;       // PID
-extern IKparam IKParam;         // 杩愬姩瀛︾粨鏋勪綋
-/*****************---------缁撴瀯浣?--------*****************/
+extern IKparam IKParam;         // 运动学结构体
+/*****************---------结构体--------*****************/
 
 
-/*****************---------PID鍙傛暟---------*****************/
-// 淇话瑙掑钩琛?
+/*****************---------PID参数---------*****************/
+// 俯仰角平衡
 extern float erect_Gyro_Pitch[4];
 extern float erect_Angle_Pitch[4];
 extern float erect_Speed_Pitch[4];
-// 缈绘粴瑙掑钩琛?
+// 翻滚角平衡
 extern float erect_Gyro_Roll[4];
 extern float erect_Angle_Roll[4];
-// 杞悜鐜?
+// 转向参数
 extern float erect_turn[4];
 
 extern float erect_Gyro_Yaw[4];
@@ -77,7 +75,7 @@ extern float erect_Angle_Yaw[4];
 extern float erect_Angle_Yaw_2[4];
 extern float erect_Angle_Yaw_3[4];
 extern float erect_Angle_Yaw_4[4];
-// 杩愬姩瀛﹀弬鏁?
+// 运动学参数
 extern float erect_Inc_X[4];
 extern float erect_Inc_Y[3];
 extern float erect_Inc_Roll[3];
@@ -101,7 +99,7 @@ extern volatile uint16 spin3_hold_cnt;
 extern volatile float spin3_angle_ok_deg;
 extern volatile float spin3_gyro_ok_dps;
 extern volatile uint16 spin3_hold_ticks;
-/*****************---------PID鍙傛暟---------*****************/
+/*****************---------PID参数---------*****************/
 
 
 void Adapt_Terrain(void);
@@ -130,7 +128,7 @@ float PID_turn_seekfree( PID_INFO *pid_info , float * PID_Parm , float gyro , fl
 float steer_wrap_deg180(float x);
 
 void pid_para_init( PID_INFO *pid_info );
-/*****************---------鍑芥暟---------*****************/
+/*****************---------函数---------*****************/
 
 #endif
 

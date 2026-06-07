@@ -20,36 +20,36 @@ volatile float spin3_gyro_ok_dps = 8.0f;
 volatile uint16 spin3_hold_ticks = 40;
 
 /******************************************
-// é›?ç‚?ï¼?
-        offset_angle.pitch =   2 ;    è°ƒå°è½¦å¾€å‰åï¼Œè°ƒå¤§å¾€åŽå;
+// ???
+        offset_angle.pitch =   2 ;    µ÷Ð¡³µÍùÇ°Çã£¬µ÷´óÍùºóÇã;
         offset_angle.roll  =  -1.8 ;
 *******************************************/
-// ä¿¯ä»°è§’å¹³è¡?
+// ¸©Ñö½ÇÆ½ºâ
 /*
-é«?5ï¼?3.6-0-17
+¾ÉPID²ÎÊý: 23.6-0-17
      18-0-12.9
      0.01-0.000009-0.004-0
 
 
 */
-// float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };   //
-// float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };   //
-// float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };   //
-float erect_Gyro_Pitch[4] = {0.95, 0, 0, 0};  //  17.522  ,  0  ,  11  ,  0       // ??????1,0,0,0
-float erect_Angle_Pitch[4] = {200, 0, 0}; //  17.49  ,  0  ,  9  ,  0        // ??????400,0,0,0
-float erect_Speed_Pitch[4] = {0, 0, 0, 0};   //
-// ç¿»æ»šè§’å¹³è¡?
-float erect_Gyro_Roll[4] = {0, 0, 0, 0};  //
-float erect_Angle_Roll[4] = {0, 0, 0, 0}; //
-// è½¬å‘çŽ?                 kp,kp2,kd,gkd,
+// float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };   
+// float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };   
+// float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };   
+float erect_Gyro_Pitch[4] = {0.95, 0, 0, 0};  //  17.522  ,  0  ,  11  ,  0       // ÍÓÂÝÒÇ±ÈÀý: 1,0,0,0
+float erect_Angle_Pitch[4] = {200, 0, 0}; //  17.49  ,  0  ,  9  ,  0        // ½Ç¶È±ÈÀý: 400,0,0,0
+float erect_Speed_Pitch[4] = {0, 0, 0, 0};   
+// ·­¹ö½ÇÆ½ºâ
+float erect_Gyro_Roll[4] = {0, 0, 0, 0};  
+float erect_Angle_Roll[4] = {0, 0, 0, 0}; 
+// ×ªÏò²ÎÊý                 kp,kp2,kd,gkd,
 float erect_turn[4] = {0, 0, 0, 0};
 
-float erect_Gyro_Yaw[4] = {1, 0, 0, 0};      //
-float erect_Angle_Yaw[4] = {650, 0, 0, 0};   //
+float erect_Gyro_Yaw[4] = {1, 0, 0, 0};      
+float erect_Angle_Yaw[4] = {650, 0, 0, 0};   
 float erect_Angle_Yaw_2[4] = {3, 0, 0, 0}; //300,0,0,0
 float erect_Angle_Yaw_3[4] = {0, 0, 0, 0}; //ÊÓ¾õ
 float erect_Angle_Yaw_4[4] = {0, 0, 0, 0}; //µ¼º½
-// è¿åŠ¨å­¦å‚æ•?           Kp_x, Kp_y, Kp_roll
+// ÔË¶¯Ñ§²ÎÊý           Kp_x, Kp_y, Kp_roll
 float erect_Inc_X[4] = {1.1, 0, 0, 0}; // 0.0045, 0, 0.0049
 float erect_Inc_Y[3] = {1, 0, 0};
 float erect_Inc_Roll[3] = {0.15, 0, 0};
@@ -60,15 +60,15 @@ float erect_SZR[4] = {0, 0, 0, 0};
 /********High********/
 // float erect_Gyro_Pitch_High[4]   = {  1.5  ,  0  ,  2  ,  0  };   //  17.522  ,  0  ,  11  ,  0
 // float erect_Angle_Pitch_High[4]  = {  450  ,  0  ,  500  ,  0  };   //  17.49  ,  0  ,  9  ,  0
-// float erect_Speed_Pitch[4]  = {  0  , 0  ,  0  ,  0  };   //
-//  ç¿»æ»šè§’å¹³è¡?
-// float erect_Gyro_Roll[4]    = {  0  ,  0  ,  0  ,  0  };   //
-// float erect_Angle_Roll[4]   = {  0  ,  0  ,  0  ,  0  };   //
-//  è½¬å‘çŽ?                 kp,kp2,kd,gkd
+// float erect_Speed_Pitch[4]  = {  0  , 0  ,  0  ,  0  };   
+//  ·­¹ö½ÇÆ½ºâ
+// float erect_Gyro_Roll[4]    = {  0  ,  0  ,  0  ,  0  };   
+// float erect_Angle_Roll[4]   = {  0  ,  0  ,  0  ,  0  };   
+//  ×ªÏò²ÎÊý                 kp,kp2,kd,gkd
 // float erect_turn[4]         = {  40.16  ,  10.78  ,  8.8  ,  -5.1  };
-// float erect_Gyro_Yaw[4]     = {  10  ,  0  ,  20  ,  0  };   //
-// float erect_Angle_Yaw[4]    = {  0  ,  0  ,  0  ,  0  };   //
-//  è¿åŠ¨å­¦å‚æ•?           Kp_x, Kp_y, Kp_roll
+// float erect_Gyro_Yaw[4]     = {  10  ,  0  ,  20  ,  0  };   
+// float erect_Angle_Yaw[4]    = {  0  ,  0  ,  0  ,  0  };   
+//  ÔË¶¯Ñ§²ÎÊý           Kp_x, Kp_y, Kp_roll
 // float erect_Inc_X_High[3] = { 0.024, 0, 0.028 };  // 0.0045, 0, 0.0049
 // float erect_Inc_Y[3] = { 0.01, 0, 0 };
 // float erect_Inc_Roll[3] = { -0.2, 0, 0 };
@@ -116,17 +116,17 @@ float steer_wrap_deg180(float x)
 
 
 
-/*************************************è½®è¶³è¿åŠ¨å­¦é€†è§£*************************************/
+/*************************************ÂÖ×ãÔË¶¯Ñ§Äæ½â*************************************/
 //----------------------------------------------------------------
-//  @brief      é—­çŽ¯äº”è¿žæ†æ¨¡åž‹è¿åŠ¨å­¦é€†è§£ç®?
-//  @param      L1   é¢æœå·¦ä¾§æ—¶ï¼Œå·¦è‡‚ä¸Šè¿žæ†é•¿åº?
-//  @param      L2   é¢æœå·¦ä¾§æ—¶ï¼Œå·¦è‡‚ä¸‹è¿žæ†é•¿åº?
-//  @param      L3   é¢æœå·¦ä¾§æ—¶ï¼Œå³è‡‚ä¸Šè¿žæ†é•¿åº?
-//  @param      L4   é¢æœå·¦ä¾§æ—¶ï¼Œå³è‡‚ä¸‹è¿žæ†é•¿åº?
-//  @param      L5   é¢æœå·¦ä¾§æ—¶ï¼Œä¸Šæ–¹æ¨ªè¿žæ†é•¿åº?
+//  @brief      ±Õ»·ÎåÁ¬¸ËÄ£ÐÍÔË¶¯Ñ§Äæ½â
+//  @param      L1   Ãæ³¯×ó²àÊ±£¬×ó±ÛÉÏÁ¬¸Ë³¤¶È
+//  @param      L2   Ãæ³¯×ó²àÊ±£¬×ó±ÛÏÂÁ¬¸Ë³¤¶È
+//  @param      L3   Ãæ³¯×ó²àÊ±£¬ÓÒ±ÛÉÏÁ¬¸Ë³¤¶È
+//  @param      L4   Ãæ³¯×ó²àÊ±£¬ÓÒ±ÛÏÂÁ¬¸Ë³¤¶È
+//  @param      L5   Ãæ³¯×ó²àÊ±£¬ÉÏ·½ºáÁ¬¸Ë³¤¶È
 //  @return     void
 
-//  @note       æ¨¡åž‹ä¸ºå°è½¦é¢æœå·¦ä¾§ï¼Œæ•…é å‰æ–¹ä¸ºå·¦è…¿ï¼ŒåŽæ–¹ä¸ºå³è…¿ï¼Œæ³¨æ„å·¦å³alphaå’Œbetaå¯¹åº”çš„èˆµæœºè§’åº?
+//  @note       Ä£ÐÍÎª³µÃæ³¯×ó²à£¬¹Ê¿¿Ç°·½Îª×óÍÈ£¬ºó·½ÎªÓÒÍÈ£¬×¢Òâ×óÓÒalphaºÍbeta¶ÔÓ¦µÄ¶æ»ú½Ç¶È
 //----------------------------------------------------------------
 float servoLeftFront, servoLeftRear, servoRightFront, servoRightRear;
 void inverseKinematics()
@@ -184,7 +184,7 @@ void inverseKinematics()
     else
         IKParam.betaRight = beta2;
 
-    // å¼§åº¦è½¬è§’åº?
+    // »¡¶È×ª½Ç¶È
     servoLeftFront = RAD_TO_ANGLE(IKParam.alphaLeft);
     servoLeftRear = RAD_TO_ANGLE(IKParam.betaLeft);
     servoRightFront = RAD_TO_ANGLE(IKParam.alphaRight);
@@ -206,11 +206,11 @@ void inverseKinematics()
     //  servo_set_angle(RF, 225);servo_set_angle(RB, -45);
     //  servo_set_angle(LF, 225);servo_set_angle(LB, -45);
 
-    //
+    
     //  setServoAngle(servoLeftFront,servoLeftRear,servoRightFront,servoRightRear);
 }
 
-float X = 0, X_l = 0, Y = 5; // ç¡®å®šYå€¼è¦å…ˆç¡®å®šèˆµæœºä¸­å€?
+float X = 0, X_l = 0, Y = 5; // È·¶¨YÖµÐèÏÈÈ·¶¨¶æ»úÖÐÖµ
 float temp_kx_x[4] = {0};
 volatile float vv1 = 0;
 volatile float dd2 = 0;
@@ -221,13 +221,13 @@ float SZR = 0;
 float yawan = 0;
 float dif_now = 0;
 float dif_last = 0;
-// æœ€ä½Žå§¿æ€é«˜åº?.5ï¼Œä¸­å€?
+// ×îµÍ×ËÌ¬¸ß¶È
 void Adapt_Terrain(void)
 {
     //    static float a = 0.1;
     //    get_eulerAngle();
 
-    // å¹³æ»‘è®¡ç®—é¡¶ç‚¹åæ ‡ï¼ŒåŽæœŸå¯æ›¿æ¢ä¸ºPID
+    // Æ½»¬¼ÆËã¶¥µã×ø±ê£¬¶¨ÆÚÇÐ»»ÎªPID
     vv1 = 0.05f * (float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data) + 0.95 * vv1;
     dif_now = func_abs((float)(motor_value.receive_left_speed_data + motor_value.receive_right_speed_data));
     dd2 = func_abs(dif_now - dif_last);
@@ -312,7 +312,7 @@ void Adapt_Terrain(void)
         IKParam.YRight = Y;
     }
 
-    if (Single_state == 1 && flag_Single_HighState == 0) // å‡é€?
+    if (Single_state == 1 && flag_Single_HighState == 0) // Õ¾Á¢
     {
         //        TCount_falg_4ms= 1;
         temp_kx_x[0] = erect_Inc_X[0] * 2;
@@ -341,19 +341,19 @@ void Adapt_Terrain(void)
         IKParam.XRight = Limit_Float(IKParam.XRight, -1.0f, 4.5f);
         IKParam.YLeft = Limit_Float(IKParam.YLeft, 3.0f, 14.0f);
         IKParam.YRight = Limit_Float(IKParam.YRight, 3.0f, 14.0f);
-    } // æ”¶è…¿:2.6, 14.8, 7
+    } // ÊÕÍÈ:2.6, 14.8, 7
     //    IKParam.XLeft  = -1;
     //    IKParam.XRight = -1;
     //    IKParam.YLeft  = 3;
     //    IKParam.YRight = 3;
 
-    // è¿åŠ¨å­¦é€†è§£ç®—å¹¶è¾“å‡ºèˆµæœº
+    // ÔË¶¯Ñ§Äæ½âËã²¢Êä³ö¶æ»ú
     if (flag_jump_1 == 1 || flag_jump == 0)
         inverseKinematics();
 }
 
-/*************************************è½®è¶³è¿åŠ¨å­¦é€†è§£*************************************/
-/********************************é€é£žè½¬å‘PID********************************/
+/*************************************ÂÖ×ãÔË¶¯Ñ§Äæ½â*************************************/
+/********************************ÊÅ·É×ªÏò²ÎÊýPID********************************/
 float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float err)
 {
     float V_out;
@@ -361,7 +361,7 @@ float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float e
 
     pid_info->iError = err;
 
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢é€Ÿåº¦çªå˜ã€?
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹ËÙ¶ÈÍ»±ä
 
     V_out = PID_Parm[0] * pid_info->iError +
             PID_Parm[1] * pid_info->iError * func_abs(pid_info->iError) +
@@ -371,28 +371,28 @@ float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float e
 
     return V_out;
 }
-/********************************é€é£žè½¬å‘PID********************************/
-/*************************************ä¸²çº§ï¼ˆå¤–-é€Ÿåº¦ æ¬¡å¤–-è§’åº¦ å†?è§’é€Ÿåº¦ï¼?************************************/
-/*****************---------å¤?é€Ÿåº¦---------*****************/
+/********************************ÊÅ·É×ªÏò²ÎÊýPID********************************/
+/*************************************´®¼¶£¨Íâ-ËÙ¶È ´ÎÍâ-½Ç¶È ÄÚ-½ÇËÙ¶È£© ÄÚ-½ÇËÙ¶È************************************/
+/*****************---------Íâ-ËÙ¶È---------*****************/
 float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.5;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.å¯¹é€Ÿåº¦åå·®è¿›è¡Œä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢é€Ÿåº¦çªå˜ã€?
+    // 2.¶ÔËÙ¶ÈÆ«²î½øÐÐµÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹ËÙ¶ÈÍ»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -401,11 +401,11 @@ float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     return V_out;
 }
 
-/*****************---------æ¬¡å¤–-è§’åº¦---------*****************/
+/*****************---------´ÎÍâ-½Ç¶È---------*****************/
 float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[4] = {0};
-    (void)temp_param; // å¤‡ç”¨å‚æ•°ï¼ˆå¯¹åº”ä»£ç å·²æ³¨é‡Šï¼‰ï¼Œæ¶ˆé™¤æœªä½¿ç”¨è­¦å‘?
+    (void)temp_param; // ±¸ÓÃ²ÎÊý£¨¶ÔÓ¦´úÂëÒÑ×¢ÊÍ£©£¬Ïû³ýÎ´Ê¹ÓÃ¾¯¸æ
     float V_out;
     float a = 0.9;
 
@@ -424,20 +424,20 @@ float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     //        temp_param[3] = PID_Parm[3];
     //    }
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -451,20 +451,20 @@ float Cascade_angle_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, fl
     float V_out;
     float a = 0.5;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -478,20 +478,20 @@ float Cascade_angle_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
     float V_out;
     float a = 0.7;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             //            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -505,20 +505,20 @@ float Cascade_angle_Yaw_2(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             //            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -532,20 +532,20 @@ float Cascade_angle_Yaw_3(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             //            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -559,20 +559,20 @@ float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             //            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -580,7 +580,7 @@ float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 
     return V_out;
 }
-/*****************---------å†?è§’é€Ÿåº¦---------*****************/
+/*****************---------ÄÚ-½ÇËÙ¶È---------*****************/
 float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[4] = {0};
@@ -602,20 +602,20 @@ float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, fl
     //        temp_param[3] = PID_Parm[3];
     //    }
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (temp_param[3])
     {
         pid_info->SumError = limit(pid_info->SumError, temp_param[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -648,20 +648,20 @@ float Cascade_gyro_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, floa
     float V_out;
     float a = 0.9;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -670,12 +670,12 @@ float Cascade_gyro_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, floa
     return V_out;
 }
 
-/********************************************************************ä¸²çº§PID********************************************************************/
-// å¢žé‡å¼PID
+/********************************************************************´®¼¶PID********************************************************************/
+// ÔöÁ¿Ê½PID
 float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[3] = {0};
-    (void)temp_param; // å¤‡ç”¨å‚æ•°ï¼ˆå¯¹åº”ä»£ç å·²æ³¨é‡Šï¼‰ï¼Œæ¶ˆé™¤æœªä½¿ç”¨è­¦å‘?
+    (void)temp_param; // ±¸ÓÃ²ÎÊý£¨¶ÔÓ¦´úÂëÒÑ×¢ÊÍ£©£¬Ïû³ýÎ´Ê¹ÓÃ¾¯¸æ
     float V_out;
     float a = 0.9;
 
@@ -692,20 +692,20 @@ float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
     //        temp_param[2] = PID_Parm[2];
     //    }
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -718,20 +718,20 @@ float PID_Increase_Y(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
     float V_out;
     float a = 0.5;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    //    // 3.ç§¯åˆ†é™å¹…
+    //    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -755,26 +755,26 @@ float PID_Increase_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
 
     return Increase;
 }
-// å¢žé‡å¼PID
+// ÔöÁ¿Ê½PID
 float PID_SZR_is_GOD(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.9;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -787,20 +787,20 @@ float PID_GOGOGO(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetP
     float V_out;
     float a = 0.9;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -813,20 +813,20 @@ float PID_Increase(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float Se
     float V_out;
     float a = 0.9;
 
-    // 1.è®¡ç®—é€Ÿåº¦åå·®
+    // 1.¼ÆËãËÙ¶ÈÆ«²î
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.ä½Žé€šæ»¤æ³?
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // ä½¿å¾—æ³¢å½¢æ›´åŠ å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢çªå˜ã€?
+    // 2.µÍÍ¨ÂË²¨
+    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ÐÎ¸ü¼ÓÆ½»¬£¬ÂË³ý¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
     pid_info->SumError += pid_info->iError;
 
-    // 3.ç§¯åˆ†é™å¹…
+    // 3.»ý·ÖÏÞ·ù
     //    if( PID_Parm[3] )
     //    {
     //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
     //    }
 
-    // 4.è®¡ç®—è¾“å‡º
+    // 4.¼ÆËãÊä³ö
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -834,7 +834,7 @@ float PID_Increase(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float Se
 
     return V_out;
 }
-/*****************---------PIDå‚æ•°åˆå§‹åŒ?--------*****************/
+/*****************---------PID²ÎÊý³õÊ¼»¯--------*****************/
 void pid_para_init(PID_INFO *pid_info)
 {
     pid_info->iError = 0;

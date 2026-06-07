@@ -40,6 +40,8 @@ Release*/
 *.dll
 *.cache
 
+
+
 # 编译缓存
 *.ninja_deps
 *.ninja_log
@@ -63,3 +65,15 @@ desktop.ini
 # IDE 配置（可选保留）
 # .idea/
 # .vscode/
+
+project/iar
+project/iar/project_config/
+
+# VS Code 工作区配置
+.vscode/
+
+# 修复/验证脚本（不需要上传）
+fix_garbled.py
+project/code/_fix_garbled_v2.py
+project/code/_verify.py
+

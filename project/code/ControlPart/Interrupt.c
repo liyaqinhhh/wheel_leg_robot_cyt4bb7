@@ -1,7 +1,7 @@
 /*
  * Interrupt.c
  *
- *  Created on: 2024ï¿½???2ï¿½???ï¿½???
+ *  Created on: 2024Äê2ÔÂ
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -20,35 +20,35 @@
 
 Center_struct Yao;
 
-// å¼€æœºè§’åº¦æ ¡å‡†å˜é‡
-volatile uint8_t calibrate_state = 0;   // 0:æœªå¼€å§‹ 1:é‡‡é›†ä¸­ 2:å®Œæˆ
-volatile float calibrate_offset = 0;    // æ ¡å‡†å¾—åˆ°çš„è§’åº¦åç§»
-volatile uint16_t calibrate_count = 0;  // é‡‡é›†è®¡æ•°
-volatile float calibrate_sum = 0;       // è§’åº¦ç´¯åŠ å’Œ
+// ¿ª»ú½Ç¶ÈĞ£×¼±äÁ¿
+volatile uint8_t calibrate_state = 0;   // 0:Î´¿ªÊ¼ 1:²É¼¯ÖĞ 2:Íê³É
+volatile float calibrate_offset = 0;    // Ğ£×¼µÃµ½µÄ½Ç¶ÈÆ«ÒÆ
+volatile uint16_t calibrate_count = 0;  // ²É¼¯¼ÆÊı
+volatile float calibrate_sum = 0;       // ½Ç¶ÈÀÛ¼ÓºÍ
 
 uint16 adc0;
 float Battery_voltage;
 
-uint8 steer_control_mode = 0; // 0:ç‘™æ‘å®³éºÑƒåŸ—é”›å²€ä¼…éãƒ¥ç´‘ï¿½???
-                              // 1:PWMéºÑƒåŸ—é”›å²„â‚¬æ„°î—£é‚è§„î”é”›å±¾æ£¤é–«ç†·å®³ï¿½???
-uint8 turn_mode = 2;          // 0:éæŠ½ï¿½??
-                              // 1:é–«æ„°î—£é™å­­Dæî„€ï¿½??
-                              // 2:æ¶“èŒ¬éª‡æî„€ï¿½??
-                              // 3:yawç‘™æ—æ£´éœîˆè›‹é©å¯¸ï¿½??
-uint8 fuzzy_mode = 0;         // 0:éæŠ½æ£´å¦¯ï¼„ç¡¦é”›å±¼å¨‡é¢â†˜P
-                              // 1:å¯®â‚¬éšîˆ›Äç»¯å©ç´æµ£è·¨æ•¤KPæµ£æ»€è´Ÿéˆâ‚¬çå¿¥ç´KIæµ£æ»€è´Ÿéˆâ‚¬æ¾¶Ñƒå¹“å¦¯ï¼„ç¡¦ï¿½???
-uint8 menu_open = 1;          // 0:éæŠ½æ£´é‘¿æ»ƒå´Ÿéœå®–lashæµ ãƒ¤ç¹šç’‡ä½¹ç¥´ç’‡æ›šç¬‰æµ¼æ°³î‡¤æµ¼î˜Œlash
-                              // 1:éµæ’³ç´‘é‘¿æ»ƒå´Ÿ
-                              // 2:é™î…å¢¦å¯®â‚¬ç’‡è¯²å½‡é”›å±¼ç¬‰éµæ’³ç´‘é‘¿æ»ƒï¿½??
+uint8 steer_control_mode = 0; // 0:½Ç¶È¿ØÖÆ£¬µÆÁÁ¿ª
+                              // 1:PWM¿ØÖÆ£¬µİ½ø·½°¸£¬ÎŞËÙ¶È»·
+uint8 turn_mode = 2;          // 0:¹Ø±Õ
+                              // 1:µİ½øPD×ª
+                              // 2:´®Áª×ª
+                              // 3:yaw½Ç±Õ»·×ßÖ±Ïß
+uint8 fuzzy_mode = 0;         // 0:¹Ø±ÕÄ£ºı£¬Ê¹ÓÃKP
+                              // 1:¿ªÆôÄ£ºı£¬Ê¹ÓÃKP×÷Îª×îĞ¡£¬KI×÷Îª×î´óÈ¥Ä£ºı
+uint8 menu_open = 1;          // 0:¹Ø±Õ²Ëµ¥ºÍflashÒÔ±£Ö¤²âÊÔ²»»áÎóĞ´flash
+                              // 1:´ò¿ª²Ëµ¥
+                              // 2:Ö»´ò¿ª¶ÁÈ¡£¬²»´ò¿ª²Ëµ¥
 uint8 flag_yawan = 1;         // 0
-                              // 1:éµæ’³ç´‘yawan
+                              // 1:´ò¿ªyawan
 uint8 flag_stop = 1;
 uint16 a11111 = 0;
 uint16 a2222 = 0;
 bool ff = 0;
 uint16 dis_tof_mm = 0;
 
-uint16 time_flag = 0;//??????
+uint16 time_flag = 0;//¼ÆÊ±±êÖ¾
 
 
 
@@ -96,7 +96,7 @@ void Interrupt_1ms(void)
 
 
 
-    //????90?
+    //×ª90¶È
 
    /* if (time_flag == 0)
     {
@@ -158,7 +158,7 @@ volatile float y1 = 0;
 float ddddd = 0;
 void Interrupt_2ms(void)
 {
-    // ç’ºå® ç©¬éºÑƒåŸ—é–®ã„¥å
+    // ÌøÔ¾¿ØÖÆ²¿·Ö
     if (flag_jump)
     {
         time_j++;
@@ -206,10 +206,10 @@ void Interrupt_2ms(void)
     //    pwm_set_duty(ATOM0_CH3_P21_5, 1500);
      //date_handle();
     //    get_eulerAngle();
-    // é—„â‚¬é“»è½°åéç‰ˆåµ
+    // ÍÓÂİÒÇÊı¾İ
     date_handle();
 
-    // å¼€æœºè§’åº¦æ ¡å‡†é€»è¾‘
+    // ¿ª»ú½Ç¶ÈĞ£×¼Âß¼­
     /*if (calibrate_state == 1)
     {
         calibrate_sum += imu660ra.eulerAngle.pitch;
@@ -218,7 +218,7 @@ void Interrupt_2ms(void)
         if (calibrate_count >= CALIBRATE_SAMPLES)
         {
             calibrate_offset = calibrate_sum / calibrate_count;
-            calibrate_state = 2;  // æ ‡è®°å®Œæˆ
+            calibrate_state = 2;  // ±ê¼ÇÍê³É
         }
          ips200_show_float( 30 , 80 , calibrate_offset , 3 , 3 );
     }*/
@@ -254,12 +254,12 @@ void Interrupt_2ms(void)
     //    }
     //    ips200_show_float( 0, 3*8, integer1, 5,5 );
     //    ips200_show_float( 0, 4*8, (integer1/num_t1), 5,5 );
-    // æ¶“èŒ¬éª‡ç‘™æ—â‚¬ç†·å®³ï¿½???
+    // ´®Áª½ÇËÙ¶È
     y1 = 0.1f * ((float)-imu660ra_gyro_x) + 0.9 * y1;
     Yao.Outp_Gyro_Pitch = -limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, -Yao.Outp_Angle_Pitch), 8000.0f);
     Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, -Yao.Outp_turn), 8000.0f);
 
-} // 2msç¼æ’´ï¿½??
+} // 2ms½áÊø
 
 volatile float aa1 = 0;
 volatile float dd = 0;
@@ -276,12 +276,12 @@ float desired_yaw = 0.0f;
 float raw_vision_yaw = 0.0f;
 static float steer_vision_cmd_lpf_alpha = 0.35f;
 static float steer_vision_cmd_lpf = 0.0f;
-volatile float steer_vision_target_yaw_deg = 0.0f;       //????
-volatile float steer_vision_cone_avoid_delta_deg = 0.0f; //????
+volatile float steer_vision_target_yaw_deg = 0.0f;       //ÊÓ¾õÄ¿±êÆ«º½½Ç
+volatile float steer_vision_cone_avoid_delta_deg = 0.0f; //ÊÓ¾õ×¶Í°±ÜÕÏÆ«ÒÆ½Ç
 
 
-volatile float steer_gps_target_bearing_deg = 0.0f; //????
-volatile float steer_gps_distance_to_wp_m = 0.0f;   //??
+volatile float steer_gps_target_bearing_deg = 0.0f; //GPSÄ¿±ê·½Î»½Ç
+volatile float steer_gps_distance_to_wp_m = 0.0f;   //GPS¾àÀë
 volatile float steer_gps_to_imu_yaw_offset_deg = 0.0f;
 void Interrupt_4ms(void)
 {
@@ -301,9 +301,9 @@ void Interrupt_4ms(void)
     else
         TCount_4ms = 0;
 
-    //è§’é€Ÿåº¦ç¯
+    //½ÇËÙ¶È»·
     /*float pitch_corrected = imu660ra.eulerAngle.pitch;
-    if (calibrate_state == 2)  // æ ¡å‡†å®Œæˆåæ‰è¡¥å¿
+    if (calibrate_state == 2)  // Ğ£×¼Íê³Éºó²Å²¹³¥
     {
         pitch_corrected -= calibrate_offset;
     }*/
@@ -322,7 +322,7 @@ void Interrupt_4ms(void)
     dd = 0.1f * Deviation_Value + 0.9f * dd;
 
     //get_realtime_coordinate((float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data) / 2.0f,0.004f,imu660ra.eulerAngle.yaw);
-    // æî„€æ‚œéœ?
+    // ×ªÏò»·
     if (turn_mode == 1)
     {
         Yao.Outp_turn = PID_turn_seekfree(&PID_all.Pid_turn, erect_turn, imu660ra.data_Raw.gyro_z, Deviation_Value * 10 + 0.2f);
@@ -407,14 +407,14 @@ void Interrupt_4ms(void)
         Yao.Outp_turn = 0;
     }
 
-} // 4msç¼æ’´ï¿½??
+} // 4ms½áÊø
 
 int16 recordL = 0;
 int16 recordR = 0;
 float vv2 = 0;
 void Interrupt_8ms(void)
 { /*
-     // é¢å«çœé¢é›å¸‡
+     // µç³ØµçÑ¹
      adc0 = adc_mean_filter_convert( ADC0_CH6_A6 , 5 );
      Battery_voltage = adc0 / 114.8936;
 
@@ -434,7 +434,7 @@ void Interrupt_8ms(void)
     //    vv2 = 0.05f * (float)(motor_value.receive_left_speed_data-motor_value.receive_right_speed_data) + 0.95 * vv2;
     //    Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, vv2, (float)Yao.Target_Speed);
     //    Yao.Outp_Speed_Pitch = limit( Yao.Outp_Speed_Pitch, 100.0f );
-    //    // ç’ºå® ç©¬éºÑƒåŸ—é–®ã„¥å
+    //    // ÌøÔ¾¿ØÖÆ²¿·Ö
     //    if(flag_jump)
     //    {
     //        time_j++;
@@ -442,7 +442,7 @@ void Interrupt_8ms(void)
     //    }
     //    else
     //        time_j = 0;
-    // é—æ›¡ç«Ÿå¦—ãƒ¦å¸¶é’å •å„´é’?
+    // µ¥±ßÇÅ¿ØÖÆ²¿·Ö
 
 
 
@@ -484,12 +484,12 @@ void Interrupt_8ms(void)
     //    small_driver_set_duty(0, 0);
     //    processImage();
 
-} // 8msç¼æ’´ï¿½??
+} // 8ms½áÊø
 volatile float aa11 = 0;
 void Interrupt_16ms(void)
 {
 
-    // é¢å«çœé¢é›å¸‡
+    // µç³ØµçÑ¹
     //    adc0 = adc_mean_filter_convert( ADC0_CH6_A6 , 5 );
     //    Battery_voltage = adc0 / 114.8936;
 
@@ -520,7 +520,7 @@ void Interrupt_16ms(void)
     Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, aa11, 0);
     Yao.Outp_Speed_Pitch = limit(Yao.Outp_Speed_Pitch, 100.0f);
 
-} // 16msç¼æ’´ï¿½??
+} // 16ms½áÊø
 
 
 extern uint8 Zebra_Count_Flag;
@@ -546,4 +546,4 @@ void Interrupt_40ms(void)
     //    if(IMU_JF_Flag)
     imu660ra.eulerAngle.yaw += 0.000;
 
-} // 40msç¼æ’´ï¿½??
+} // 40ms½áÊø
