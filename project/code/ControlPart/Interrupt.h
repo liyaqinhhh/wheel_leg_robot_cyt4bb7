@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    Interrupt.h
  * @brief   轮腿机器人中断服务模块头文件
  *
@@ -92,10 +92,8 @@ extern uint16 TCount_4ms;        /* 4ms中断计数器（受TCount_falg_4ms控�
 extern uint16 TCount_40ms;       /* 40ms中断计数器（用于斑马线超时检测） */
 extern uint8 TCount_falg_4ms;    /* 4ms计数使能标志 */
 
-/* ---- GPS转向 ---- */
-extern volatile float steer_gps_target_bearing_deg;   /* GPS目标方位角（度, [0, 360)） */
-extern volatile float steer_gps_distance_to_wp_m;     /* GPS到目标点距离（米） */
-extern volatile float steer_gps_to_imu_yaw_offset_deg;/* IMU偏航角与地理航向的偏移量 */
+/* ---- GPS转向 (乒乓缓冲) ---- */
+#include "gps_nav.h"
 
 /* ---- 视觉转向 ---- */
 extern float desired_yaw;        /* 期望偏航角（度） */

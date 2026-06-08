@@ -39,6 +39,7 @@ Release*/
 *.exe
 *.dll
 *.cache
+*.md
 
 
 

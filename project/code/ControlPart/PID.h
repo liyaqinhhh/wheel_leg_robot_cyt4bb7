@@ -1,16 +1,16 @@
 /**
  * @file    PID.h
- * @brief   è½®è…¿æœºå™¨äººPIDæ§åˆ¶æ¨¡å—å¤´æ–‡ä»¶
+ * @brief   ÂÖÍÈ»úÆ÷ÈËPID¿ØÖÆÄ£¿éÍ·ÎÄ¼ş
  *
- * åŒ…å«ä¸²çº§PIDï¼ˆå¤–ç¯è§’åº¦â†’å†…ç¯è§’é€Ÿåº¦ï¼‰ã€å¢é‡å¼PIDã€è½¬å‘PIDã€
- * äº”è¿æ†é€†è¿åŠ¨å­¦è§£ç®—ç­‰æ§åˆ¶ç®—æ³•æ‰€éœ€çš„ç±»å‹å®šä¹‰ä¸æ¥å£å£°æ˜ã€‚
+ * °üº¬´®¼¶PID£¨Íâ»·½Ç¶È¡úÄÚ»·½ÇËÙ¶È£©¡¢ÔöÁ¿Ê½PID¡¢×ªÏòPID¡¢
+ * ÎåÁ¬¸ËÄæÔË¶¯Ñ§½âËãµÈ¿ØÖÆËã·¨ËùĞèµÄÀàĞÍ¶¨ÒåÓë½Ó¿ÚÉùÃ÷¡£
  *
- * PIDå‚æ•°æ•°ç»„å¸ƒå±€ï¼ˆ4å…ƒç´ æ•°ç»„ï¼‰ï¼š
- *   [0]=KP(æ¯”ä¾‹), [1]=KP2(äºŒæ¬¡æ¯”ä¾‹/éçº¿æ€§å¢ç›Š), [2]=KD(å¾®åˆ†), [3]=ç§¯åˆ†é™å¹…
- * å¢é‡å¼PIDå‚æ•°å¸ƒå±€ï¼ˆ3å…ƒç´ æ•°ç»„ï¼‰ï¼š
+ * PID²ÎÊıÊı×é²¼¾Ö£¨4ÔªËØÊı×é£©£º
+ *   [0]=KP(±ÈÀı), [1]=KP2(¶ş´Î±ÈÀı/·ÇÏßĞÔÔöÒæ), [2]=KD(Î¢·Ö), [3]=»ı·ÖÏŞ·ù
+ * ÔöÁ¿Ê½PID²ÎÊı²¼¾Ö£¨3ÔªËØÊı×é£©£º
  *   [0]=KP, [1]=KI, [2]=KD
- * è½¬å‘PIDå‚æ•°å¸ƒå±€ï¼ˆ4å…ƒç´ æ•°ç»„ï¼‰ï¼š
- *   [0]=KP, [1]=KP2(éçº¿æ€§é¡¹), [2]=KD, [3]=é™€èºä»ªå‰é¦ˆå¢ç›Š
+ * ×ªÏòPID²ÎÊı²¼¾Ö£¨4ÔªËØÊı×é£©£º
+ *   [0]=KP, [1]=KP2(·ÇÏßĞÔÏî), [2]=KD, [3]=ÍÓÂİÒÇÇ°À¡ÔöÒæ
  */
 
 #include "zf_common_headfile.h"
@@ -18,217 +18,148 @@
 #ifndef _FLY_MOTOR_PID_h
 #define _FLY_MOTOR_PID_h
 
-/* æ ‡å‡†PIDå‚æ•°æ•°ç»„ç´¢å¼• */
-#define KP 0    /* æ¯”ä¾‹ç³»æ•°ç´¢å¼• */
-#define KI 1    /* ç§¯åˆ†ç³»æ•°ç´¢å¼• */
-#define KD 2    /* å¾®åˆ†ç³»æ•°ç´¢å¼• */
+/* ±ê×¼PID²ÎÊıÊı×éË÷Òı */
+#define KP 0    /* ±ÈÀıÏµÊıË÷Òı */
+#define KI 1    /* »ı·ÖÏµÊıË÷Òı */
+#define KD 2    /* Î¢·ÖÏµÊıË÷Òı */
 
-/* äº”è¿æ†æœºæ„å°ºå¯¸å‚æ•°ï¼ˆå•ä½ï¼šcmï¼‰
+/* ÎåÁ¬¸Ë»ú¹¹³ß´ç²ÎÊı£¨µ¥Î»£ºcm£©
  *
- * åæ ‡ç³»çº¦å®šï¼šè½¦ä½“é¢æœå·¦ä¾§æ—¶ï¼Œ
- *   å·¦ä¾§ï¼ˆåæ–¹ï¼‰ä¸ºå·¦è…¿ï¼Œå³ä¾§ï¼ˆå‰æ–¹ï¼‰ä¸ºå³è…¿ã€‚
- *   L1/L2 ä¸ºå·¦è…¿å‚æ•°ï¼ŒL3/L4 ä¸ºå³è…¿å‚æ•°ï¼ŒL5 ä¸ºæ¨ªè¿æ†ã€‚
+ * ×ø±êÏµÔ¼¶¨£º³µÌåÃæ³¯×ó²àÊ±£¬
+ *   ×ó²à£¨ºó·½£©Îª×óÍÈ£¬ÓÒ²à£¨Ç°·½£©ÎªÓÒÍÈ¡£
+ *   L1/L2 Îª×óÍÈ²ÎÊı£¬L3/L4 ÎªÓÒÍÈ²ÎÊı£¬L5 ÎªºáÁ¬¸Ë¡£
  */
-#define L1  6      /* å·¦è…¿ä¸Šè¿æ†é•¿åº¦ */
-#define L2  9      /* å·¦è…¿ä¸‹è¿æ†é•¿åº¦ */
-#define L3  9      /* å³è…¿ä¸Šè¿æ†é•¿åº¦ */
-#define L4  6      /* å³è…¿ä¸‹è¿æ†é•¿åº¦ */
-#define L5  3.5    /* ä¸Šæ–¹æ¨ªè¿æ†é•¿åº¦ */
+#define L1  6      /* ×óÍÈÉÏÁ¬¸Ë³¤¶È */
+#define L2  9      /* ×óÍÈÏÂÁ¬¸Ë³¤¶È */
+#define L3  9      /* ÓÒÍÈÉÏÁ¬¸Ë³¤¶È */
+#define L4  6      /* ÓÒÍÈÏÂÁ¬¸Ë³¤¶È */
+#define L5  3.5    /* ÉÏ·½ºáÁ¬¸Ë³¤¶È */
 
-<<<<<<< HEAD
 /*****************---------½á¹¹Ìå--------*****************/
-typedef struct
-{
-    float iError;                 // Îó²î
-    float LastError;              // ÉÏ´ÎÎó²î
-    float PrevError;              // ÉÏÉÏ´ÎÎó²î
-    float LastData;               // ÉÏ´ÎÊı¾İ
-    float iErrorHistory[5];       // ÀúÊ·Îó²î
-    float SumError;               // ÀÛ¼ÆÎó²î
-=======
-/*****************---------ç»“æ„ä½“--------*****************/
 
-/** PIDæ§åˆ¶å™¨çŠ¶æ€ä¿¡æ¯ */
+/** PID¿ØÖÆÆ÷×´Ì¬ĞÅÏ¢ */
 typedef struct
 {
-    float iError;                 /* å½“å‰è¯¯å·® */
-    float LastError;              /* ä¸Šä¸€æ¬¡è¯¯å·®ï¼ˆç”¨äºå¾®åˆ†è®¡ç®—ï¼‰ */
-    float PrevError;              /* ä¸Šä¸Šæ¬¡è¯¯å·®ï¼ˆç”¨äºäºŒé˜¶å¾®åˆ†ï¼‰ */
-    float LastData;               /* ä¸Šä¸€æ¬¡è¾“å…¥æ•°æ® */
-    float iErrorHistory[5];       /* å†å²è¯¯å·®è®°å½•ï¼ˆé¢„ç•™æ•°ç»„ï¼‰ */
-    float SumError;               /* ç§¯åˆ†ç´¯è®¡è¯¯å·® */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    float iError;                 /* µ±Ç°Îó²î */
+    float LastError;              /* ÉÏÒ»´ÎÎó²î£¨ÓÃÓÚÎ¢·Ö¼ÆËã£© */
+    float PrevError;              /* ÉÏÉÏ´ÎÎó²î£¨ÓÃÓÚ¶ş½×Î¢·Ö£© */
+    float LastData;               /* ÉÏÒ»´ÎÊäÈëÊı¾İ */
+    float iErrorHistory[5];       /* ÀúÊ·Îó²î¼ÇÂ¼£¨Ô¤ÁôÊı×é£© */
+    float SumError;               /* »ı·ÖÀÛ¼ÆÎó²î */
 } PID_INFO;
 
-/** å…¨å±€PIDæ§åˆ¶å™¨é›†åˆ
+/** È«¾ÖPID¿ØÖÆÆ÷¼¯ºÏ
  *
- * ä¸²çº§æ§åˆ¶æ¶æ„ï¼ˆä¿¯ä»°/ç¿»æ»šï¼‰ï¼š
- *   å¤–ç¯=è§’åº¦ç¯ï¼ˆPid_Angle_*ï¼‰ â†’ å†…ç¯=è§’é€Ÿåº¦ç¯ï¼ˆPid_Gyro_*ï¼‰
- *   æœ€å¤–å±‚é€Ÿåº¦ç¯ï¼ˆPid_Speed_Pitchï¼‰å åŠ åœ¨è§’åº¦ç¯ä¹‹ä¸Šã€‚
+ * ´®¼¶¿ØÖÆ¼Ü¹¹£¨¸©Ñö/·­¹ö£©£º
+ *   Íâ»·=½Ç¶È»·£¨Pid_Angle_*£© ¡ú ÄÚ»·=½ÇËÙ¶È»·£¨Pid_Gyro_*£©
+ *   ×îÍâ²ãËÙ¶È»·£¨Pid_Speed_Pitch£©µş¼ÓÔÚ½Ç¶È»·Ö®ÉÏ¡£
  *
- * åèˆªï¼ˆYawï¼‰æ–¹å‘ä½¿ç”¨ç‹¬ç«‹çš„è§’é€Ÿåº¦+è§’åº¦åŒç¯ã€‚
- * ä½ç§»/é«˜åº¦/ç¿»æ»šç¨³å®šä½¿ç”¨å¢é‡å¼PIDï¼ˆPid_Inc_*ï¼‰ã€‚
+ * Æ«º½£¨Yaw£©·½ÏòÊ¹ÓÃ¶ÀÁ¢µÄ½ÇËÙ¶È+½Ç¶ÈË«»·¡£
+ * Î»ÒÆ/¸ß¶È/·­¹öÎÈ¶¨Ê¹ÓÃÔöÁ¿Ê½PID£¨Pid_Inc_*£©¡£
  */
 typedef struct
 {
-    PID_INFO Pid_Gyro_Pitch;      /* ä¿¯ä»°è§’é€Ÿåº¦ç¯ï¼ˆå†…ç¯ï¼‰ */
-    PID_INFO Pid_Angle_Pitch;     /* ä¿¯ä»°è§’åº¦ç¯ï¼ˆå¤–ç¯ï¼‰ */
-    PID_INFO Pid_Speed_Pitch;     /* ä¿¯ä»°é€Ÿåº¦ç¯ï¼ˆæœ€å¤–å±‚ï¼‰ */
+    PID_INFO Pid_Gyro_Pitch;      /* ¸©Ñö½ÇËÙ¶È»·£¨ÄÚ»·£© */
+    PID_INFO Pid_Angle_Pitch;     /* ¸©Ñö½Ç¶È»·£¨Íâ»·£© */
+    PID_INFO Pid_Speed_Pitch;     /* ¸©ÑöËÙ¶È»·£¨×îÍâ²ã£© */
 
-    PID_INFO Pid_Gyro_Roll;       /* ç¿»æ»šè§’é€Ÿåº¦ç¯ï¼ˆå†…ç¯ï¼‰ */
-    PID_INFO Pid_Angle_Roll;      /* ç¿»æ»šè§’åº¦ç¯ï¼ˆå¤–ç¯ï¼‰ */
+    PID_INFO Pid_Gyro_Roll;       /* ·­¹ö½ÇËÙ¶È»·£¨ÄÚ»·£© */
+    PID_INFO Pid_Angle_Roll;      /* ·­¹ö½Ç¶È»·£¨Íâ»·£© */
 
-    PID_INFO Pid_Gyro_Yaw;        /* åèˆªè§’é€Ÿåº¦ç¯ */
-    PID_INFO Pid_Angle_Yaw;       /* åèˆªè§’åº¦ç¯ */
+    PID_INFO Pid_Gyro_Yaw;        /* Æ«º½½ÇËÙ¶È»· */
+    PID_INFO Pid_Angle_Yaw;       /* Æ«º½½Ç¶È»· */
 
-    PID_INFO Pid_Inc_X;           /* Xæ–¹å‘å¢é‡å¼PIDï¼ˆå‰åä½ç§»æ§åˆ¶ï¼‰ */
-    PID_INFO Pid_Inc_Y;           /* Yæ–¹å‘å¢é‡å¼PIDï¼ˆé«˜åº¦æ§åˆ¶ï¼‰ */
-    PID_INFO Pid_Inc_Roll;        /* ç¿»æ»šå¢é‡å¼PIDï¼ˆä¾§å‘ç¨³å®šï¼‰ */
+    PID_INFO Pid_Inc_X;           /* X·½ÏòÔöÁ¿Ê½PID£¨Ç°ºóÎ»ÒÆ¿ØÖÆ£© */
+    PID_INFO Pid_Inc_Y;           /* Y·½ÏòÔöÁ¿Ê½PID£¨¸ß¶È¿ØÖÆ£© */
+    PID_INFO Pid_Inc_Roll;        /* ·­¹öÔöÁ¿Ê½PID£¨²àÏòÎÈ¶¨£© */
 
-<<<<<<< HEAD
-    PID_INFO Pid_SZR;
-    PID_INFO Pid_GOGOGO;
+    PID_INFO Pid_SZR;             /* Êı×Ö¶æ»ú/×ªÏòµ÷½ÚPID */
+    PID_INFO Pid_GOGOGO;          /* Æ«º½¸¨ÖúPID£¨yawanµ÷½Ú£© */
 
-    PID_INFO Pid_turn;
-    PID_INFO Pid_turn1;// [´ıÈ·ÈÏ]
-    PID_INFO Pid_turn2;// [´ıÈ·ÈÏ]
-=======
-    PID_INFO Pid_SZR;             /* æ•°å­—èˆµæœº/è½¬å‘è°ƒèŠ‚PID */
-    PID_INFO Pid_GOGOGO;          /* åèˆªè¾…åŠ©PIDï¼ˆyawanè°ƒèŠ‚ï¼‰ */
-
-    PID_INFO Pid_turn;            /* è½¬å‘PID */
-    PID_INFO Pid_turn1;           /* è½¬å‘PIDå¤‡ç”¨é€šé“1 */
-    PID_INFO Pid_turn2;           /* è½¬å‘PIDå¤‡ç”¨é€šé“2 */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    PID_INFO Pid_turn;            /* ×ªÏòPID */
+    PID_INFO Pid_turn1;           /* ×ªÏòPID±¸ÓÃÍ¨µÀ1 */
+    PID_INFO Pid_turn2;           /* ×ªÏòPID±¸ÓÃÍ¨µÀ2 */
 } PID_ERECT;
 
-<<<<<<< HEAD
-extern PID_ERECT PID_all;       // PID
-extern IKparam IKParam;         // ÔË¶¯Ñ§½á¹¹Ìå
+/** ÄæÔË¶¯Ñ§²ÎÊı
+ *
+ * ×ø±êÏµÔ¼¶¨£º³µÌåÃæ³¯×ó²àÊ±£¬ºó·½Îª×óÍÈ£¬Ç°·½ÎªÓÒÍÈ¡£
+ * alphaÎªÉÏ·½¶æ»ú»¡¶È£¬betaÎªÏÂ·½¶æ»ú»¡¶È¡£
+ * X/YÎªÁ¬¸ËÄ©¶ËÔÚµÑ¿¨¶û×ø±êÏµÖĞµÄÄ¿±ê×ø±ê£¨µ¥Î»£ºcm£©¡£
+ */
+typedef struct
+{
+    float alphaLeft, betaLeft;    /* ×óÍÈÉÏ/ÏÂ¶æ»ú»¡¶È */
+    float alphaRight, betaRight;  /* ÓÒÍÈÉÏ/ÏÂ¶æ»ú»¡¶È */
+    float XLeft, YLeft;           /* ×óÍÈÄ©¶ËÄ¿±ê×ø±ê£¨Ç°ºó, ÉÏÏÂ£© */
+    float XRight, YRight;         /* ÓÒÍÈÄ©¶ËÄ¿±ê×ø±ê£¨Ç°ºó, ÉÏÏÂ£© */
+} IKparam;
+
+extern PID_ERECT PID_all;       /* È«¾ÖPID¿ØÖÆÆ÷ÊµÀı */
+extern IKparam IKParam;         /* È«¾ÖÄæÔË¶¯Ñ§²ÎÊıÊµÀı */
 /*****************---------½á¹¹Ìå--------*****************/
 
 
-/*****************---------PID²ÎÊı---------*****************/
-// ¸©Ñö½ÇÆ½ºâ
-extern float erect_Gyro_Pitch[4];
-extern float erect_Angle_Pitch[4];
-extern float erect_Speed_Pitch[4];
-// ·­¹ö½ÇÆ½ºâ
-extern float erect_Gyro_Roll[4];
-extern float erect_Angle_Roll[4];
-// ×ªÏò²ÎÊı
-extern float erect_turn[4];
+/*****************---------PID²ÎÊıÉùÃ÷---------*****************/
+/* ¸©Ñö½ÇÆ½ºâ²ÎÊı */
+extern float erect_Gyro_Pitch[4];     /* ¸©Ñö½ÇËÙ¶È»·: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Angle_Pitch[4];    /* ¸©Ñö½Ç¶È»·:   {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Speed_Pitch[4];    /* ¸©ÑöËÙ¶È»·:   {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+/* ·­¹ö½ÇÆ½ºâ²ÎÊı */
+extern float erect_Gyro_Roll[4];      /* ·­¹ö½ÇËÙ¶È»·: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Angle_Roll[4];     /* ·­¹ö½Ç¶È»·:   {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+/* ×ªÏò²ÎÊı */
+extern float erect_turn[4];           /* ×ªÏòPID: {KP, KP2, KD, ÍÓÂİÒÇÇ°À¡ÔöÒæ} */
 
-extern float erect_Gyro_Yaw[4];
-extern float erect_Angle_Yaw[4];
-extern float erect_Angle_Yaw_2[4];
-extern float erect_Angle_Yaw_3[4];
-extern float erect_Angle_Yaw_4[4];
-// ÔË¶¯Ñ§²ÎÊı
-extern float erect_Inc_X[4];
-extern float erect_Inc_Y[3];
-extern float erect_Inc_Roll[3];
-extern float erect_yawan[3];
-//extern float steer_fusion_turn[3];
-=======
-/** é€†è¿åŠ¨å­¦å‚æ•°
- *
- * åæ ‡ç³»çº¦å®šï¼šè½¦ä½“é¢æœå·¦ä¾§æ—¶ï¼Œåæ–¹ä¸ºå·¦è…¿ï¼Œå‰æ–¹ä¸ºå³è…¿ã€‚
- * alphaä¸ºä¸Šæ–¹èˆµæœºå¼§åº¦ï¼Œbetaä¸ºä¸‹æ–¹èˆµæœºå¼§åº¦ã€‚
- * X/Yä¸ºè¿æ†æœ«ç«¯åœ¨ç¬›å¡å°”åæ ‡ç³»ä¸­çš„ç›®æ ‡åæ ‡ï¼ˆå•ä½ï¼šcmï¼‰ã€‚
- */
-typedef struct
-{
-    float alphaLeft, betaLeft;    /* å·¦è…¿ä¸Š/ä¸‹èˆµæœºå¼§åº¦ */
-    float alphaRight, betaRight;  /* å³è…¿ä¸Š/ä¸‹èˆµæœºå¼§åº¦ */
-    float XLeft, YLeft;           /* å·¦è…¿æœ«ç«¯ç›®æ ‡åæ ‡ï¼ˆå‰å, ä¸Šä¸‹ï¼‰ */
-    float XRight, YRight;         /* å³è…¿æœ«ç«¯ç›®æ ‡åæ ‡ï¼ˆå‰å, ä¸Šä¸‹ï¼‰ */
-} IKparam;
+/* Æ«º½¿ØÖÆ²ÎÊı */
+extern float erect_Gyro_Yaw[4];       /* Æ«º½½ÇËÙ¶È»·: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Angle_Yaw[4];      /* Æ«º½½Ç¶È»·1:  {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Angle_Yaw_2[4];    /* Æ«º½½Ç¶È»·2:  {KP, KP2, KD, »ı·ÖÏŞ·ù}£¨±¸ÓÃ£© */
+extern float erect_Angle_Yaw_3[4];    /* Æ«º½½Ç¶È»·3:  {KP, KP2, KD, »ı·ÖÏŞ·ù}£¨ÊÓ¾õ£© */
+extern float erect_Angle_Yaw_4[4];    /* Æ«º½½Ç¶È»·4:  {KP, KP2, KD, »ı·ÖÏŞ·ù}£¨¹ßµ¼£© */
+/* ÔË¶¯Ñ§²ÎÊı */
+extern float erect_Inc_X[4];          /* XÎ»ÒÆÔöÁ¿Ê½PID: {KP, KI, KD, »ı·ÖÏŞ·ù} */
+extern float erect_Inc_Y[3];          /* YÎ»ÒÆÔöÁ¿Ê½PID: {KP, KI, KD} */
+extern float erect_Inc_Roll[3];       /* ·­¹öÔöÁ¿Ê½PID: {KP, KI, KD} */
+extern float erect_yawan[3];          /* Æ«º½¸¨ÖúPID:   {KP, KI, KD} */
 
-extern PID_ERECT PID_all;       /* å…¨å±€PIDæ§åˆ¶å™¨å®ä¾‹ */
-extern IKparam IKParam;         /* å…¨å±€é€†è¿åŠ¨å­¦å‚æ•°å®ä¾‹ */
-/*****************---------ç»“æ„ä½“--------*****************/
+extern float erect_SZR[4];            /* SZR×ªÏòµ÷½Ú: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
 
-
-/*****************---------PIDå‚æ•°å£°æ˜---------*****************/
-/* ä¿¯ä»°è§’å¹³è¡¡å‚æ•° */
-extern float erect_Gyro_Pitch[4];     /* ä¿¯ä»°è§’é€Ÿåº¦ç¯: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Angle_Pitch[4];    /* ä¿¯ä»°è§’åº¦ç¯:   {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Speed_Pitch[4];    /* ä¿¯ä»°é€Ÿåº¦ç¯:   {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-/* ç¿»æ»šè§’å¹³è¡¡å‚æ•° */
-extern float erect_Gyro_Roll[4];      /* ç¿»æ»šè§’é€Ÿåº¦ç¯: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Angle_Roll[4];     /* ç¿»æ»šè§’åº¦ç¯:   {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-/* è½¬å‘å‚æ•° */
-extern float erect_turn[4];           /* è½¬å‘PID: {KP, KP2, KD, é™€èºä»ªå‰é¦ˆå¢ç›Š} */
-
-/* åèˆªæ§åˆ¶å‚æ•° */
-extern float erect_Gyro_Yaw[4];       /* åèˆªè§’é€Ÿåº¦ç¯: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Angle_Yaw[4];      /* åèˆªè§’åº¦ç¯1:  {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Angle_Yaw_2[4];    /* åèˆªè§’åº¦ç¯2:  {KP, KP2, KD, ç§¯åˆ†é™å¹…}ï¼ˆå¤‡ç”¨ï¼‰ */
-extern float erect_Angle_Yaw_3[4];    /* åèˆªè§’åº¦ç¯3:  {KP, KP2, KD, ç§¯åˆ†é™å¹…}ï¼ˆè§†è§‰ï¼‰ */
-extern float erect_Angle_Yaw_4[4];    /* åèˆªè§’åº¦ç¯4:  {KP, KP2, KD, ç§¯åˆ†é™å¹…}ï¼ˆæƒ¯å¯¼ï¼‰ */
-/* è¿åŠ¨å­¦å‚æ•° */
-extern float erect_Inc_X[4];          /* Xä½ç§»å¢é‡å¼PID: {KP, KI, KD, ç§¯åˆ†é™å¹…} */
-extern float erect_Inc_Y[3];          /* Yä½ç§»å¢é‡å¼PID: {KP, KI, KD} */
-extern float erect_Inc_Roll[3];       /* ç¿»æ»šå¢é‡å¼PID: {KP, KI, KD} */
-extern float erect_yawan[3];          /* åèˆªè¾…åŠ©PID:   {KP, KI, KD} */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
-
-extern float erect_SZR[4];            /* SZRè½¬å‘è°ƒèŠ‚: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-
-/* é€†è¿åŠ¨å­¦è¾“å‡ºå˜é‡ */
+/* ÄæÔË¶¯Ñ§Êä³ö±äÁ¿ */
 extern IKparam IKParam;
-<<<<<<< HEAD
-extern float alpha1,alpha2,beta1,beta2;
-extern float servoLeftFront,servoLeftRear,servoRightFront,servoRightRear;
-extern float X,Y;
-extern float stab_roll;
-extern volatile float vv1;
-extern volatile float dd2;
-extern volatile uint8 spin3_active;
-extern volatile int8 spin3_dir;
-extern volatile float spin3_start_angle;
-extern volatile float spin3_target_angle;
-extern volatile uint16 spin3_hold_cnt;
-extern volatile float spin3_angle_ok_deg;
-extern volatile float spin3_gyro_ok_dps;
-extern volatile uint16 spin3_hold_ticks;
-/*****************---------PID²ÎÊı---------*****************/
-=======
 extern float alpha1, alpha2, beta1, beta2;
 extern float servoLeftFront, servoLeftRear, servoRightFront, servoRightRear;
-extern float X, Y;                    /* è¿æ†æœ«ç«¯ç¬›å¡å°”åæ ‡ */
-extern float stab_roll;               /* ç¿»æ»šç¨³å®šåç§»é‡ */
-extern volatile float vv1;            /* å·¦å³è½®é€Ÿå·®æ»¤æ³¢å€¼ */
-extern volatile float dd2;            /* è½®é€Ÿå’Œå˜åŒ–ç‡ */
+extern float X, Y;                    /* Á¬¸ËÄ©¶ËµÑ¿¨¶û×ø±ê */
+extern float stab_roll;               /* ·­¹öÎÈ¶¨Æ«ÒÆÁ¿ */
+extern volatile float vv1;            /* ×óÓÒÂÖËÙ²îÂË²¨Öµ */
+extern volatile float dd2;            /* ÂÖËÙºÍ±ä»¯ÂÊ */
 
-/* Spin3åŸåœ°æ—‹è½¬æ§åˆ¶å˜é‡ */
-extern volatile uint8 spin3_active;         /* æ—‹è½¬æ¿€æ´»æ ‡å¿— */
-extern volatile int8 spin3_dir;             /* æ—‹è½¬æ–¹å‘ï¼ˆ+1/-1ï¼‰ */
-extern volatile float spin3_start_angle;    /* æ—‹è½¬èµ·å§‹åèˆªè§’ */
-extern volatile float spin3_target_angle;   /* æ—‹è½¬ç›®æ ‡åèˆªè§’ */
-extern volatile uint16 spin3_hold_cnt;      /* æ—‹è½¬åˆ°ä½ä¿æŒè®¡æ•° */
-extern volatile float spin3_angle_ok_deg;   /* è§’åº¦åˆ°ä½å®¹å·®ï¼ˆåº¦ï¼‰ */
-extern volatile float spin3_gyro_ok_dps;    /* é™€èºé™æ­¢å®¹å·®ï¼ˆåº¦/ç§’ï¼‰ */
-extern volatile uint16 spin3_hold_ticks;    /* åˆ°ä½ä¿æŒæ‰€éœ€å‘¨æœŸæ•° */
-/*****************---------PIDå‚æ•°å£°æ˜---------*****************/
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+/* Spin3Ô­µØĞı×ª¿ØÖÆ±äÁ¿ */
+extern volatile uint8 spin3_active;         /* Ğı×ª¼¤»î±êÖ¾ */
+extern volatile int8 spin3_dir;             /* Ğı×ª·½Ïò£¨+1/-1£© */
+extern volatile float spin3_start_angle;    /* Ğı×ªÆğÊ¼Æ«º½½Ç */
+extern volatile float spin3_target_angle;   /* Ğı×ªÄ¿±êÆ«º½½Ç */
+extern volatile uint16 spin3_hold_cnt;      /* Ğı×ªµ½Î»±£³Ö¼ÆÊı */
+extern volatile float spin3_angle_ok_deg;   /* ½Ç¶Èµ½Î»Èİ²î£¨¶È£© */
+extern volatile float spin3_gyro_ok_dps;    /* ÍÓÂİ¾²Ö¹Èİ²î£¨¶È/Ãë£© */
+extern volatile uint16 spin3_hold_ticks;    /* µ½Î»±£³ÖËùĞèÖÜÆÚÊı */
+/*****************---------PID²ÎÊıÉùÃ÷---------*****************/
 
 
-/* ---- é€†è¿åŠ¨å­¦ ---- */
+/* ---- ÄæÔË¶¯Ñ§ ---- */
 void inverseKinematics(void);
 
-/* ---- åœ°å½¢è‡ªé€‚åº”ï¼ˆä¸»æ§åˆ¶å¾ªç¯ï¼‰ ---- */
+/* ---- µØĞÎ×ÔÊÊÓ¦£¨Ö÷¿ØÖÆÑ­»·£© ---- */
 void Adapt_Terrain(void);
 
-/* ---- åŸåœ°æ—‹è½¬ ---- */
+/* ---- Ô­µØĞı×ª ---- */
 void Spin3_Start(int8 dir);
-float steer_wrap_deg180(float x);     /* è§’åº¦å½’ä¸€åŒ–åˆ°[-180, 180] */
+float steer_wrap_deg180(float x);     /* ½Ç¶È¹éÒ»»¯µ½[-180, 180] */
 
-/* ---- ä¸²çº§PIDï¼šé€Ÿåº¦ç¯ï¼ˆæœ€å¤–å±‚ï¼‰ ---- */
+/* ---- ´®¼¶PID£ºËÙ¶È»·£¨×îÍâ²ã£© ---- */
 float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 
-/* ---- ä¸²çº§PIDï¼šè§’åº¦ç¯ï¼ˆå¤–ç¯ï¼‰ ---- */
+/* ---- ´®¼¶PID£º½Ç¶È»·£¨Íâ»·£© ---- */
 float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float Cascade_angle_Roll (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float Cascade_angle_Yaw  (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
@@ -236,31 +167,26 @@ float Cascade_angle_Yaw_2(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 float Cascade_angle_Yaw_3(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 
-/* ---- ä¸²çº§PIDï¼šè§’é€Ÿåº¦ç¯ï¼ˆå†…ç¯ï¼‰ ---- */
+/* ---- ´®¼¶PID£º½ÇËÙ¶È»·£¨ÄÚ»·£© ---- */
 float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float Cascade_gyro_Roll (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float Cascade_gyro_Yaw  (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 
-/* ---- å¢é‡å¼PID ---- */
+/* ---- ÔöÁ¿Ê½PID ---- */
 float PID_Increase_X   (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float PID_Increase_Y   (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float PID_Increase_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float PID_Increase     (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 
-/* ---- è¾…åŠ©PID ---- */
+/* ---- ¸¨ÖúPID ---- */
 float PID_SZR_is_GOD(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 float PID_GOGOGO     (PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);
 
-<<<<<<< HEAD
-void pid_para_init( PID_INFO *pid_info );
-/*****************---------º¯Êı---------*****************/
-=======
-/* ---- è½¬å‘PIDï¼ˆå«é™€èºä»ªå‰é¦ˆï¼‰ ---- */
+/* ---- ×ªÏòPID£¨º¬ÍÓÂİÒÇÇ°À¡£© ---- */
 float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float err);
 
-/* ---- PIDçŠ¶æ€åˆå§‹åŒ– ---- */
+/* ---- PID×´Ì¬³õÊ¼»¯ ---- */
 void pid_para_init(PID_INFO *pid_info);
-/*****************---------å‡½æ•°å£°æ˜---------*****************/
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+/*****************---------º¯ÊıÉùÃ÷---------*****************/
 
 #endif

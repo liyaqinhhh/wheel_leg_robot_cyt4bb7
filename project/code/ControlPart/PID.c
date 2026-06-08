@@ -1,20 +1,20 @@
 /**
  * @file    PID.c
- * @brief   è½®è…¿æœºå™¨äººPIDæ§åˆ¶æ¨¡å—å®ç°
+ * @brief   ÂÖÍÈ»úÆ÷ÈËPID¿ØÖÆÄ£¿éÊµÏÖ
  *
- * åŒ…å«ä»¥ä¸‹æ ¸å¿ƒåŠŸèƒ½ï¼š
- *   1. äº”è¿æ†é—­ç¯é€†è¿åŠ¨å­¦è§£ç®—ï¼ˆinverseKinematicsï¼‰
- *   2. åœ°å½¢è‡ªé€‚åº”ä¸»æ§åˆ¶å¾ªç¯ï¼ˆAdapt_Terrainï¼‰
- *   3. ä¸²çº§PIDæ§åˆ¶ï¼ˆå¤–ç¯è§’åº¦/é€Ÿåº¦ â†’ å†…ç¯è§’é€Ÿåº¦ï¼‰
- *   4. å¢é‡å¼PIDæ§åˆ¶ï¼ˆä½ç§»ã€é«˜åº¦ã€ç¿»æ»šï¼‰
- *   5. è½¬å‘PIDï¼ˆå«é™€èºä»ªå‰é¦ˆï¼‰
- *   6. åŸåœ°æ—‹è½¬æ§åˆ¶ï¼ˆSpin3ï¼‰
+ * °üº¬ÒÔÏÂºËĞÄ¹¦ÄÜ£º
+ *   1. ÎåÁ¬¸Ë±Õ»·ÄæÔË¶¯Ñ§½âËã£¨inverseKinematics£©
+ *   2. µØĞÎ×ÔÊÊÓ¦Ö÷¿ØÖÆÑ­»·£¨Adapt_Terrain£©
+ *   3. ´®¼¶PID¿ØÖÆ£¨Íâ»·½Ç¶È/ËÙ¶È ¡ú ÄÚ»·½ÇËÙ¶È£©
+ *   4. ÔöÁ¿Ê½PID¿ØÖÆ£¨Î»ÒÆ¡¢¸ß¶È¡¢·­¹ö£©
+ *   5. ×ªÏòPID£¨º¬ÍÓÂİÒÇÇ°À¡£©
+ *   6. Ô­µØĞı×ª¿ØÖÆ£¨Spin3£©
  *
- * æ§åˆ¶æ¶æ„ï¼š
- *   ä¿¯ä»°æ–¹å‘ï¼šé€Ÿåº¦ç¯ â†’ è§’åº¦ç¯ â†’ è§’é€Ÿåº¦ç¯ï¼ˆä¸‰ç¯ä¸²çº§ï¼‰
- *   ç¿»æ»šæ–¹å‘ï¼šè§’åº¦ç¯ â†’ è§’é€Ÿåº¦ç¯ï¼ˆåŒç¯ä¸²çº§ï¼‰
- *   åèˆªæ–¹å‘ï¼šè§’åº¦ç¯ + è§’é€Ÿåº¦ç¯ï¼ˆå¹¶è”/ç‹¬ç«‹ï¼‰
- *   ä½ç§»æ–¹å‘ï¼šå¢é‡å¼PIDï¼ˆXå‰åã€Yé«˜åº¦ã€ç¿»æ»šç¨³å®šï¼‰
+ * ¿ØÖÆ¼Ü¹¹£º
+ *   ¸©Ñö·½Ïò£ºËÙ¶È»· ¡ú ½Ç¶È»· ¡ú ½ÇËÙ¶È»·£¨Èı»·´®¼¶£©
+ *   ·­¹ö·½Ïò£º½Ç¶È»· ¡ú ½ÇËÙ¶È»·£¨Ë«»·´®¼¶£©
+ *   Æ«º½·½Ïò£º½Ç¶È»· + ½ÇËÙ¶È»·£¨²¢Áª/¶ÀÁ¢£©
+ *   Î»ÒÆ·½Ïò£ºÔöÁ¿Ê½PID£¨XÇ°ºó¡¢Y¸ß¶È¡¢·­¹öÎÈ¶¨£©
  */
 
 #include "zf_common_headfile.h"
@@ -26,150 +26,92 @@
 #include "small_driver_uart_control.h"
 #include "Math_Advanced.h"
 
-/* å…¨å±€PIDæ§åˆ¶å™¨å’Œé€†è¿åŠ¨å­¦å‚æ•°å®ä¾‹ */
+/* È«¾ÖPID¿ØÖÆÆ÷ºÍÄæÔË¶¯Ñ§²ÎÊıÊµÀı */
 PID_ERECT PID_all;
 IKparam IKParam;
 
-/* ---- Spin3 åŸåœ°æ—‹è½¬æ§åˆ¶å˜é‡ ----
- * åŠŸèƒ½ï¼šè®©æœºå™¨äººç»•åèˆªè½´æ—‹è½¬æŒ‡å®šåœˆæ•°ï¼ˆå¦‚1080Â°=3åœˆï¼‰åé”å®šã€‚
- * æµç¨‹ï¼šSpin3_Start(dir) æ¿€æ´» â†’ æ¯å‘¨æœŸæ£€æŸ¥æ˜¯å¦åˆ°ä½ â†’ åˆ°ä½åä¿æŒspin3_hold_tickså‘¨æœŸ â†’ å®Œæˆ
+/* ---- Spin3 Ô­µØĞı×ª¿ØÖÆ±äÁ¿ ----
+ * ¹¦ÄÜ£ºÈÃ»úÆ÷ÈËÈÆÆ«º½ÖáĞı×ªÖ¸¶¨È¦Êı£¨Èç1080¡ã=3È¦£©ºóËø¶¨¡£
+ * Á÷³Ì£ºSpin3_Start(dir) ¼¤»î ¡ú Ã¿ÖÜÆÚ¼ì²éÊÇ·ñµ½Î» ¡ú µ½Î»ºó±£³Öspin3_hold_ticksÖÜÆÚ ¡ú Íê³É
  */
-volatile uint8 spin3_active = 0;          /* æ—‹è½¬æ¿€æ´»æ ‡å¿—ï¼ˆ1=æ­£åœ¨æ—‹è½¬ï¼‰ */
-volatile int8 spin3_dir = 1;              /* æ—‹è½¬æ–¹å‘ï¼š+1é€†æ—¶é’ˆ, -1é¡ºæ—¶é’ˆ */
-volatile float spin3_start_angle = 0.0f;  /* æ—‹è½¬èµ·å§‹æ—¶çš„åèˆªè§’ */
-volatile float spin3_target_angle = 0.0f; /* æ—‹è½¬ç›®æ ‡åèˆªè§’ï¼ˆèµ·å§‹è§’ Â± 1080Â°ï¼‰ */
-volatile uint16 spin3_hold_cnt = 0;       /* åˆ°ä½åä¿æŒè®¡æ•°å™¨ */
-volatile float spin3_angle_ok_deg = 3.0f; /* è§’åº¦åˆ°ä½å®¹å·®ï¼ˆåº¦ï¼‰ */
-volatile float spin3_gyro_ok_dps = 8.0f;  /* é™€èºä»ªé™æ­¢åˆ¤æ–­å®¹å·®ï¼ˆåº¦/ç§’ï¼‰ */
-volatile uint16 spin3_hold_ticks = 40;    /* åˆ°ä½åéœ€ä¿æŒçš„æ§åˆ¶å‘¨æœŸæ•° */
+volatile uint8 spin3_active = 0;          /* Ğı×ª¼¤»î±êÖ¾£¨1=ÕıÔÚĞı×ª£© */
+volatile int8 spin3_dir = 1;              /* Ğı×ª·½Ïò£º+1ÄæÊ±Õë, -1Ë³Ê±Õë */
+volatile float spin3_start_angle = 0.0f;  /* Ğı×ªÆğÊ¼Ê±µÄÆ«º½½Ç */
+volatile float spin3_target_angle = 0.0f; /* Ğı×ªÄ¿±êÆ«º½½Ç£¨ÆğÊ¼½Ç ¡À 1080¡ã£© */
+volatile uint16 spin3_hold_cnt = 0;       /* µ½Î»ºó±£³Ö¼ÆÊıÆ÷ */
+volatile float spin3_angle_ok_deg = 3.0f; /* ½Ç¶Èµ½Î»Èİ²î£¨¶È£© */
+volatile float spin3_gyro_ok_dps = 8.0f;  /* ÍÓÂİÒÇ¾²Ö¹ÅĞ¶ÏÈİ²î£¨¶È/Ãë£© */
+volatile uint16 spin3_hold_ticks = 40;    /* µ½Î»ºóĞè±£³ÖµÄ¿ØÖÆÖÜÆÚÊı */
 
 /******************************************
-<<<<<<< HEAD
-// ???
-        offset_angle.pitch =   2 ;    µ÷Ğ¡³µÍùÇ°Çã£¬µ÷´óÍùºóÇã;
-        offset_angle.roll  =  -1.8 ;
-*******************************************/
-// ¸©Ñö½ÇÆ½ºâ
-/*
-¾ÉPID²ÎÊı: 23.6-0-17
-     18-0-12.9
-     0.01-0.000009-0.004-0
-=======
- * è§’åº¦åç§»æ ‡å®š
- *   offset_angle.pitch = 2    â€”â€” è°ƒå¤§è½¦å¾€å‰å€¾ï¼Œè°ƒå°å¾€åä»°
+ * ½Ç¶ÈÆ«ÒÆ±ê¶¨
+ *   offset_angle.pitch = 2    ¡ª¡ª µ÷´ó³µÍùÇ°Çã£¬µ÷Ğ¡ÍùºóÑö
  *   offset_angle.roll  = -1.8
  *******************************************/
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 
 /************************************************************************
- * PIDå‚æ•°æ•°ç»„
+ * PID²ÎÊıÊı×é
  *
- * æ•°ç»„å¸ƒå±€è¯´æ˜ï¼š
- *   è§’åº¦/è§’é€Ÿåº¦/é€Ÿåº¦ç¯ï¼ˆ4å…ƒç´ ï¼‰ï¼š {KP, KP2(éçº¿æ€§å¢ç›Š), KD, ç§¯åˆ†é™å¹…}
- *   å¢é‡å¼PIDï¼ˆ3å…ƒç´ ï¼‰ï¼š        {KP, KI, KD}
- *   è½¬å‘PIDï¼ˆ4å…ƒç´ ï¼‰ï¼š          {KP, KP2(éçº¿æ€§é¡¹), KD, é™€èºä»ªå‰é¦ˆå¢ç›Š}
+ * Êı×é²¼¾ÖËµÃ÷£º
+ *   ½Ç¶È/½ÇËÙ¶È/ËÙ¶È»·£¨4ÔªËØ£©£º {KP, KP2(·ÇÏßĞÔÔöÒæ), KD, »ı·ÖÏŞ·ù}
+ *   ÔöÁ¿Ê½PID£¨3ÔªËØ£©£º        {KP, KI, KD}
+ *   ×ªÏòPID£¨4ÔªËØ£©£º          {KP, KP2(·ÇÏßĞÔÏî), KD, ÍÓÂİÒÇÇ°À¡ÔöÒæ}
  *
- * æ»¤æ³¢ç³»æ•° aï¼š
- *   aè¶Šå¤§ â†’ å“åº”è¶Šæ…¢ä½†æŠ—å¹²æ‰°è¶Šå¼ºï¼ˆæ›´å¹³æ»‘ï¼‰
- *   aè¶Šå° â†’ å“åº”è¶Šå¿«ä½†å™ªå£°æ•æ„Ÿ
- *   å…¸å‹å€¼ï¼šè§’é€Ÿåº¦ç¯0.9ï¼Œè§’åº¦ç¯0.5~0.9
+ * ÂË²¨ÏµÊı a£º
+ *   aÔ½´ó ¡ú ÏìÓ¦Ô½Âıµ«¿¹¸ÉÈÅÔ½Ç¿£¨¸üÆ½»¬£©
+ *   aÔ½Ğ¡ ¡ú ÏìÓ¦Ô½¿ìµ«ÔëÉùÃô¸Ğ
+ *   µäĞÍÖµ£º½ÇËÙ¶È»·0.9£¬½Ç¶È»·0.5~0.9
  *
- * å¤‡ç”¨å‚æ•°ç»„æ³¨é‡Šï¼ˆå·²æ³¨é‡Šæ‰ï¼‰è®°å½•äº†å†å²è°ƒè¯•è¿‡çš„å‚æ•°å€¼ã€‚
+ * ±¸ÓÃ²ÎÊı×é×¢ÊÍ£¨ÒÑ×¢ÊÍµô£©¼ÇÂ¼ÁËÀúÊ·µ÷ÊÔ¹ıµÄ²ÎÊıÖµ¡£
  ************************************************************************/
 
-<<<<<<< HEAD
-*/
-// float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };   
-// float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };   
-// float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };   
-float erect_Gyro_Pitch[4] = {0.95, 0, 0, 0};  //  17.522  ,  0  ,  11  ,  0       // ÍÓÂİÒÇ±ÈÀı: 1,0,0,0
-float erect_Angle_Pitch[4] = {200, 0, 0}; //  17.49  ,  0  ,  9  ,  0        // ½Ç¶È±ÈÀı: 400,0,0,0
-float erect_Speed_Pitch[4] = {0, 0, 0, 0};   
-// ·­¹ö½ÇÆ½ºâ
-float erect_Gyro_Roll[4] = {0, 0, 0, 0};  
-float erect_Angle_Roll[4] = {0, 0, 0, 0}; 
-// ×ªÏò²ÎÊı                 kp,kp2,kd,gkd,
-float erect_turn[4] = {0, 0, 0, 0};
-
-float erect_Gyro_Yaw[4] = {1, 0, 0, 0};      
-float erect_Angle_Yaw[4] = {650, 0, 0, 0};   
-float erect_Angle_Yaw_2[4] = {3, 0, 0, 0}; //300,0,0,0
-float erect_Angle_Yaw_3[4] = {0, 0, 0, 0}; //ÊÓ¾õ
-float erect_Angle_Yaw_4[4] = {0, 0, 0, 0}; //µ¼º½
-// ÔË¶¯Ñ§²ÎÊı           Kp_x, Kp_y, Kp_roll
-float erect_Inc_X[4] = {1.1, 0, 0, 0}; // 0.0045, 0, 0.0049
-float erect_Inc_Y[3] = {1, 0, 0};
-float erect_Inc_Roll[3] = {0.15, 0, 0};
-float erect_yawan[3] = {0, 0, 0};
-float erect_Km[3] = {1.1, 0.1, 0.05};
-
-float erect_SZR[4] = {0, 0, 0, 0};
-/********High********/
-// float erect_Gyro_Pitch_High[4]   = {  1.5  ,  0  ,  2  ,  0  };   //  17.522  ,  0  ,  11  ,  0
-// float erect_Angle_Pitch_High[4]  = {  450  ,  0  ,  500  ,  0  };   //  17.49  ,  0  ,  9  ,  0
-// float erect_Speed_Pitch[4]  = {  0  , 0  ,  0  ,  0  };   
-//  ·­¹ö½ÇÆ½ºâ
-// float erect_Gyro_Roll[4]    = {  0  ,  0  ,  0  ,  0  };   
-// float erect_Angle_Roll[4]   = {  0  ,  0  ,  0  ,  0  };   
-//  ×ªÏò²ÎÊı                 kp,kp2,kd,gkd
-// float erect_turn[4]         = {  40.16  ,  10.78  ,  8.8  ,  -5.1  };
-// float erect_Gyro_Yaw[4]     = {  10  ,  0  ,  20  ,  0  };   
-// float erect_Angle_Yaw[4]    = {  0  ,  0  ,  0  ,  0  };   
-//  ÔË¶¯Ñ§²ÎÊı           Kp_x, Kp_y, Kp_roll
-// float erect_Inc_X_High[3] = { 0.024, 0, 0.028 };  // 0.0045, 0, 0.0049
-// float erect_Inc_Y[3] = { 0.01, 0, 0 };
-// float erect_Inc_Roll[3] = { -0.2, 0, 0 };
-// float erect_Inc_Roll[3] = { 0, 0, 0 };
-// float erect_Km[3] = {  1.1,  0.1,  0.05  };
-=======
-/* ---- ä¿¯ä»°è§’å¹³è¡¡å‚æ•° ----
- * å†å²å€¼å‚è€ƒï¼šerect_Gyro_Pitch  = {23.6, 0, 17, 0}
+/* ---- ¸©Ñö½ÇÆ½ºâ²ÎÊı ----
+ * ÀúÊ·Öµ²Î¿¼£ºerect_Gyro_Pitch  = {23.6, 0, 17, 0}
  *            erect_Angle_Pitch = {18, 0, 12.9, 0}
  *            erect_Speed_Pitch = {0.01, 0.000009, 0.004, 0}
  */
 // float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };
-float erect_Gyro_Pitch[4] = {0.82, 0, 0, 0};  /* ä¿¯ä»°è§’é€Ÿåº¦ç¯: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-float erect_Angle_Pitch[4] = {250, 0, 20, 0}; /* ä¿¯ä»°è§’åº¦ç¯:   {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
-float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* ä¿¯ä»°é€Ÿåº¦ç¯:   {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
+float erect_Gyro_Pitch[4] = {0.82, 0, 0, 0};  /* ¸©Ñö½ÇËÙ¶È»·: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+float erect_Angle_Pitch[4] = {250, 0, 20, 0}; /* ¸©Ñö½Ç¶È»·:   {KP, KP2, KD, »ı·ÖÏŞ·ù} */
+float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* ¸©ÑöËÙ¶È»·:   {KP, KP2, KD, »ı·ÖÏŞ·ù} */
 
-/* ---- ç¿»æ»šè§’å¹³è¡¡å‚æ•° ----
- * ç”¨äºå·¦å³æ–¹å‘çš„å¹³è¡¡æ§åˆ¶ï¼Œå½“å‰ç½®é›¶ï¼ˆæœªå¯ç”¨ç¿»æ»šä¸»åŠ¨å¹³è¡¡ï¼‰ã€‚
+/* ---- ·­¹ö½ÇÆ½ºâ²ÎÊı ----
+ * ÓÃÓÚ×óÓÒ·½ÏòµÄÆ½ºâ¿ØÖÆ£¬µ±Ç°ÖÃÁã£¨Î´ÆôÓÃ·­¹öÖ÷¶¯Æ½ºâ£©¡£
  */
-float erect_Gyro_Roll[4] = {0, 0, 0, 0};  /* ç¿»æ»šè§’é€Ÿåº¦ç¯ */
-float erect_Angle_Roll[4] = {0, 0, 0, 0}; /* ç¿»æ»šè§’åº¦ç¯ */
+float erect_Gyro_Roll[4] = {0, 0, 0, 0};  /* ·­¹ö½ÇËÙ¶È»· */
+float erect_Angle_Roll[4] = {0, 0, 0, 0}; /* ·­¹ö½Ç¶È»· */
 
-/* ---- è½¬å‘PIDå‚æ•° ----
- * å‚æ•°å«ä¹‰ï¼š{KP(æ¯”ä¾‹), KP2(è¯¯å·®*|è¯¯å·®| éçº¿æ€§å¢ç›Š), KD(å¾®åˆ†), é™€èºä»ªå‰é¦ˆå¢ç›Š}
- * éçº¿æ€§é¡¹ KP2 * err * |err| ä½¿å¤§è¯¯å·®æ—¶è¾“å‡ºæ›´å¼ºï¼Œå°è¯¯å·®æ—¶æ›´æŸ”å’Œã€‚
+/* ---- ×ªÏòPID²ÎÊı ----
+ * ²ÎÊıº¬Òå£º{KP(±ÈÀı), KP2(Îó²î*|Îó²î| ·ÇÏßĞÔÔöÒæ), KD(Î¢·Ö), ÍÓÂİÒÇÇ°À¡ÔöÒæ}
+ * ·ÇÏßĞÔÏî KP2 * err * |err| Ê¹´óÎó²îÊ±Êä³ö¸üÇ¿£¬Ğ¡Îó²îÊ±¸üÈáºÍ¡£
  */
-float erect_turn[4] = {0, 0, 0, 0}; /* è½¬å‘PID */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+float erect_turn[4] = {0, 0, 0, 0}; /* ×ªÏòPID */
 
-/* ---- åèˆªæ§åˆ¶å‚æ•° ---- */
-float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* åèˆªè§’é€Ÿåº¦ç¯ */
-float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* åèˆªè§’åº¦ç¯1ï¼ˆä¸»ï¼‰ */
-float erect_Angle_Yaw_2[4] = {1.7, 0, 0.8, 0}; /* åèˆªè§’åº¦ç¯2ï¼ˆå¤‡ç”¨ï¼Œå†å²å€¼300,0,0,0ï¼‰ */
-float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* åèˆªè§’åº¦ç¯3ï¼ˆè§†è§‰èåˆç”¨ï¼‰ */
-float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* åèˆªè§’åº¦ç¯4ï¼ˆæƒ¯å¯¼èåˆç”¨ï¼‰ */
+/* ---- Æ«º½¿ØÖÆ²ÎÊı ---- */
+float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* Æ«º½½ÇËÙ¶È»· */
+float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* Æ«º½½Ç¶È»·1£¨Ö÷£© */
+float erect_Angle_Yaw_2[4] = {1.7, 0, 0.8, 0}; /* Æ«º½½Ç¶È»·2£¨±¸ÓÃ£¬ÀúÊ·Öµ300,0,0,0£© */
+float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* Æ«º½½Ç¶È»·3£¨ÊÓ¾õÈÚºÏÓÃ£© */
+float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* Æ«º½½Ç¶È»·4£¨¹ßµ¼ÈÚºÏÓÃ£© */
 
-/* ---- è¿åŠ¨å­¦å¢é‡å¼PIDå‚æ•° ----
- * erect_Inc_X: Xæ–¹å‘å‰åä½ç§»æ§åˆ¶ï¼Œå€¼è¶Šå¤§å“åº”è¶Šå¼ºã€‚
- * erect_Inc_Y: Yæ–¹å‘é«˜åº¦æ§åˆ¶ï¼Œé€šè¿‡è°ƒæ•´è¿æ†Yåæ ‡å®ç°é«˜åº¦å˜åŒ–ã€‚
- * erect_Inc_Roll: ç¿»æ»šç¨³å®šæ§åˆ¶ï¼Œé€šè¿‡å·¦å³è…¿Yåæ ‡å·®å®ç°ä¾§å€¾è¡¥å¿ã€‚
+/* ---- ÔË¶¯Ñ§ÔöÁ¿Ê½PID²ÎÊı ----
+ * erect_Inc_X: X·½ÏòÇ°ºóÎ»ÒÆ¿ØÖÆ£¬ÖµÔ½´óÏìÓ¦Ô½Ç¿¡£
+ * erect_Inc_Y: Y·½Ïò¸ß¶È¿ØÖÆ£¬Í¨¹ıµ÷ÕûÁ¬¸ËY×ø±êÊµÏÖ¸ß¶È±ä»¯¡£
+ * erect_Inc_Roll: ·­¹öÎÈ¶¨¿ØÖÆ£¬Í¨¹ı×óÓÒÍÈY×ø±ê²îÊµÏÖ²àÇã²¹³¥¡£
  */
-// é€Ÿåº¦ç¯ï¼Œæ”¹å˜æœºæ¢°é›¶ç‚¹
-float erect_Inc_X[4] = {2.7, 0, 0, 0};  /* Xä½ç§»: {KP, KI, KD, ç§¯åˆ†é™å¹…} */
-float erect_Inc_Y[3] = {1, 0, 0};       /* Yé«˜åº¦:  {KP, KI, KD} */
-float erect_Inc_Roll[3] = {0.15, 0, 0}; /* ç¿»æ»š:   {KP, KI, KD} */
-float erect_yawan[3] = {0, 0, 0};       /* åèˆªè¾…åŠ©: {KP, KI, KD} */
-float erect_Km[3] = {1.1, 0.1, 0.05};   /* è¿åŠ¨å­¦æ··åˆç³»æ•°ï¼ˆé¢„ç•™ï¼‰ */
+// ËÙ¶È»·£¬¸Ä±ä»úĞµÁãµã
+float erect_Inc_X[4] = {2.7, 0, 0, 0};  /* XÎ»ÒÆ: {KP, KI, KD, »ı·ÖÏŞ·ù} */
+float erect_Inc_Y[3] = {1, 0, 0};       /* Y¸ß¶È:  {KP, KI, KD} */
+float erect_Inc_Roll[3] = {0.15, 0, 0}; /* ·­¹ö:   {KP, KI, KD} */
+float erect_yawan[3] = {0, 0, 0};       /* Æ«º½¸¨Öú: {KP, KI, KD} */
+float erect_Km[3] = {1.1, 0.1, 0.05};   /* ÔË¶¯Ñ§»ìºÏÏµÊı£¨Ô¤Áô£© */
 
-/* ---- SZRè½¬å‘è°ƒèŠ‚å‚æ•° ---- */
-float erect_SZR[4] = {0, 0, 0, 0}; /* SZR: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
+/* ---- SZR×ªÏòµ÷½Ú²ÎÊı ---- */
+float erect_SZR[4] = {0, 0, 0, 0}; /* SZR: {KP, KP2, KD, »ı·ÖÏŞ·ù} */
 
-/******** Highæ¨¡å¼å‚æ•°ç»„ï¼ˆå·²æ³¨é‡Šï¼Œç”¨äºé«˜é€Ÿ/é«˜åŠ¨æ€åœºæ™¯ï¼‰ ********/
+/******** HighÄ£Ê½²ÎÊı×é£¨ÒÑ×¢ÊÍ£¬ÓÃÓÚ¸ßËÙ/¸ß¶¯Ì¬³¡¾°£© ********/
 // float erect_Gyro_Pitch_High[4]   = {  1.5  ,  0  ,  2  ,  0  };
 // float erect_Angle_Pitch_High[4]  = {  450  ,  0  ,  500  ,  0  };
 // float erect_Gyro_Roll_High[4]    = {  0  ,  0  ,  0  ,  0  };
@@ -182,14 +124,14 @@ float erect_SZR[4] = {0, 0, 0, 0}; /* SZR: {KP, KP2, KD, ç§¯åˆ†é™å¹…} */
 // float erect_Inc_Roll_High[3]     = {  -0.2, 0, 0 };
 // float erect_Km_High[3]           = {  1.1,  0.1,  0.05  };
 // float erect_SZR_High[4]          = {  0.3, 0, 0.6, 0 };
-/*********** Highæ¨¡å¼å‚æ•°ç»„ç»“æŸ **********/
+/*********** HighÄ£Ê½²ÎÊı×é½áÊø **********/
 
 /**
- * @brief   å¯åŠ¨åŸåœ°æ—‹è½¬ï¼ˆSpin3ï¼‰
- * @param   dir     æ—‹è½¬æ–¹å‘ï¼š>=0é€†æ—¶é’ˆ, <0é¡ºæ—¶é’ˆ
+ * @brief   Æô¶¯Ô­µØĞı×ª£¨Spin3£©
+ * @param   dir     Ğı×ª·½Ïò£º>=0ÄæÊ±Õë, <0Ë³Ê±Õë
  *
- * è®¾å®šç›®æ ‡åèˆªè§’ä¸ºå½“å‰è§’åº¦ Â± 1080Â°ï¼ˆ3åœˆï¼‰ï¼Œ
- * å¹¶å°†æ§åˆ¶æ¨¡å¼åˆ‡æ¢ä¸º turn_mode=6ï¼ˆå›ºå®šè§’åº¦æ—‹è½¬æ¨¡å¼ï¼‰ã€‚
+ * Éè¶¨Ä¿±êÆ«º½½ÇÎªµ±Ç°½Ç¶È ¡À 1080¡ã£¨3È¦£©£¬
+ * ²¢½«¿ØÖÆÄ£Ê½ÇĞ»»Îª turn_mode=6£¨¹Ì¶¨½Ç¶ÈĞı×ªÄ£Ê½£©¡£
  */
 void Spin3_Start(int8 dir)
 {
@@ -201,7 +143,7 @@ void Spin3_Start(int8 dir)
     spin3_hold_cnt = 0;
     spin3_active = 1;
 
-    /* è¿›å…¥å›ºå®šè§’åº¦æ—‹è½¬æ¨¡å¼ */
+    /* ½øÈë¹Ì¶¨½Ç¶ÈĞı×ªÄ£Ê½ */
     flag_stop = 0;
     // Deviation_Value = 0;
     // desired_yaw = 0;
@@ -210,12 +152,12 @@ void Spin3_Start(int8 dir)
 }
 
 /**
- * @brief   å°†è§’åº¦å½’ä¸€åŒ–åˆ° [-180Â°, 180Â°] èŒƒå›´
- * @param   x   è¾“å…¥è§’åº¦ï¼ˆåº¦ï¼‰
- * @return  å½’ä¸€åŒ–åçš„è§’åº¦
+ * @brief   ½«½Ç¶È¹éÒ»»¯µ½ [-180¡ã, 180¡ã] ·¶Î§
+ * @param   x   ÊäÈë½Ç¶È£¨¶È£©
+ * @return  ¹éÒ»»¯ºóµÄ½Ç¶È
  *
- * é¿å…åèˆªè§’åœ¨ Â±180Â° è¾¹ç•Œå¤„äº§ç”Ÿä¸è¿ç»­æ€§ï¼Œ
- * ä½¿PIDè®¡ç®—ä¸­çš„è§’åº¦è¯¯å·®å§‹ç»ˆå–æœ€çŸ­è·¯å¾„ã€‚
+ * ±ÜÃâÆ«º½½ÇÔÚ ¡À180¡ã ±ß½ç´¦²úÉú²»Á¬ĞøĞÔ£¬
+ * Ê¹PID¼ÆËãÖĞµÄ½Ç¶ÈÎó²îÊ¼ÖÕÈ¡×î¶ÌÂ·¾¶¡£
  */
 float steer_wrap_deg180(float x)
 {
@@ -226,53 +168,31 @@ float steer_wrap_deg180(float x)
     return x;
 }
 
-<<<<<<< HEAD
-// ¸ù¾İÓĞĞ§ĞÔºÍÑ¡ÔñµÄÄ£Ê½È·¶¨Ö÷¶¯×ªÏòÔ´¡£
-
-
-
-
-
-
-/*************************************ÂÖ×ãÔË¶¯Ñ§Äæ½â*************************************/
-//----------------------------------------------------------------
-//  @brief      ±Õ»·ÎåÁ¬¸ËÄ£ĞÍÔË¶¯Ñ§Äæ½â
-//  @param      L1   Ãæ³¯×ó²àÊ±£¬×ó±ÛÉÏÁ¬¸Ë³¤¶È
-//  @param      L2   Ãæ³¯×ó²àÊ±£¬×ó±ÛÏÂÁ¬¸Ë³¤¶È
-//  @param      L3   Ãæ³¯×ó²àÊ±£¬ÓÒ±ÛÉÏÁ¬¸Ë³¤¶È
-//  @param      L4   Ãæ³¯×ó²àÊ±£¬ÓÒ±ÛÏÂÁ¬¸Ë³¤¶È
-//  @param      L5   Ãæ³¯×ó²àÊ±£¬ÉÏ·½ºáÁ¬¸Ë³¤¶È
-//  @return     void
-
-//  @note       Ä£ĞÍÎª³µÃæ³¯×ó²à£¬¹Ê¿¿Ç°·½Îª×óÍÈ£¬ºó·½ÎªÓÒÍÈ£¬×¢Òâ×óÓÒalphaºÍbeta¶ÔÓ¦µÄ¶æ»ú½Ç¶È
-//----------------------------------------------------------------
-=======
-/************************************* äº”è¿æ†é€†è¿åŠ¨å­¦é€†è§£ *************************************/
+/************************************* ÎåÁ¬¸ËÄæÔË¶¯Ñ§Äæ½â *************************************/
 /**
- * @brief   é—­ç¯äº”è¿æ†æ¨¡å‹é€†è¿åŠ¨å­¦æ±‚è§£
+ * @brief   ±Õ»·ÎåÁ¬¸ËÄ£ĞÍÄæÔË¶¯Ñ§Çó½â
  *
- * æ¨¡å‹æè¿°ï¼ˆè½¦ä½“é¢æœå·¦ä¾§æ—¶ï¼‰ï¼š
- *   - åæ–¹ä¸ºå·¦è…¿ï¼Œå‰æ–¹ä¸ºå³è…¿
- *   - L1=å·¦è…¿ä¸Šè¿æ†, L2=å·¦è…¿ä¸‹è¿æ†
- *   - L3=å³è…¿ä¸Šè¿æ†, L4=å³è…¿ä¸‹è¿æ†
- *   - L5=ä¸Šæ–¹æ¨ªè¿æ†ï¼ˆè¿æ¥å·¦å³è…¿ï¼‰
- *   - alpha=ä¸Šæ–¹èˆµæœºè§’, beta=ä¸‹æ–¹èˆµæœºè§’ï¼ˆå¼§åº¦ï¼‰
+ * Ä£ĞÍÃèÊö£¨³µÌåÃæ³¯×ó²àÊ±£©£º
+ *   - ºó·½Îª×óÍÈ£¬Ç°·½ÎªÓÒÍÈ
+ *   - L1=×óÍÈÉÏÁ¬¸Ë, L2=×óÍÈÏÂÁ¬¸Ë
+ *   - L3=ÓÒÍÈÉÏÁ¬¸Ë, L4=ÓÒÍÈÏÂÁ¬¸Ë
+ *   - L5=ÉÏ·½ºáÁ¬¸Ë£¨Á¬½Ó×óÓÒÍÈ£©
+ *   - alpha=ÉÏ·½¶æ»ú½Ç, beta=ÏÂ·½¶æ»ú½Ç£¨»¡¶È£©
  *
- * æ±‚è§£åŸç†ï¼š
- *   å·²çŸ¥æœ«ç«¯åæ ‡(X,Y)ï¼Œé€šè¿‡å‡ ä½•çº¦æŸæ–¹ç¨‹æ±‚è§£alphaå’Œbetaã€‚
- *   æ¯ç»„æ–¹ç¨‹æœ‰ä¸¤ä¸ªè§£ï¼ˆatançš„Â±sqrtåˆ†æ”¯ï¼‰ï¼Œéœ€æ ¹æ®æœºæ¢°çº¦æŸé€‰å–æœ‰æ•ˆè§£ï¼š
- *   - alpha >= Ï€/2ï¼ˆä¸Šæ–¹èˆµæœºéœ€åœ¨ä¸ŠåŠåŒºåŸŸï¼‰
- *   - 0 <= beta <= Ï€/2ï¼ˆä¸‹æ–¹èˆµæœºéœ€åœ¨ç¬¬ä¸€è±¡é™ï¼‰
+ * Çó½âÔ­Àí£º
+ *   ÒÑÖªÄ©¶Ë×ø±ê(X,Y)£¬Í¨¹ı¼¸ºÎÔ¼Êø·½³ÌÇó½âalphaºÍbeta¡£
+ *   Ã¿×é·½³ÌÓĞÁ½¸ö½â£¨atanµÄ¡Àsqrt·ÖÖ§£©£¬Ğè¸ù¾İ»úĞµÔ¼ÊøÑ¡È¡ÓĞĞ§½â£º
+ *   - alpha >= ¦Ğ/2£¨ÉÏ·½¶æ»úĞèÔÚÉÏ°ëÇøÓò£©
+ *   - 0 <= beta <= ¦Ğ/2£¨ÏÂ·½¶æ»úĞèÔÚµÚÒ»ÏóÏŞ£©
  *
- * ç»“æœè½¬æ¢ä¸ºè§’åº¦åç›´æ¥è¾“å‡ºåˆ°å››ä¸ªèˆµæœºï¼ˆLF/RF/LB/RBï¼‰ã€‚
+ * ½á¹û×ª»»Îª½Ç¶ÈºóÖ±½ÓÊä³öµ½ËÄ¸ö¶æ»ú£¨LF/RF/LB/RB£©¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 float servoLeftFront, servoLeftRear, servoRightFront, servoRightRear;
 void inverseKinematics()
 {
     float alpha1, alpha2, beta1, beta2;
 
-    /* ---- å·¦è…¿é€†è§£ ---- */
+    /* ---- ×óÍÈÄæ½â ---- */
     float aLeft = 2 * IKParam.XLeft * L1;
     float bLeft = 2 * IKParam.YLeft * L1;
     float cLeft = IKParam.XLeft * IKParam.XLeft + IKParam.YLeft * IKParam.YLeft + L1 * L1 - L2 * L2;
@@ -280,18 +200,18 @@ void inverseKinematics()
     float eLeft = 2 * L4 * IKParam.YLeft;
     float fLeft = ((IKParam.XLeft - L5) * (IKParam.XLeft - L5) + L4 * L4 + IKParam.YLeft * IKParam.YLeft - L3 * L3);
 
-    /* æ±‚è§£alphaçš„ä¸¤ä¸ªå€™é€‰å€¼ï¼ˆatan2åˆ†æ”¯ï¼‰ */
+    /* Çó½âalphaµÄÁ½¸öºòÑ¡Öµ£¨atan2·ÖÖ§£© */
     alpha1 = 2 * atan((bLeft + sqrt((aLeft * aLeft) + (bLeft * bLeft) - (cLeft * cLeft))) / (aLeft + cLeft));
     alpha2 = 2 * atan((bLeft - sqrt((aLeft * aLeft) + (bLeft * bLeft) - (cLeft * cLeft))) / (aLeft + cLeft));
-    /* æ±‚è§£betaçš„ä¸¤ä¸ªå€™é€‰å€¼ */
+    /* Çó½âbetaµÄÁ½¸öºòÑ¡Öµ */
     beta1 = 2 * atan((eLeft + sqrt((dLeft * dLeft) + eLeft * eLeft - (fLeft * fLeft))) / (dLeft + fLeft));
     beta2 = 2 * atan((eLeft - sqrt((dLeft * dLeft) + eLeft * eLeft - (fLeft * fLeft))) / (dLeft + fLeft));
 
-    /* alphaå½’ä¸€åŒ–åˆ°[0, 2Ï€) */
+    /* alpha¹éÒ»»¯µ½[0, 2¦Ğ) */
     alpha1 = (alpha1 >= 0) ? alpha1 : (alpha1 + 2 * M_PI);
     alpha2 = (alpha2 >= 0) ? alpha2 : (alpha2 + 2 * M_PI);
 
-    /* é€‰è§£ï¼šalphaå–>=Ï€/2çš„è§£ï¼Œbetaå–[0, Ï€/2]å†…çš„è§£ */
+    /* Ñ¡½â£ºalphaÈ¡>=¦Ğ/2µÄ½â£¬betaÈ¡[0, ¦Ğ/2]ÄÚµÄ½â */
     if (alpha1 >= M_PI / 2)
         IKParam.alphaLeft = alpha1;
     else
@@ -301,7 +221,7 @@ void inverseKinematics()
     else
         IKParam.betaLeft = beta2;
 
-    /* ---- å³è…¿é€†è§£ï¼ˆç»“æ„ä¸å·¦è…¿å¯¹ç§°ï¼‰---- */
+    /* ---- ÓÒÍÈÄæ½â£¨½á¹¹Óë×óÍÈ¶Ô³Æ£©---- */
     float aRight = 2 * IKParam.XRight * L1;
     float bRight = 2 * IKParam.YRight * L1;
     float cRight = IKParam.XRight * IKParam.XRight + IKParam.YRight * IKParam.YRight + L1 * L1 - L2 * L2;
@@ -312,7 +232,7 @@ void inverseKinematics()
     IKParam.alphaRight = 2 * atan((bRight + sqrt((aRight * aRight) + (bRight * bRight) - (cRight * cRight))) / (aRight + cRight));
     IKParam.betaRight = 2 * atan((eRight - sqrt((dRight * dRight) + eRight * eRight - (fRight * fRight))) / (dRight + fRight));
 
-    /* é‡æ–°è®¡ç®—ä»¥å®Œæˆé€‰è§£é€»è¾‘ */
+    /* ÖØĞÂ¼ÆËãÒÔÍê³ÉÑ¡½âÂß¼­ */
     alpha1 = 2 * atan((bRight + sqrt((aRight * aRight) + (bRight * bRight) - (cRight * cRight))) / (aRight + cRight));
     alpha2 = 2 * atan((bRight - sqrt((aRight * aRight) + (bRight * bRight) - (cRight * cRight))) / (aRight + cRight));
     beta1 = 2 * atan((eRight + sqrt((dRight * dRight) + eRight * eRight - (fRight * fRight))) / (dRight + fRight));
@@ -330,11 +250,7 @@ void inverseKinematics()
     else
         IKParam.betaRight = beta2;
 
-<<<<<<< HEAD
-    // »¡¶È×ª½Ç¶È
-=======
-    /* å¼§åº¦è½¬æ¢ä¸ºè§’åº¦ï¼Œè¾“å‡ºåˆ°å››ä¸ªèˆµæœº */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* »¡¶È×ª»»Îª½Ç¶È£¬Êä³öµ½ËÄ¸ö¶æ»ú */
     servoLeftFront = RAD_TO_ANGLE(IKParam.alphaLeft);
     servoLeftRear = RAD_TO_ANGLE(IKParam.betaLeft);
     servoRightFront = RAD_TO_ANGLE(IKParam.alphaRight);
@@ -354,67 +270,44 @@ void inverseKinematics()
     servo_set_angle(LB, servoLeftRear);
     servo_set_angle(RB, servoRightRear);
 
-<<<<<<< HEAD
-    
-    //  setServoAngle(servoLeftFront,servoLeftRear,servoRightFront,servoRightRear);
-}
-
-float X = 0, X_l = 0, Y = 5; // È·¶¨YÖµĞèÏÈÈ·¶¨¶æ»úÖĞÖµ
-float temp_kx_x[4] = {0};
-volatile float vv1 = 0;
-volatile float dd2 = 0;
-volatile float roll_filter = 0;
-float stab_roll = 0;
-float kpp = -0.3;
-float SZR = 0;
-float yawan = 0;
-float dif_now = 0;
-float dif_last = 0;
-// ×îµÍ×ËÌ¬¸ß¶È
-=======
     // servo_set_angle(RF, 225); servo_set_angle(RB, -45);
     // servo_set_angle(LF, 225); servo_set_angle(LB, -45);
 }
 
-/************************************* äº”è¿æ†é€†è¿åŠ¨å­¦é€†è§£ *************************************/
+/************************************* ÎåÁ¬¸ËÄæÔË¶¯Ñ§Äæ½â *************************************/
 
 /**
- * @brief   åœ°å½¢è‡ªé€‚åº”ä¸»æ§åˆ¶å‡½æ•°
+ * @brief   µØĞÎ×ÔÊÊÓ¦Ö÷¿ØÖÆº¯Êı
  *
- * æ¯æ§åˆ¶å‘¨æœŸæ‰§è¡Œä¸€æ¬¡ï¼Œå®Œæˆä»¥ä¸‹æ­¥éª¤ï¼š
- *   1. è®¡ç®—å·¦å³è½®é€Ÿå·® â†’ å¢é‡å¼PID â†’ å¾—åˆ°Xæ–¹å‘ä½ç§»è°ƒæ•´é‡
- *   2. è®¡ç®—å½“å‰é«˜åº¦è¯¯å·® â†’ å¢é‡å¼PID â†’ å¾—åˆ°Yæ–¹å‘é«˜åº¦è°ƒæ•´é‡
- *   3. è®¡ç®—SZRè½¬å‘è°ƒèŠ‚é‡
- *   4. è®¡ç®—ç¿»æ»šç¨³å®šï¼ˆstab_rollï¼‰å’Œåèˆªè¾…åŠ©ï¼ˆyawanï¼‰
- *   5. æ ¹æ®flag_stop/flag_jumpç­‰çŠ¶æ€æ ‡å¿—ï¼Œè®¾å®šIKParamç›®æ ‡åæ ‡
- *   6. åæ ‡é™å¹…å¤„ç†åï¼Œè°ƒç”¨é€†è¿åŠ¨å­¦è§£ç®—å¹¶è¾“å‡ºèˆµæœºè§’åº¦
+ * Ã¿¿ØÖÆÖÜÆÚÖ´ĞĞÒ»´Î£¬Íê³ÉÒÔÏÂ²½Öè£º
+ *   1. ¼ÆËã×óÓÒÂÖËÙ²î ¡ú ÔöÁ¿Ê½PID ¡ú µÃµ½X·½ÏòÎ»ÒÆµ÷ÕûÁ¿
+ *   2. ¼ÆËãµ±Ç°¸ß¶ÈÎó²î ¡ú ÔöÁ¿Ê½PID ¡ú µÃµ½Y·½Ïò¸ß¶Èµ÷ÕûÁ¿
+ *   3. ¼ÆËãSZR×ªÏòµ÷½ÚÁ¿
+ *   4. ¼ÆËã·­¹öÎÈ¶¨£¨stab_roll£©ºÍÆ«º½¸¨Öú£¨yawan£©
+ *   5. ¸ù¾İflag_stop/flag_jumpµÈ×´Ì¬±êÖ¾£¬Éè¶¨IKParamÄ¿±ê×ø±ê
+ *   6. ×ø±êÏŞ·ù´¦Àíºó£¬µ÷ÓÃÄæÔË¶¯Ñ§½âËã²¢Êä³ö¶æ»ú½Ç¶È
  *
- * å•è…¿çŠ¶æ€(Single_state)ä¸‹ï¼šXèŒƒå›´[-3, 3]
- * åŒè…¿çŠ¶æ€(normal)ä¸‹ï¼š  XèŒƒå›´[-1, 4.5], YèŒƒå›´[3, 14]
+ * µ¥ÍÈ×´Ì¬(Single_state)ÏÂ£ºX·¶Î§[-3, 3]
+ * Ë«ÍÈ×´Ì¬(normal)ÏÂ£º  X·¶Î§[-1, 4.5], Y·¶Î§[3, 14]
  */
-float X = 0, X_l = 0, Y = 5;    /* Yåˆå§‹å€¼5cmï¼ˆéœ€å…ˆç¡®å®šèˆµæœºä¸­ä½ï¼‰ */
-float temp_kx_x[4] = {0};       /* Xä½ç§»PIDå‚æ•°ä¸´æ—¶ç¼“å†² */
-volatile float vv1 = 0;         /* å·¦å³è½®é€Ÿå·®ä½é€šæ»¤æ³¢å€¼ */
-volatile float dd2 = 0;         /* è½®é€Ÿå’Œå˜åŒ–ç‡ï¼ˆæ€¥åŠ é€Ÿæ£€æµ‹ï¼‰ */
-volatile float roll_filter = 0; /* ç¿»æ»šè§’ä½é€šæ»¤æ³¢å€¼ */
-float stab_roll = 0;            /* ç¿»æ»šç¨³å®šè¡¥å¿é‡ */
-float kpp = -0.3;               /* é¢„ç•™æ¯”ä¾‹ç³»æ•° */
-float SZR = 0;                  /* SZRè½¬å‘è°ƒèŠ‚è¾“å‡º */
-float yawan = 0;                /* åèˆªè¾…åŠ©è¾“å‡º */
-float dif_now = 0;              /* å½“å‰å‘¨æœŸè½®é€Ÿå’Œç»å¯¹å€¼ */
-float dif_last = 0;             /* ä¸Šä¸€å‘¨æœŸè½®é€Ÿå’Œç»å¯¹å€¼ */
+float X = 0, X_l = 0, Y = 5;    /* Y³õÊ¼Öµ5cm£¨ĞèÏÈÈ·¶¨¶æ»úÖĞÎ»£© */
+float temp_kx_x[4] = {0};       /* XÎ»ÒÆPID²ÎÊıÁÙÊ±»º³å */
+volatile float vv1 = 0;         /* ×óÓÒÂÖËÙ²îµÍÍ¨ÂË²¨Öµ */
+volatile float dd2 = 0;         /* ÂÖËÙºÍ±ä»¯ÂÊ£¨¼±¼ÓËÙ¼ì²â£© */
+volatile float roll_filter = 0; /* ·­¹ö½ÇµÍÍ¨ÂË²¨Öµ */
+float stab_roll = 0;            /* ·­¹öÎÈ¶¨²¹³¥Á¿ */
+float kpp = -0.3;               /* Ô¤Áô±ÈÀıÏµÊı */
+float SZR = 0;                  /* SZR×ªÏòµ÷½ÚÊä³ö */
+float yawan = 0;                /* Æ«º½¸¨ÖúÊä³ö */
+float dif_now = 0;              /* µ±Ç°ÖÜÆÚÂÖËÙºÍ¾ø¶ÔÖµ */
+float dif_last = 0;             /* ÉÏÒ»ÖÜÆÚÂÖËÙºÍ¾ø¶ÔÖµ */
 
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 void Adapt_Terrain(void)
 {
     //    static float a = 0.1;
     //    get_eulerAngle();
 
-<<<<<<< HEAD
-    // Æ½»¬¼ÆËã¶¥µã×ø±ê£¬¶¨ÆÚÇĞ»»ÎªPID
-=======
-    // å¹³é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå§é¡¶é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿç–¥ï¼Œé”Ÿæ–¤æ‹·é”ŸèŠ‚åŒ¡æ‹·é”ŸèŠ¥æ¢ä¸ºPID
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    // Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ã¶¥ï¿½ï¿½ï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½æ»»ÎªPID
     vv1 = 0.05f * (float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data) + 0.95 * vv1;
     dif_now = func_abs((float)(motor_value.receive_left_speed_data + motor_value.receive_right_speed_data));
     dd2 = func_abs(dif_now - dif_last);
@@ -470,39 +363,6 @@ void Adapt_Terrain(void)
         IKParam.YLeft = Y - stab_roll;
         IKParam.YRight = Y;
     }
-<<<<<<< HEAD
-
-    if (Single_state == 1 && flag_Single_HighState == 0) // Õ¾Á¢
-    {
-        //        TCount_falg_4ms= 1;
-        temp_kx_x[0] = erect_Inc_X[0] * 2;
-        temp_kx_x[1] = 0;
-        temp_kx_x[2] = 0;
-        temp_kx_x[3] = 0;
-        //        if(func_abs(Y - Yao.Target_height) <= 0.1)
-        //        {
-        //            IKParam.XLeft  -= 0.1;
-        //            IKParam.XRight -= 0.1;
-        IKParam.XLeft = func_limit_ab(IKParam.XLeft, -3, 3);
-        IKParam.XRight = func_limit_ab(IKParam.XRight, -3, 3);
-        //            if(TCount_4ms >= 15)
-        //                TCount_falg_4ms = 0;
-        //        }
-        //        IKParam.YLeft  = 6;
-        //        IKParam.YRight = 6;
-    }
-    else
-    {
-        temp_kx_x[0] = erect_Inc_X[0];
-        temp_kx_x[1] = 0;
-        temp_kx_x[2] = 0;
-        temp_kx_x[3] = 0;
-        IKParam.XLeft = Limit_Float(IKParam.XLeft, -1.0f, 4.5f);
-        IKParam.XRight = Limit_Float(IKParam.XRight, -1.0f, 4.5f);
-        IKParam.YLeft = Limit_Float(IKParam.YLeft, 3.0f, 14.0f);
-        IKParam.YRight = Limit_Float(IKParam.YRight, 3.0f, 14.0f);
-    } // ÊÕÍÈ:2.6, 14.8, 7
-=======
     else
     {
         IKParam.YLeft = Y;
@@ -533,7 +393,7 @@ void Adapt_Terrain(void)
     //    }
     //
 
-    //    if(Single_state == 1 && flag_Single_HighState == 0) // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+    //    if(Single_state == 1 && flag_Single_HighState == 0) // ï¿½ï¿½ï¿½ï¿½
     //    {
     ////        TCount_falg_4ms= 1;
     //        temp_kx_x[0] = erect_Inc_X[0] * 2;
@@ -562,46 +422,36 @@ void Adapt_Terrain(void)
     //        IKParam.XRight = Limit_Float(IKParam.XRight,-1.0f,4.5f);
     //        IKParam.YLeft  = Limit_Float(IKParam.YLeft ,3.0f,14.0f);
     //        IKParam.YRight = Limit_Float(IKParam.YRight,3.0f,14.0f);
-    //    } // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·:2.6, 14.8, 7
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    //    } // ï¿½ï¿½ï¿½ï¿½:2.6, 14.8, 7
     //    IKParam.XLeft  = -1;
     //    IKParam.XRight = -1;
     //    IKParam.YLeft  = 3;
     //    IKParam.YRight = 3;
 
-<<<<<<< HEAD
-    // ÔË¶¯Ñ§Äæ½âËã²¢Êä³ö¶æ»ú
-    if (flag_jump_1 == 1 || flag_jump == 0)
-        inverseKinematics();
-}
+    // ÔË¶¯Ñ§¼ÆËã£¨º¬ÌøÔ¾ÅĞ¶Ï£©
 
-/*************************************ÂÖ×ãÔË¶¯Ñ§Äæ½â*************************************/
-/********************************ÊÅ·É×ªÏò²ÎÊıPID********************************/
-=======
-    // é”Ÿå‰¿è®¹æ‹·å­¦é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ‚´î®æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
     //    if(flag_jump_1 == 1 || flag_jump == 0)
     inverseKinematics();
 }
 
-/************************************* è½¬å‘PIDï¼ˆå«é™€èºä»ªå‰é¦ˆï¼‰ ************************************/
+/************************************* ×ªÏòPID£¨º¬ÍÓÂİÒÇÇ°À¡£© ************************************/
 /**
- * @brief   è½¬å‘PIDæ§åˆ¶å™¨ï¼ˆå«é™€èºä»ªå‰é¦ˆï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KP2(éçº¿æ€§å¢ç›Š), KD, é™€èºä»ªå‰é¦ˆå¢ç›Š}
- * @param   gyro        å½“å‰é™€èºä»ªè§’é€Ÿåº¦ï¼ˆç”¨äºå‰é¦ˆè¡¥å¿ï¼‰
- * @param   err         ç›®æ ‡è¯¯å·®
- * @return  æ§åˆ¶è¾“å‡ºå€¼
+ * @brief   ×ªÏòPID¿ØÖÆÆ÷£¨º¬ÍÓÂİÒÇÇ°À¡£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KP2(·ÇÏßĞÔÔöÒæ), KD, ÍÓÂİÒÇÇ°À¡ÔöÒæ}
+ * @param   gyro        µ±Ç°ÍÓÂİÒÇ½ÇËÙ¶È£¨ÓÃÓÚÇ°À¡²¹³¥£©
+ * @param   err         Ä¿±êÎó²î
+ * @return  ¿ØÖÆÊä³öÖµ
  *
- * è¾“å‡º = KP*err + KP2*err*|err| + KD*dErr + å‰é¦ˆå¢ç›Š*gyro
+ * Êä³ö = KP*err + KP2*err*|err| + KD*dErr + Ç°À¡ÔöÒæ*gyro
  *
- * éçº¿æ€§é¡¹ KP2*err*|err|ï¼š
- *   å¤§è¯¯å·® â†’ è¾“å‡ºå¢å¼ºï¼ˆå¼ºåŠ›çº æ­£ï¼‰
- *   å°è¯¯å·® â†’ è¾“å‡ºæŸ”å’Œï¼ˆé¿å…è¶…è°ƒæŒ¯è¡ï¼‰
+ * ·ÇÏßĞÔÏî KP2*err*|err|£º
+ *   ´óÎó²î ¡ú Êä³öÔöÇ¿£¨Ç¿Á¦¾ÀÕı£©
+ *   Ğ¡Îó²î ¡ú Êä³öÈáºÍ£¨±ÜÃâ³¬µ÷Õñµ´£©
  *
- * é™€èºä»ªå‰é¦ˆï¼šç›´æ¥è¡¥å¿å½“å‰è§’é€Ÿåº¦ï¼Œæé«˜å“åº”é€Ÿåº¦ã€‚
- * ä½é€šæ»¤æ³¢ç³»æ•° a=0.5ï¼Œä¸­ç­‰å¹³æ»‘åº¦ã€‚
+ * ÍÓÂİÒÇÇ°À¡£ºÖ±½Ó²¹³¥µ±Ç°½ÇËÙ¶È£¬Ìá¸ßÏìÓ¦ËÙ¶È¡£
+ * µÍÍ¨ÂË²¨ÏµÊı a=0.5£¬ÖĞµÈÆ½»¬¶È¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float err)
 {
     float V_out;
@@ -609,12 +459,8 @@ float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float e
 
     pid_info->iError = err;
 
-<<<<<<< HEAD
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹ËÙ¶ÈÍ»±ä
-=======
-    /* ä½é€šæ»¤æ³¢ï¼Œä½¿æ³¢å½¢æ›´å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢å¾®åˆ†çªå˜ */
+    /* µÍÍ¨ÂË²¨£¬Ê¹²¨ĞÎ¸üÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Î¢·ÖÍ»±ä */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 
     V_out = PID_Parm[0] * pid_info->iError +
             PID_Parm[1] * pid_info->iError * func_abs(pid_info->iError) +
@@ -624,63 +470,40 @@ float PID_turn_seekfree(PID_INFO *pid_info, float *PID_Parm, float gyro, float e
 
     return V_out;
 }
-<<<<<<< HEAD
-/********************************ÊÅ·É×ªÏò²ÎÊıPID********************************/
-/*************************************´®¼¶£¨Íâ-ËÙ¶È ´ÎÍâ-½Ç¶È ÄÚ-½ÇËÙ¶È£© ÄÚ-½ÇËÙ¶È************************************/
-/*****************---------Íâ-ËÙ¶È---------*****************/
-=======
-/************************************* è½¬å‘PIDï¼ˆå«é™€èºä»ªå‰é¦ˆï¼‰ ************************************/
+/************************************* ×ªÏòPID£¨º¬ÍÓÂİÒÇÇ°À¡£© ************************************/
 
-/************************************* ä¸²çº§PIDï¼šé€Ÿåº¦ç¯ â†’ è§’åº¦ç¯ â†’ è§’é€Ÿåº¦ç¯ ************************************/
+/************************************* ´®¼¶PID£ºËÙ¶È»· ¡ú ½Ç¶È»· ¡ú ½ÇËÙ¶È»· ************************************/
 
 /**
- * @brief   ä¿¯ä»°é€Ÿåº¦ç¯PIDï¼ˆä¸²çº§æœ€å¤–å±‚ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰é€Ÿåº¦
- * @param   SetPoint    ç›®æ ‡é€Ÿåº¦
- * @return  è§’åº¦ç¯è®¾å®šå€¼ï¼ˆä½œä¸ºä¸²çº§PIDä¸­è§’åº¦ç¯çš„ç›®æ ‡è¾“å…¥ï¼‰
+ * @brief   ¸©ÑöËÙ¶È»·PID£¨´®¼¶×îÍâ²ã£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°ËÙ¶È
+ * @param   SetPoint    Ä¿±êËÙ¶È
+ * @return  ½Ç¶È»·Éè¶¨Öµ£¨×÷Îª´®¼¶PIDÖĞ½Ç¶È»·µÄÄ¿±êÊäÈë£©
  *
- * æ»¤æ³¢ç³»æ•° a=0.5ï¼ˆä¸­ç­‰å¹³æ»‘ï¼‰ã€‚
- * è¾“å‡ºä¾›è§’åº¦ç¯ä½œä¸ºSetPointä½¿ç”¨ï¼Œå½¢æˆä¸‰ç¯ä¸²çº§ç»“æ„ã€‚
+ * ÂË²¨ÏµÊı a=0.5£¨ÖĞµÈÆ½»¬£©¡£
+ * Êä³ö¹©½Ç¶È»·×÷ÎªSetPointÊ¹ÓÃ£¬ĞÎ³ÉÈı»·´®¼¶½á¹¹¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.5;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËãËÙ¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.¶ÔËÙ¶ÈÆ«²î½øĞĞµÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹ËÙ¶ÈÍ»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-=======
-    /* 1. è®¡ç®—é€Ÿåº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ï¼Œä½¿æ³¢å½¢æ›´å¹³æ»‘ï¼Œæ»¤é™¤é«˜é¢‘å¹²æ‰°ï¼Œé˜²æ­¢é€Ÿåº¦çªå˜ */
+    /* 2. µÍÍ¨ÂË²¨£¬Ê¹²¨ĞÎ¸üÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹ËÙ¶ÈÍ»±ä */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
+    /* 3. »ı·ÖÏŞ·ù */
     // if(PID_Parm[3])
     // {
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -689,29 +512,21 @@ float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     return V_out;
 }
 
-<<<<<<< HEAD
-/*****************---------´ÎÍâ-½Ç¶È---------*****************/
-float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
-{
-    static float temp_param[4] = {0};
-    (void)temp_param; // ±¸ÓÃ²ÎÊı£¨¶ÔÓ¦´úÂëÒÑ×¢ÊÍ£©£¬Ïû³ıÎ´Ê¹ÓÃ¾¯¸æ
-=======
 /**
- * @brief   ä¿¯ä»°è§’åº¦ç¯PIDï¼ˆä¸²çº§ä¸­é—´å±‚/å¤–ç¯ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰è§’åº¦
- * @param   SetPoint    ç›®æ ‡è§’åº¦
- * @return  è§’é€Ÿåº¦è®¾å®šå€¼ï¼ˆä¾›è§’é€Ÿåº¦ç¯ä½¿ç”¨ï¼‰
+ * @brief   ¸©Ñö½Ç¶È»·PID£¨´®¼¶ÖĞ¼ä²ã/Íâ»·£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°½Ç¶È
+ * @param   SetPoint    Ä¿±ê½Ç¶È
+ * @return  ½ÇËÙ¶ÈÉè¶¨Öµ£¨¹©½ÇËÙ¶È»·Ê¹ÓÃ£©
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼Œè§’åº¦ä¿¡å·å˜åŒ–è¾ƒæ…¢ï¼‰ã€‚
- * è¾“å‡ºä¸ºè§’é€Ÿåº¦ç¯çš„SetPointã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£¬½Ç¶ÈĞÅºÅ±ä»¯½ÏÂı£©¡£
+ * Êä³öÎª½ÇËÙ¶È»·µÄSetPoint¡£
  */
 float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[4] = {0};
-    (void)temp_param; /* å¤‡ç”¨å‚æ•°ï¼ˆå¯¹åº”å·²æ³¨é‡Šçš„Highæ¨¡å¼åˆ‡æ¢ï¼‰ï¼Œæ¶ˆé™¤æœªä½¿ç”¨è­¦å‘Š */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    (void)temp_param; /* ±¸ÓÃ²ÎÊı£¨¶ÔÓ¦ÒÑ×¢ÊÍµÄHighÄ£Ê½ÇĞ»»£©£¬Ïû³ıÎ´Ê¹ÓÃ¾¯¸æ */
     float V_out;
     float a = 0.9;
 
@@ -730,35 +545,20 @@ float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     //     temp_param[3] = PID_Parm[3];
     // }
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -768,49 +568,34 @@ float Cascade_angle_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 }
 
 /**
- * @brief   ç¿»æ»šè§’åº¦ç¯PIDï¼ˆè§’åº¦å¤–ç¯ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰ç¿»æ»šè§’
- * @param   SetPoint    ç›®æ ‡ç¿»æ»šè§’ï¼ˆé€šå¸¸ä¸º0ï¼Œè¡¨ç¤ºæ°´å¹³ï¼‰
- * @return  è§’é€Ÿåº¦è®¾å®šå€¼ï¼ˆä¾›ç¿»æ»šè§’é€Ÿåº¦ç¯ä½¿ç”¨ï¼‰
+ * @brief   ·­¹ö½Ç¶È»·PID£¨½Ç¶ÈÍâ»·£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°·­¹ö½Ç
+ * @param   SetPoint    Ä¿±ê·­¹ö½Ç£¨Í¨³£Îª0£¬±íÊ¾Ë®Æ½£©
+ * @return  ½ÇËÙ¶ÈÉè¶¨Öµ£¨¹©·­¹ö½ÇËÙ¶È»·Ê¹ÓÃ£©
  *
- * æ»¤æ³¢ç³»æ•° a=0.5ï¼ˆä¸­ç­‰å¹³æ»‘ï¼‰ã€‚
+ * ÂË²¨ÏµÊı a=0.5£¨ÖĞµÈÆ½»¬£©¡£
  */
 float Cascade_angle_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.5;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -820,52 +605,35 @@ float Cascade_angle_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, fl
 }
 
 /**
- * @brief   åèˆªè§’åº¦ç¯PIDï¼ˆPDæ§åˆ¶ï¼Œæ— ç§¯åˆ†é¡¹ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, 0, KD, 0}
- * @param   NowPoint    å½“å‰åèˆªè§’
- * @param   SetPoint    ç›®æ ‡åèˆªè§’
- * @return  åèˆªæ§åˆ¶è¾“å‡º
+ * @brief   Æ«º½½Ç¶È»·PID£¨PD¿ØÖÆ£¬ÎŞ»ı·ÖÏî£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, 0, KD, 0}
+ * @param   NowPoint    µ±Ç°Æ«º½½Ç
+ * @param   SetPoint    Ä¿±êÆ«º½½Ç
+ * @return  Æ«º½¿ØÖÆÊä³ö
  *
- * æ»¤æ³¢ç³»æ•° a=0.7ã€‚
- * æ³¨æ„ï¼šç§¯åˆ†é¡¹å·²æ³¨é‡Šï¼Œå®é™…ä¸ºPDæ§åˆ¶ï¼ˆæ— Iï¼‰ï¼Œé¿å…åèˆªæ–¹å‘ç§¯åˆ†é¥±å’Œã€‚
+ * ÂË²¨ÏµÊı a=0.7¡£
+ * ×¢Òâ£º»ı·ÖÏîÒÑ×¢ÊÍ£¬Êµ¼ÊÎªPD¿ØÖÆ£¨ÎŞI£©£¬±ÜÃâÆ«º½·½Ïò»ı·Ö±¥ºÍ¡£
  */
 float Cascade_angle_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.7;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼Œåèˆªæ–¹å‘ä¸ä½¿ç”¨ç§¯åˆ†é¡¹ï¼‰ */
+    /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£¬Æ«º½·½Ïò²»Ê¹ÓÃ»ı·ÖÏî£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡ºï¼ˆä»…PDï¼Œä¸å«ç§¯åˆ†ï¼‰ */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö£¨½öPD£¬²»º¬»ı·Ö£© */
     V_out = PID_Parm[KP] * pid_info->iError +
             // PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -875,47 +643,30 @@ float Cascade_angle_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
 }
 
 /**
- * @brief   åèˆªè§’åº¦ç¯PIDï¼ˆå¤‡ç”¨é€šé“2ï¼‰
+ * @brief   Æ«º½½Ç¶È»·PID£¨±¸ÓÃÍ¨µÀ2£©
  *
- * ä¸ Cascade_angle_Yaw ç»“æ„ç›¸åŒï¼Œä½¿ç”¨ erect_Angle_Yaw_2 å‚æ•°ç»„ã€‚
- * é¢„ç•™ç”¨äºä¸åŒæ§åˆ¶æºï¼ˆå¦‚è§†è§‰/æƒ¯å¯¼ï¼‰çš„ç‹¬ç«‹PIDé€šé“ã€‚
+ * Óë Cascade_angle_Yaw ½á¹¹ÏàÍ¬£¬Ê¹ÓÃ erect_Angle_Yaw_2 ²ÎÊı×é¡£
+ * Ô¤ÁôÓÃÓÚ²»Í¬¿ØÖÆÔ´£¨ÈçÊÓ¾õ/¹ßµ¼£©µÄ¶ÀÁ¢PIDÍ¨µÀ¡£
  */
 float Cascade_angle_Yaw_2(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.7;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼‰ */
+    /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡ºï¼ˆä»…PDï¼‰ */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö£¨½öPD£© */
     V_out = PID_Parm[KP] * pid_info->iError +
             // PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -925,47 +676,30 @@ float Cascade_angle_Yaw_2(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 }
 
 /**
- * @brief   åèˆªè§’åº¦ç¯PIDï¼ˆè§†è§‰èåˆé€šé“3ï¼‰
+ * @brief   Æ«º½½Ç¶È»·PID£¨ÊÓ¾õÈÚºÏÍ¨µÀ3£©
  *
- * ä¸ Cascade_angle_Yaw ç»“æ„ç›¸åŒï¼Œä½¿ç”¨ erect_Angle_Yaw_3 å‚æ•°ç»„ã€‚
- * é¢„ç•™ç”¨äºè§†è§‰é‡Œç¨‹è®¡/è§†è§‰å®šä½çš„åèˆªä¿®æ­£ã€‚
+ * Óë Cascade_angle_Yaw ½á¹¹ÏàÍ¬£¬Ê¹ÓÃ erect_Angle_Yaw_3 ²ÎÊı×é¡£
+ * Ô¤ÁôÓÃÓÚÊÓ¾õÀï³Ì¼Æ/ÊÓ¾õ¶¨Î»µÄÆ«º½ĞŞÕı¡£
  */
 float Cascade_angle_Yaw_3(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.7;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼‰ */
+    /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡ºï¼ˆä»…PDï¼‰ */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö£¨½öPD£© */
     V_out = PID_Parm[KP] * pid_info->iError +
             // PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -975,47 +709,30 @@ float Cascade_angle_Yaw_3(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 }
 
 /**
- * @brief   åèˆªè§’åº¦ç¯PIDï¼ˆæƒ¯å¯¼èåˆé€šé“4ï¼‰
+ * @brief   Æ«º½½Ç¶È»·PID£¨¹ßµ¼ÈÚºÏÍ¨µÀ4£©
  *
- * ä¸ Cascade_angle_Yaw ç»“æ„ç›¸åŒï¼Œä½¿ç”¨ erect_Angle_Yaw_4 å‚æ•°ç»„ã€‚
- * é¢„ç•™ç”¨äºIMUæƒ¯å¯¼èåˆçš„åèˆªä¿®æ­£ã€‚
+ * Óë Cascade_angle_Yaw ½á¹¹ÏàÍ¬£¬Ê¹ÓÃ erect_Angle_Yaw_4 ²ÎÊı×é¡£
+ * Ô¤ÁôÓÃÓÚIMU¹ßµ¼ÈÚºÏµÄÆ«º½ĞŞÕı¡£
  */
 float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.7;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½Ç¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—è§’åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼‰ */
+    /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡ºï¼ˆä»…PDï¼‰ */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö£¨½öPD£© */
     V_out = PID_Parm[KP] * pid_info->iError +
             // PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1023,22 +740,18 @@ float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
 
     return V_out;
 }
-<<<<<<< HEAD
-/*****************---------ÄÚ-½ÇËÙ¶È---------*****************/
-=======
 
 /**
- * @brief   ä¿¯ä»°è§’é€Ÿåº¦ç¯PIDï¼ˆä¸²çº§æœ€å†…å±‚ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰è§’é€Ÿåº¦ï¼ˆé™€èºä»ªï¼‰
- * @param   SetPoint    ç›®æ ‡è§’é€Ÿåº¦ï¼ˆæ¥è‡ªè§’åº¦ç¯è¾“å‡ºï¼‰
- * @return  ç”µæœºæ§åˆ¶è¾“å‡º
+ * @brief   ¸©Ñö½ÇËÙ¶È»·PID£¨´®¼¶×îÄÚ²ã£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°½ÇËÙ¶È£¨ÍÓÂİÒÇ£©
+ * @param   SetPoint    Ä¿±ê½ÇËÙ¶È£¨À´×Ô½Ç¶È»·Êä³ö£©
+ * @return  µç»ú¿ØÖÆÊä³ö
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼Œé™€èºä»ªæ•°æ®å™ªå£°è¾ƒå¤§ï¼‰ã€‚
- * è§’é€Ÿåº¦ç¯å“åº”æœ€å¿«ï¼Œç›´æ¥æ§åˆ¶ç”µæœºåŠ›çŸ©è¾“å‡ºã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£¬ÍÓÂİÒÇÊı¾İÔëÉù½Ï´ó£©¡£
+ * ½ÇËÙ¶È»·ÏìÓ¦×î¿ì£¬Ö±½Ó¿ØÖÆµç»úÁ¦¾ØÊä³ö¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[4] = {0};
@@ -1060,35 +773,20 @@ float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, fl
     //     temp_param[3] = PID_Parm[3];
     // }
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½ÇËÙ¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è§’é€Ÿåº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (temp_param[3])
     {
         pid_info->SumError = limit(pid_info->SumError, temp_param[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1098,14 +796,14 @@ float Cascade_gyro_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, fl
 }
 
 /**
- * @brief   ç¿»æ»šè§’é€Ÿåº¦ç¯PIDï¼ˆä¸²çº§å†…å±‚ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰ç¿»æ»šè§’é€Ÿåº¦
- * @param   SetPoint    ç›®æ ‡ç¿»æ»šè§’é€Ÿåº¦ï¼ˆæ¥è‡ªç¿»æ»šè§’åº¦ç¯è¾“å‡ºï¼‰
- * @return  æ§åˆ¶è¾“å‡º
+ * @brief   ·­¹ö½ÇËÙ¶È»·PID£¨´®¼¶ÄÚ²ã£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°·­¹ö½ÇËÙ¶È
+ * @param   SetPoint    Ä¿±ê·­¹ö½ÇËÙ¶È£¨À´×Ô·­¹ö½Ç¶È»·Êä³ö£©
+ * @return  ¿ØÖÆÊä³ö
  *
- * æ— ä½é€šæ»¤æ³¢ï¼ˆé™€èºä»ªåŸå§‹å€¼ç›´æ¥å‚ä¸è®¡ç®—ï¼‰ï¼Œå“åº”æœ€å¿«ã€‚
+ * ÎŞµÍÍ¨ÂË²¨£¨ÍÓÂİÒÇÔ­Ê¼ÖµÖ±½Ó²ÎÓë¼ÆËã£©£¬ÏìÓ¦×î¿ì¡£
  */
 float Cascade_gyro_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
@@ -1127,49 +825,34 @@ float Cascade_gyro_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
 }
 
 /**
- * @brief   åèˆªè§’é€Ÿåº¦ç¯PID
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰åèˆªè§’é€Ÿåº¦
- * @param   SetPoint    ç›®æ ‡åèˆªè§’é€Ÿåº¦
- * @return  åèˆªæ§åˆ¶è¾“å‡º
+ * @brief   Æ«º½½ÇËÙ¶È»·PID
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°Æ«º½½ÇËÙ¶È
+ * @param   SetPoint    Ä¿±êÆ«º½½ÇËÙ¶È
+ * @return  Æ«º½¿ØÖÆÊä³ö
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼‰ã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£©¡£
  */
 float Cascade_gyro_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.9;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã½ÇËÙ¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è§’é€Ÿåº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1178,32 +861,23 @@ float Cascade_gyro_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, floa
     return V_out;
 }
 
-<<<<<<< HEAD
-/********************************************************************´®¼¶PID********************************************************************/
-// ÔöÁ¿Ê½PID
-float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
-{
-    static float temp_param[3] = {0};
-    (void)temp_param; // ±¸ÓÃ²ÎÊı£¨¶ÔÓ¦´úÂëÒÑ×¢ÊÍ£©£¬Ïû³ıÎ´Ê¹ÓÃ¾¯¸æ
-=======
-/******************************************************************** ä¸²çº§PIDç»“æŸ ********************************************************************/
+/******************************************************************** ´®¼¶PID½áÊø ********************************************************************/
 
 /**
- * @brief   Xæ–¹å‘å¢é‡å¼PIDï¼ˆå‰åä½ç§»æ§åˆ¶ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰å€¼ï¼ˆè½®é€Ÿå·®æ»¤æ³¢å€¼ vv1ï¼‰
- * @param   SetPoint    ç›®æ ‡å€¼ï¼ˆç›®æ ‡é€Ÿåº¦ï¼‰
- * @return  Xæ–¹å‘ä½ç§»è°ƒæ•´é‡
+ * @brief   X·½ÏòÔöÁ¿Ê½PID£¨Ç°ºóÎ»ÒÆ¿ØÖÆ£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°Öµ£¨ÂÖËÙ²îÂË²¨Öµ vv1£©
+ * @param   SetPoint    Ä¿±êÖµ£¨Ä¿±êËÙ¶È£©
+ * @return  X·½ÏòÎ»ÒÆµ÷ÕûÁ¿
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼‰ã€‚
- * è¾“å‡ºå åŠ åˆ° IKParam.XLeft/XRight ä¸Šï¼Œé€šè¿‡é€†è¿åŠ¨å­¦è½¬æ¢ä¸ºèˆµæœºè§’åº¦ã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£©¡£
+ * Êä³öµş¼Óµ½ IKParam.XLeft/XRight ÉÏ£¬Í¨¹ıÄæÔË¶¯Ñ§×ª»»Îª¶æ»ú½Ç¶È¡£
  */
 float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     static float temp_param[3] = {0};
-    (void)temp_param; /* å¤‡ç”¨å‚æ•°ï¼ˆå¯¹åº”å·²æ³¨é‡Šçš„Highæ¨¡å¼ï¼‰ï¼Œæ¶ˆé™¤æœªä½¿ç”¨è­¦å‘Š */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    (void)temp_param; /* ±¸ÓÃ²ÎÊı£¨¶ÔÓ¦ÒÑ×¢ÊÍµÄHighÄ£Ê½£©£¬Ïû³ıÎ´Ê¹ÓÃ¾¯¸æ */
     float V_out;
     float a = 0.9;
 
@@ -1220,35 +894,20 @@ float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
     //     temp_param[2] = PID_Parm[2];
     // }
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËãÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1258,52 +917,35 @@ float PID_Increase_X(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
 }
 
 /**
- * @brief   Yæ–¹å‘å¢é‡å¼PIDï¼ˆé«˜åº¦æ§åˆ¶ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD}
- * @param   NowPoint    å½“å‰é«˜åº¦ï¼ˆYåæ ‡ï¼‰
- * @param   SetPoint    ç›®æ ‡é«˜åº¦ï¼ˆYao.Target_heightï¼‰
- * @return  Yæ–¹å‘é«˜åº¦è°ƒæ•´é‡
+ * @brief   Y·½ÏòÔöÁ¿Ê½PID£¨¸ß¶È¿ØÖÆ£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD}
+ * @param   NowPoint    µ±Ç°¸ß¶È£¨Y×ø±ê£©
+ * @param   SetPoint    Ä¿±ê¸ß¶È£¨Yao.Target_height£©
+ * @return  Y·½Ïò¸ß¶Èµ÷ÕûÁ¿
  *
- * æ»¤æ³¢ç³»æ•° a=0.5ï¼ˆä¸­ç­‰å¹³æ»‘ï¼‰ã€‚
- * è¾“å‡ºå åŠ åˆ°é€†è¿åŠ¨å­¦çš„Yåæ ‡ä¸Šï¼Œæ”¹å˜è…¿çš„é«˜åº¦ã€‚
+ * ÂË²¨ÏµÊı a=0.5£¨ÖĞµÈÆ½»¬£©¡£
+ * Êä³öµş¼Óµ½ÄæÔË¶¯Ñ§µÄY×ø±êÉÏ£¬¸Ä±äÍÈµÄ¸ß¶È¡£
  */
 float PID_Increase_Y(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.5;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËã¸ß¶ÈÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    //    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—é«˜åº¦è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    // /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼Œæ— ç§¯åˆ†é™å¹…ä¿æŠ¤ï¼‰ */
+    // /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£¬ÎŞ»ı·ÖÏŞ·ù±£»¤£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1313,19 +955,19 @@ float PID_Increase_Y(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
 }
 
 /**
- * @brief   ç¿»æ»šå¢é‡å¼PIDï¼ˆä¾§å‘ç¨³å®šï¼Œä½¿ç”¨äºŒé˜¶å¾®åˆ†ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD}
- * @param   NowPoint    å½“å‰ç¿»æ»šè§’
- * @param   SetPoint    ç›®æ ‡ç¿»æ»šè§’ï¼ˆé€šå¸¸ä¸º0ï¼‰
- * @return  ç¿»æ»šè¡¥å¿å¢é‡
+ * @brief   ·­¹öÔöÁ¿Ê½PID£¨²àÏòÎÈ¶¨£¬Ê¹ÓÃ¶ş½×Î¢·Ö£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD}
+ * @param   NowPoint    µ±Ç°·­¹ö½Ç
+ * @param   SetPoint    Ä¿±ê·­¹ö½Ç£¨Í¨³£Îª0£©
+ * @return  ·­¹ö²¹³¥ÔöÁ¿
  *
- * ä¸æ ‡å‡†PIDä¸åŒï¼Œè¯¥å‡½æ•°ä½¿ç”¨ç‰¹æ®Šçš„å¢é‡å½¢å¼ï¼š
- *   KPé¡¹ = KP * (iError - LastError)        â€”â€” æ¯”ä¾‹å¢é‡
- *   KIé¡¹ = KI * iError                       â€”â€” ç§¯åˆ†é¡¹ï¼ˆå½“å‰ä½ç½®å¼ï¼‰
- *   KDé¡¹ = KD * (iError - 2*LastError + PrevError) â€”â€” äºŒé˜¶å¾®åˆ†å¢é‡
+ * Óë±ê×¼PID²»Í¬£¬¸Ãº¯ÊıÊ¹ÓÃÌØÊâµÄÔöÁ¿ĞÎÊ½£º
+ *   KPÏî = KP * (iError - LastError)        ¡ª¡ª ±ÈÀıÔöÁ¿
+ *   KIÏî = KI * iError                       ¡ª¡ª »ı·ÖÏî£¨µ±Ç°Î»ÖÃÊ½£©
+ *   KDÏî = KD * (iError - 2*LastError + PrevError) ¡ª¡ª ¶ş½×Î¢·ÖÔöÁ¿
  *
- * ä½¿ç”¨ Pid_Inc_Roll çš„ PrevError å­—æ®µå­˜å‚¨ä¸Šä¸Šæ¬¡è¯¯å·®ã€‚
+ * Ê¹ÓÃ Pid_Inc_Roll µÄ PrevError ×Ö¶Î´æ´¢ÉÏÉÏ´ÎÎó²î¡£
  */
 float PID_Increase_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
@@ -1343,57 +985,38 @@ float PID_Increase_Roll(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
 
     return Increase;
 }
-<<<<<<< HEAD
-// ÔöÁ¿Ê½PID
-=======
 
 /**
- * @brief   SZRè½¬å‘è°ƒèŠ‚PID
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KP2, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰å€¼ï¼ˆåèˆªåå·®*10 + 0.2ï¼‰
- * @param   SetPoint    ç›®æ ‡å€¼ï¼ˆé€šå¸¸ä¸º0ï¼‰
- * @return  è½¬å‘è°ƒèŠ‚é‡ï¼ˆå åŠ åˆ°IKParamçš„Xåæ ‡ä¸Šï¼Œå·¦å³åå‘ï¼‰
+ * @brief   SZR×ªÏòµ÷½ÚPID
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KP2, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°Öµ£¨Æ«º½Æ«²î*10 + 0.2£©
+ * @param   SetPoint    Ä¿±êÖµ£¨Í¨³£Îª0£©
+ * @return  ×ªÏòµ÷½ÚÁ¿£¨µş¼Óµ½IKParamµÄX×ø±êÉÏ£¬×óÓÒ·´Ïò£©
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼‰ã€‚
- * SZRè¾“å‡ºä½¿å·¦å³è…¿Xåæ ‡åå‘åç§»ï¼šå·¦è…¿-X+åç§»ï¼Œå³è…¿-X-åç§»ï¼Œ
- * äº§ç”Ÿå·®åŠ¨è½¬å‘æ•ˆæœã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£©¡£
+ * SZRÊä³öÊ¹×óÓÒÍÈX×ø±ê·´ÏòÆ«ÒÆ£º×óÍÈ-X+Æ«ÒÆ£¬ÓÒÍÈ-X-Æ«ÒÆ£¬
+ * ²úÉú²î¶¯×ªÏòĞ§¹û¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 float PID_SZR_is_GOD(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.9;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËãÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1403,50 +1026,35 @@ float PID_SZR_is_GOD(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float 
 }
 
 /**
- * @brief   åèˆªè¾…åŠ©PIDï¼ˆyawanè°ƒèŠ‚ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰åèˆªåå·®
- * @param   SetPoint    ç›®æ ‡å€¼ï¼ˆé€šå¸¸ä¸º0ï¼‰
- * @return  åèˆªè¾…åŠ©è°ƒèŠ‚é‡ï¼ˆå åŠ åˆ°Yåæ ‡ä¸Šï¼Œå·¦å³è…¿åå‘ï¼‰
+ * @brief   Æ«º½¸¨ÖúPID£¨yawanµ÷½Ú£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°Æ«º½Æ«²î
+ * @param   SetPoint    Ä¿±êÖµ£¨Í¨³£Îª0£©
+ * @return  Æ«º½¸¨Öúµ÷½ÚÁ¿£¨µş¼Óµ½Y×ø±êÉÏ£¬×óÓÒÍÈ·´Ïò£©
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼‰ã€‚
- * è¾“å‡ºé€šè¿‡å·¦å³è…¿Yåæ ‡çš„å·®åŠ¨å®ç°åèˆªè¾…åŠ©åŠ›çŸ©ã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£©¡£
+ * Êä³öÍ¨¹ı×óÓÒÍÈY×ø±êµÄ²î¶¯ÊµÏÖÆ«º½¸¨ÖúÁ¦¾Ø¡£
  */
 float PID_GOGOGO(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.9;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËãÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-=======
-    /* 1. è®¡ç®—è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹… */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 3. »ı·ÖÏŞ·ù */
     if (PID_Parm[3])
     {
         pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     }
 
-<<<<<<< HEAD
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1456,52 +1064,35 @@ float PID_GOGOGO(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetP
 }
 
 /**
- * @brief   é€šç”¨å¢é‡å¼PIDï¼ˆå¤‡ç”¨ï¼‰
- * @param   pid_info    PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @param   PID_Parm    å‚æ•°æ•°ç»„ {KP, KI, KD, ç§¯åˆ†é™å¹…}
- * @param   NowPoint    å½“å‰æµ‹é‡å€¼
- * @param   SetPoint    ç›®æ ‡è®¾å®šå€¼
- * @return  æ§åˆ¶è¾“å‡º
+ * @brief   Í¨ÓÃÔöÁ¿Ê½PID£¨±¸ÓÃ£©
+ * @param   pid_info    PID×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @param   PID_Parm    ²ÎÊıÊı×é {KP, KI, KD, »ı·ÖÏŞ·ù}
+ * @param   NowPoint    µ±Ç°²âÁ¿Öµ
+ * @param   SetPoint    Ä¿±êÉè¶¨Öµ
+ * @return  ¿ØÖÆÊä³ö
  *
- * æ»¤æ³¢ç³»æ•° a=0.9ï¼ˆå¼ºæ»¤æ³¢ï¼‰ã€‚
- * é€šç”¨å¢é‡å¼PIDï¼Œå¯ç”¨äºå„ç±»è¾…åŠ©æ§åˆ¶å›è·¯ã€‚
+ * ÂË²¨ÏµÊı a=0.9£¨Ç¿ÂË²¨£©¡£
+ * Í¨ÓÃÔöÁ¿Ê½PID£¬¿ÉÓÃÓÚ¸÷Àà¸¨Öú¿ØÖÆ»ØÂ·¡£
  */
 float PID_Increase(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint)
 {
     float V_out;
     float a = 0.9;
 
-<<<<<<< HEAD
-    // 1.¼ÆËãËÙ¶ÈÆ«²î
+    /* 1. ¼ÆËãÎó²î */
     pid_info->iError = (NowPoint - SetPoint);
 
-    // 2.µÍÍ¨ÂË²¨
-    pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError; // Ê¹µÃ²¨ĞÎ¸ü¼ÓÆ½»¬£¬ÂË³ı¸ßÆµ¸ÉÈÅ£¬·ÀÖ¹Í»±ä
-    pid_info->SumError += pid_info->iError;
-
-    // 3.»ı·ÖÏŞ·ù
-    //    if( PID_Parm[3] )
-    //    {
-    //        pid_info->SumError = limit( pid_info->SumError , PID_Parm[3] );
-    //    }
-
-    // 4.¼ÆËãÊä³ö
-=======
-    /* 1. è®¡ç®—è¯¯å·® */
-    pid_info->iError = (NowPoint - SetPoint);
-
-    /* 2. ä½é€šæ»¤æ³¢ */
+    /* 2. µÍÍ¨ÂË²¨ */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. ç§¯åˆ†é™å¹…ï¼ˆå·²æ³¨é‡Šï¼‰ */
+    /* 3. »ı·ÖÏŞ·ù£¨ÒÑ×¢ÊÍ£© */
     // if(PID_Parm[3])
     // {
     //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
     // }
 
-    /* 4. è®¡ç®—è¾“å‡º */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
+    /* 4. ¼ÆËãÊä³ö */
     V_out = PID_Parm[KP] * pid_info->iError +
             PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
@@ -1509,18 +1100,14 @@ float PID_Increase(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float Se
 
     return V_out;
 }
-<<<<<<< HEAD
-/*****************---------PID²ÎÊı³õÊ¼»¯--------*****************/
-=======
 
 /**
- * @brief   PIDçŠ¶æ€åˆå§‹åŒ–ï¼ˆæ¸…é›¶ï¼‰
- * @param   pid_info    å¾…åˆå§‹åŒ–çš„PIDçŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
+ * @brief   PID×´Ì¬³õÊ¼»¯£¨ÇåÁã£©
+ * @param   pid_info    ´ı³õÊ¼»¯µÄPID×´Ì¬½á¹¹ÌåÖ¸Õë
  *
- * å°†æ‰€æœ‰è¯¯å·®é¡¹ï¼ˆå½“å‰è¯¯å·®ã€ç´¯è®¡è¯¯å·®ã€å‰æ¬¡è¯¯å·®ã€å‰å‰æ¬¡è¯¯å·®ã€ä¸Šæ¬¡æ•°æ®ï¼‰æ¸…é›¶ã€‚
- * åœ¨æ§åˆ¶å¯åŠ¨æˆ–æ¨¡å¼åˆ‡æ¢æ—¶è°ƒç”¨ï¼Œé¿å…å†å²çŠ¶æ€å½±å“æ–°æ§åˆ¶å›è·¯ã€‚
+ * ½«ËùÓĞÎó²îÏî£¨µ±Ç°Îó²î¡¢ÀÛ¼ÆÎó²î¡¢Ç°´ÎÎó²î¡¢Ç°Ç°´ÎÎó²î¡¢ÉÏ´ÎÊı¾İ£©ÇåÁã¡£
+ * ÔÚ¿ØÖÆÆô¶¯»òÄ£Ê½ÇĞ»»Ê±µ÷ÓÃ£¬±ÜÃâÀúÊ·×´Ì¬Ó°ÏìĞÂ¿ØÖÆ»ØÂ·¡£
  */
->>>>>>> 6d2f2b53e11f9b732c069283e280a231762cc274
 void pid_para_init(PID_INFO *pid_info)
 {
     pid_info->iError = 0;

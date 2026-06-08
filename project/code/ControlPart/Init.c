@@ -14,6 +14,7 @@
 #include "ekf.h"
 #include "small_driver_uart_control.h"
 #include "ins_interface.h"
+#include "gps_nav.h"
 
 void Init_All(void)
 {
@@ -97,9 +98,9 @@ void Init_All(void)
     // mt9v03x_init();                                     // 鎬婚捇椋?
 
     // 涓€鍒囧噯澶囧氨�??鏃犲埛椹卞姩鍒濆鍖?
-    // Initialize GNSS driver for steering fusion fallback.
-    // This does not require waypoint planner yet.
-    // gnss_init(TAU1201);
+    // Initialize GNSS driver for GPS navigation.
+    gnss_init(TAU1201);
+    gps_nav_init();  // 初始化GPS导航模块（航点+校准+状态机）
 
     // Initialize steering fusion placeholders and debug outputs.
     // Subject-1 background default:
