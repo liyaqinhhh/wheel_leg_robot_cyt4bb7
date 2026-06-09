@@ -206,8 +206,7 @@ void uart2_isr (void)
 {
     if(uart_isr_mask(UART_2))            // 串口2 接收中断
     {
-        //gnss_uart_callback();            // GPS 模块回调函数
-        uart_control_callback();
+        gnss_uart_callback();            // GPS 模块回调函数
     }
     else                                 // 串口2 发送中断
     {
@@ -223,8 +222,7 @@ void uart3_isr (void)
     {
         // 移植说明：对应 TC264 的 uart2_rx_isr 中的 uart_control_callback()
         // SMALL_DRIVER_UART = UART_3（定义在 small_driver_uart_control.h）
-        
-
+           uart_control_callback();
     }
     else                                 // 串口3 发送中断
     {

@@ -81,6 +81,7 @@ extern vuint8  lora3a22_finsh_flag;
 extern vuint8  lora3a22_state_flag;                         // Ò£¿ØÆ÷×´Ì¬(1±íÊ¾Õı³££¬·ñÔò±íÊ¾Ê§¿Ø)
 extern uint16  lora3a22_response_time;
 
+// @brief  LoRa3A22 é¥æ§æ¨¡å—åˆå§‹åŒ–ï¼Œé…ç½®ä¸²å£å¹¶æ³¨å†Œæ¥æ”¶ä¸­æ–­
 void lora3a22_init(void);
 
 #endif

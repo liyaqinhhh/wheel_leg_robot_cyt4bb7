@@ -7,22 +7,33 @@
 #include "zf_common_headfile.h"
 #include "image.h"
 
-#define    BEEP_TIME_convent       100
-#define    BEEP_TIME_cross         500
-#define    BEEP_TIME_circle        200
-#define    BEEP_TIME_zebra         2000
+#define    BEEP_TIME_convent       100   // 常规元素蜂鸣持续时间(ms)
+#define    BEEP_TIME_cross         500   // 十字元素蜂鸣持续时间(ms)
+#define    BEEP_TIME_circle        200   // 环岛元素蜂鸣持续时间(ms)
+#define    BEEP_TIME_zebra         2000  // 斑马线元素蜂鸣持续时间(ms)
 
-#define    BEEP_FREQ_NORMAL       3000
-#define    BEEP_FREQ_ERROR        5000
+#define    BEEP_FREQ_NORMAL       3000  // 正常提示音频率(Hz)
+#define    BEEP_FREQ_ERROR        5000  // 错误报警音频率(Hz)
 //#define    BEEP_freq_cross         4000
 //#define    BEEP_freq_circle        2000
 //#define    BEEP_freq_zebra         1500
 
 
 
-uint16 beep_count = 0;
+uint16 beep_count = 0;  // 蜂鸣器计时计数器，用于控制鸣响时长
 
 
+/**
+ * @brief  蜂鸣器控制函数，根据赛道元素状态和错误标志控制蜂鸣器鸣响时长与频率
+ *
+ * buzzer_flag 为 1 时为正常提示音(3000Hz)，根据 Element_State(当前赛道元素)
+ * 选择不同鸣响时长：常规100ms、十字500ms、环岛200ms、斑马线2000ms。
+ * buzzer_flag 为 2 时为错误报警音(5000Hz)，固定鸣响500ms。
+ * 鸣响时长到达后自动关闭蜂鸣器并清零 buzzer_flag。
+ *
+ * @param  无（通过全局变量 buzzer_flag 和 Element_State 获取输入）
+ * @return 无
+ */
 void Buzzer_Control(void)
 {
     static uint8 beep_open = 0;

@@ -1,6 +1,13 @@
 #include "zf_common_headfile.h"
 #include "matrix.h"
 
+/**
+ * @brief 初始化指定行列尺寸的零矩阵
+ * @param martix 待初始化的矩阵指针
+ * @param rows 矩阵行数
+ * @param cols 矩阵列数
+ * @return void 无返回值
+ */
 void Matrix_Init(matrix_t* martix, int rows, int cols)
 {
     ASSERT(rows > 0 && cols > 0);
@@ -11,6 +18,12 @@ void Matrix_Init(matrix_t* martix, int rows, int cols)
 
 
 
+/**
+ * @brief 构造指定阶数的单位矩阵
+ * @param matrix 目标矩阵指针
+ * @param size 单位矩阵阶数
+ * @return void 无返回值
+ */
 void Matrix_Identity(matrix_t* matrix, int size)
 {
     ASSERT(size > 0);
@@ -25,6 +38,14 @@ void Matrix_Identity(matrix_t* matrix, int size)
 
 
 
+/**
+ * @brief 使用一维数组按行优先顺序初始化矩阵
+ * @param mat 目标矩阵指针
+ * @param array 源数组首地址
+ * @param rows 矩阵行数
+ * @param cols 矩阵列数
+ * @return void 无返回值
+ */
 void Matrix_From_Array(matrix_t* mat, const matrix_type* array,const int rows,const int cols)
 {
     ASSERT(NULL != array);
@@ -41,12 +62,17 @@ void Matrix_From_Array(matrix_t* mat, const matrix_type* array,const int rows,co
 
 
 
+/**
+ * @brief 计算矩阵转置
+ * @param src 源矩阵指针
+ * @return matrix_t 转置后的矩阵
+ */
 matrix_t Matrix_Transpose(const matrix_t* src)
 {
-    // 设置目标矩阵的大小
     matrix_t dest;
     Matrix_Init(&dest, src->cols, src->rows);
-    // 进行转置操作
+
+    // 将源矩阵第 i 行第 j 列元素映射到结果矩阵第 j 行第 i 列
     for(int i = 0; i < src->rows; i++)
     {
         for(int j = 0; j < src->cols; j++)
@@ -60,16 +86,20 @@ matrix_t Matrix_Transpose(const matrix_t* src)
 
 
 
-// 矩阵乘法
+/**
+ * @brief 计算两个矩阵的乘积
+ * @param A 左操作数矩阵
+ * @param B 右操作数矩阵
+ * @return matrix_t 乘法结果矩阵
+ */
 matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B)
 {
     ASSERT(A->cols == B->rows);
 
-    // 初始化结果矩阵
     matrix_t dest;
     Matrix_Init(&dest, A->rows, B->cols);
 
-    // 进行矩阵乘法运算
+    // 三重循环按行列内积计算每个元素：C(i,j) = Σ A(i,k) * B(k,j)
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < B->cols; j++)
@@ -81,21 +111,25 @@ matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B)
         }
     }
 
-    return dest;  // 成功
+    return dest;
 }
 
 
 
-// 矩阵加法
+/**
+ * @brief 计算两个矩阵的逐元素和
+ * @param A 第一个加数矩阵
+ * @param B 第二个加数矩阵
+ * @return matrix_t 加法结果矩阵
+ */
 matrix_t add_matrices(const matrix_t* A, const matrix_t* B)
 {
-    // 使用 assert 来确保两个矩阵的维度相同
     ASSERT(A->rows == B->rows && A->cols == B->cols);
 
     matrix_t result;
     Matrix_Init(&result, A->rows, A->cols);
 
-    // 进行矩阵加法运算
+    // 对应位置元素逐个相加，保持原矩阵维度不变
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < A->cols; j++)
@@ -104,23 +138,26 @@ matrix_t add_matrices(const matrix_t* A, const matrix_t* B)
         }
     }
 
-    return result;  // 返回加法结果矩阵
+    return result;
 }
 
 
 
 
-// 矩阵减法
+/**
+ * @brief 计算两个矩阵的逐元素差
+ * @param A 被减矩阵
+ * @param B 减数矩阵
+ * @return matrix_t 减法结果矩阵
+ */
 matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B)
 {
-    // 使用 assert 来确保两个矩阵的维度相同
     ASSERT(A->rows == B->rows && A->cols == B->cols);
 
-    // 初始化结果矩阵
     matrix_t result;
     Matrix_Init(&result, A->rows, A->cols);
 
-    // 进行矩阵减法运算
+    // 对应位置元素逐个相减，适用于状态残差和协方差修正
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < A->cols; j++)
@@ -129,18 +166,23 @@ matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B)
         }
     }
 
-    return result;  // 返回减法结果矩阵
+    return result;
 }
 
 
 
 
-// 高斯消元法求矩阵的逆
+/**
+ * @brief 使用高斯消元法求方阵逆矩阵
+ * @param A 待求逆的方阵
+ * @param invA 输出的逆矩阵
+ * @return int 0 表示求逆成功，1 表示矩阵不可逆
+ */
 int inverse_matrix(matrix_t* A, matrix_t* invA)
 {
-    ASSERT(A->rows == A->cols);  // 仅支持方阵
+    ASSERT(A->rows == A->cols);
 
-    const matrix_type THRESHOLD = 1e-6;  // 根据具体情况调整阈值
+    const matrix_type THRESHOLD = 1e-6;
 
     Matrix_Init(invA, A->rows, A->cols);
 
@@ -148,20 +190,20 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
 
     matrix_type augmented[MAX_SIZE][2 * MAX_SIZE];
 
-    // 构造增广矩阵 [A | I]
+    // 构造增广矩阵 [A | I]，左侧为原矩阵，右侧为单位矩阵
     for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < n; j++)
         {
             augmented[i][j] = A->data[i][j];
-            augmented[i][j + n] = (float)((i == j) ? 1 : 0);  // 设置单位矩阵部分
+            augmented[i][j + n] = (float)((i == j) ? 1 : 0);
         }
     }
 
-    // 高斯消元过程
+    // 逐列执行高斯-若尔当消元
     for(int i = 0; i < n; i++)
     {
-        // 找到第 i 列的主元素
+        // 选取当前列绝对值最大的主元，提高数值稳定性
         int max_row = i;
         for(int j = i + 1; j < n; j++)
         {
@@ -171,13 +213,13 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
             }
         }
 
-        // 如果主元素为 0，说明矩阵不可逆
+        // 主元过小意味着矩阵奇异或病态，无法可靠求逆
         if(fabs(augmented[max_row][i]) < THRESHOLD)
         {
-            return 1;  // 不可逆
+            return 1;
         }
 
-        // 交换当前行和最大行
+        // 通过交换行把最大主元移动到当前消元行
         if(max_row != i)
         {
             for(int j = 0; j < 2 * n; j++)
@@ -188,14 +230,14 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
             }
         }
 
-        // 对当前行进行归一化，使得主元素为 1
+        // 将主元行归一化，使主对角元素变为 1
         matrix_type pivot = augmented[i][i];
         for(int j = 0; j < 2 * n; j++)
         {
             augmented[i][j] /= pivot;
         }
 
-        // 消去当前列其他行的元素
+        // 用当前主元行消去本列其他行元素，最终把左半部分化为单位矩阵
         for(int j = 0; j < n; j++)
         {
             if(j != i)
@@ -209,7 +251,7 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
         }
     }
 
-    // 提取逆矩阵部分 [I | A^-1]
+    // 增广矩阵右半部分即为 A^-1
     for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < n; j++)
@@ -218,13 +260,18 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
         }
     }
 
-    return 0;  // 可逆，返回 0
+    return 0;
 }
 
 
 
 
 
+/**
+ * @brief 快速计算平方根倒数，用于向量归一化
+ * @param x 输入标量
+ * @return float 1/sqrt(x) 的近似值
+ */
 static inline float invSqrt(float x)
 {
     float xhalf = 0.5f * x;
@@ -243,6 +290,11 @@ static inline float invSqrt(float x)
 
 
 
+/**
+ * @brief 对行向量或列向量做单位化处理
+ * @param v 待归一化的向量
+ * @return void 无返回值
+ */
 void normalize_vector(matrix_t *v)
 {
     ASSERT(1 == v->cols || 1 == v->rows);
@@ -264,6 +316,7 @@ void normalize_vector(matrix_t *v)
         }
     }
 
+    // 先求模长倒数，再统一缩放每个元素，减少除法运算量
     norm = invSqrt((float)norm);
     if(1 == v->rows)
     {
@@ -285,6 +338,11 @@ void normalize_vector(matrix_t *v)
 
 
 
+/**
+ * @brief 打印矩阵内容，便于调试观察
+ * @param matrix 待打印的矩阵指针
+ * @return void 无返回值
+ */
 void print_matrix(const matrix_t* matrix)
 {
     for(int i = 0; i < matrix->rows; i++)
@@ -297,6 +355,3 @@ void print_matrix(const matrix_t* matrix)
     }
     printf("\n");
 }
-
-
-

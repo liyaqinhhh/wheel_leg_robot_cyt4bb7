@@ -80,7 +80,7 @@ extern uint8 ins_open;           /* 惯导系统开关：0=关闭, 1=开启 */
 
 /* ---- 菜单 ---- */
 extern uint8 menu_open;          /* 菜单模式：0=关闭, 1=打开菜单和Flash, 2=只读取不打开菜单 */
-extern uint8 ins_getdata;
+extern uint8 ins_getdata;          /* 惯导数据获取标志：0=未获取, 1=已获取 */
 /* ---- 标志位 ---- */
 extern uint8 flag_stop;          /* 停止标志：1=停止, 0=运行 */
 extern uint8 flag_yawan;         /* 偏航辅助使能：0=关闭, 1=开启 */
@@ -103,14 +103,26 @@ extern volatile uint8_t calibrate_state;   /* 校准状态：0=未开始, 1=采�
 extern volatile float calibrate_offset;    /* 校准角度偏移量（度） */
 extern volatile uint16_t calibrate_count;  /* 校准采样计数 */
 extern volatile float calibrate_sum;       /* 校准角度累加和 */
-#define CALIBRATE_SAMPLES 500              /* 校准采样数（500个样本@2ms=1秒） */
+#define CALIBRATE_SAMPLES 500              /* 开机角度校准采样数（500个样本@2ms间隔=1秒） */
 
 /* ---- 中断服务函数 ---- */
+
+// @brief  1ms定时中断服务 - IMU偏航角累积、圈数跟踪、单腿站立计时
 void Interrupt_1ms(void);
+
+// @brief  2ms定时中断服务 - 跳跃控制、按键扫描、AI调参、陀螺仪数据读取、角速度环PID（内环）
 void Interrupt_2ms(void);
+
+// @brief  4ms定时中断服务 - 卡尔曼滤波、角度环PID（外环）、转向PID模式切换
 void Interrupt_4ms(void);
+
+// @brief  8ms定时中断服务 - 单腿高度控制、舵机平衡控制
 void Interrupt_8ms(void);
+
+// @brief  16ms定时中断服务 - 速度环PID（最外层）、惯导坐标更新
 void Interrupt_16ms(void);
+
+// @brief  40ms定时中断服务 - 斑马线检测超时、偏航角慢漂补偿
 void Interrupt_40ms(void);
 
 #endif /* CODE_CONTROLPART_INTERRUPT_H_ */

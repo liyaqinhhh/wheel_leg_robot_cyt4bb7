@@ -124,7 +124,10 @@ extern uint8 Max_Row_Dif_Line_Num;
 //extern uint16 I_L_Statics;
 //extern uint16 I_R_Statics;
 
-
+/**
+ * @brief  初始化 IPS200 屏幕的颜色、字体、方向与接口模式
+ * @return 无
+ */
 void IPS200_Show_Init(void)
 {
     ips200_set_color(RGB565_BLACK, RGB565_WHITE);
@@ -133,7 +136,14 @@ void IPS200_Show_Init(void)
     ips200_init(IPS200_TYPE_SPI);
 }
 
-//画“ X ”标出对应点
+/**
+ * @brief  在指定坐标附近绘制 X 形标记
+ * @param  image    参考图像缓冲区，仅用于保持接口一致
+ * @param  point_y  标记中心纵坐标
+ * @param  point_x  标记中心横坐标
+ * @param  colour   绘制颜色
+ * @return 无
+ */
 void Draw_X_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour)
 {
     if(((point_y - 2) <= Y_Border_Max) && ((point_y - 2) >= Y_Border_Min) && ((point_x - 2) <= X_Border_Max) && ((point_x - 2) >= X_Border_Min))
@@ -170,7 +180,14 @@ void Draw_X_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x
     }
 }
 
-//画 “ + ”标出对应点
+/**
+ * @brief  在指定坐标附近绘制十字形标记
+ * @param  image    参考图像缓冲区，仅用于保持接口一致
+ * @param  point_y  标记中心纵坐标
+ * @param  point_x  标记中心横坐标
+ * @param  colour   绘制颜色
+ * @return 无
+ */
 void Draw_10_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour)
 {
     if(((point_y - 2) <= Y_Border_Max) && ((point_y - 2) >= Y_Border_Min) && ((point_x    ) <= X_Border_Max) && ((point_x    ) >= X_Border_Min))
@@ -207,7 +224,11 @@ void Draw_10_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_
     }
 }
 
-
+/**
+ * @brief  根据显示标志绘制指定调试图层
+ * @param  flag  图层编号，取值见 ips.h 中的 Show_* 宏
+ * @return 无
+ */
 void IPS_Show(uint8 flag)
 {
     uint8 i = 0;
@@ -799,6 +820,12 @@ void IPS_Show(uint8 flag)
 float Last_a = 0;
 float Last_b = 0;
 uint8 Show_Flag = 1;//2显示
+
+/**
+ * @brief  刷新 IPS200 综合调试画面
+ * @param  Show_Flag  当前显示模式，值为 2 时显示图像调试界面
+ * @return 无
+ */
 void IPS200_Show(uint8 Show_Flag)
 {
 //    IPS_Show(Show_Find_Line_Image);
@@ -899,6 +926,10 @@ void IPS200_Show(uint8 Show_Flag)
 #define MAX_Y 280
 #define START_Y 160
 
+/**
+ * @brief  以数字矩阵方式显示中线与左右边界的距离差
+ * @return 无
+ */
 void DisplayBorderDistances(void)
 {
 //    if (key_detect(KEY_3, KEY_SHORT_PRESS))
