@@ -33,24 +33,28 @@
 #include "zf_common_headfile.h"
 #include "Ins.h"
 #include "Interrupt.h"
+#include "ins_auto_record.h"           /* 自动打点模块 */
+#include "ins_pure_pursuit.h"          /* Pure Pursuit 导航模块 */
+#include "small_driver_uart_control.h" /* 电机控制接口 */
+#include "zf_device_gnss.h"            /* 角度弧度转换宏: ANGLE_TO_RAD, RAD_TO_ANGLE, GNSS_PI */
 
 /* ==================================================================
  *  1. 全局变量
  * ================================================================== */
 
-Coordinates cod_realtime;       /* 实时坐标: 上电后由航位推算持续累加, 断电丢失 */
-Coordinates cod_saved[30];      /* 录制暂存: ins_mode=0 按键录点时暂存 (最多30个) */
-Coordinates cod_target[30];     /* 导航目标: ins_mode=1 从 Flash 加载的航点序列 */
+Coordinates cod_realtime;   /* 实时坐标: 上电后由航位推算持续累加, 断电丢失 */
+Coordinates cod_saved[30];  /* 录制暂存: ins_mode=0 按键录点时暂存 (最多30个) */
+Coordinates cod_target[30]; /* 导航目标: ins_mode=1 从 Flash 加载的航点序列 */
 
-double dis_ins;                /* 到当前目标点的距离 (由 get_target 计算) */
-double yaw_ins;                /* 到当前目标点的方位角 0~360° (由 get_target 计算) */
+double dis_ins; /* 到当前目标点的距离 (由 get_target 计算) */
+double yaw_ins; /* 到当前目标点的方位角 [-180°, 180°] (由 get_target 计算) */
 
-uint8 n = 0;                   /* 航点数量: 录制时递增, 加载时从 Flash 页12读取 */
-uint8 target = 1;              /* 当前目标航点索引: 从1开始(0=原点/库位) */
-float temp_erect_speed_go;     /* 预留: 暂未使用 */
-uint8 ins_mode = 0;            /* 惯导模式: 0=录点 1=循迹 2=分段编辑 3=分段导航 */
-bool flag_1;                   /* 首次进入 ins_mode=1 的标志: true=需从Flash加载 */
-
+uint8 n = 0;                 /* 航点数量: 录制时递增, 加载时从 Flash 页12读取 */
+uint8 target = 1;            /* 当前目标航点索引: 从1开始(0=原点/库位) */
+float temp_erect_speed_go;   /* 预留: 暂未使用 */
+volatile uint8 ins_mode = 4; /* 惯导模式: 0=录点 1=循迹 */
+bool flag_1;                 /* 首次进入 ins_mode=1 的标志: true=需从Flash加载 */
+bool flag_2;                 /* 导航完成标志: true=导航完成, false=导航中 */
 /*
  * flag_save: Flash 保存状态标记
  *   0 = 未保存 (默认)
@@ -171,44 +175,37 @@ void get_realtime_coordinate(int speed, float time, float yaw)
     /* 累加到实时坐标 (积分) */
     cod_realtime.x += dx;
     cod_realtime.y += dy;
-
-    /* 屏幕显示 (行 96/112, 与分段惯导的 144/160/176 不冲突) */
-    ips200_show_string(0 , 96 , "X:");
-    ips200_show_float( 60 , 96 , cod_realtime.x , 3 , 3 );
-    ips200_show_string(0 , 112 , "Y:");
-    ips200_show_float( 60 , 112 , cod_realtime.y , 3 , 3 );
 }
 
 /*
  * 计算从 (x1,y1) 到 (x2,y2) 的:
  *   dis_ins = 欧几里得距离
- *   yaw_ins = 方位角 (0~360°, 从 X 轴正方向逆时针)
+ *   yaw_ins = 方位角 [-180°, 180°], 从 X 轴正方向逆时针
  *
  * 此函数被以下模块复用:
  *   - Ins.c ins_mode=1: 单轨循迹目标计算
  *   - ins_segment.c seg_calc_target(): 分段导航目标计算
  *   - ins_segment.c seg_transition() RETURN: 返回原点计算
  *
- * atan2 返回值范围 [-π, +π], 加 2π 后转换到 [0, 2π),
- * 再转角度得到 [0, 360°)。
+ * atan2 返回值范围 [-π, +π], 直接转角度得到 [-180°, 180°],
+ * 与 imu660ra.eulerAngle.yaw 的范围保持一致, 避免 PID 误差计算错误。
  */
 void get_target(double x1, double y1, double x2, double y2)
 {
     double temp1, temp2;
-    double dx = x2 - x1;   /* X 方向差 */
-    double dy = y2 - y1;   /* Y 方向差 */
+    double dx = x2 - x1; /* X 方向差 */
+    double dy = y2 - y1; /* Y 方向差 */
 
     /* atan2(dy, dx): 返回弧度 [-π, +π] */
     temp1 = atan2(dy, dx);
     /* sqrt: 欧几里得距离 */
     temp2 = sqrt(dx * dx + dy * dy);
 
-    /* 将角度转换到 [0, 2π) 范围 */
-    if (temp1 < 0)
-        temp1 += 2 * PI;
+    /* 不再转换到 [0, 2π), 保持 [-π, +π] 范围 */
+    /* if (temp1 < 0) temp1 += 2 * PI; */
 
-    dis_ins = temp2;                   /* 距离 */
-    yaw_ins = RAD_TO_ANGLE(temp1);     /* 弧度 → 度 [0, 360) */
+    dis_ins = temp2;               /* 距离 */
+    yaw_ins = RAD_TO_ANGLE(temp1); /* 弧度 → 度 [-180°, 180°] */
 }
 
 /* ==================================================================
@@ -230,8 +227,8 @@ void get_target(double x1, double y1, double x2, double y2)
 void ins_navigation(void)
 {
     /* 屏幕显示: 行 80/128 */
-    
 
+    // printf("falg_1: %d  flag_2: %d  \n", flag_1, flag_2, target, n);
     switch (ins_mode)
     {
 
@@ -253,8 +250,8 @@ void ins_navigation(void)
             key_clear_state(KEY_3);
             cod_saved[n].x = cod_realtime.x;
             cod_saved[n].y = cod_realtime.y;
-            n++;                       /* 航点计数 +1 */
-            ins_getdata = 1;           /* 标记有新数据 (供其他模块查询) */
+            n++;             /* 航点计数 +1 */
+            ins_getdata = 1; /* 标记有新数据 (供其他模块查询) */
         }
 
         /* KEY_2 短按: 保存航点到 Flash */
@@ -263,18 +260,18 @@ void ins_navigation(void)
             key_clear_state(KEY_2);
 
             /* 先擦除旧数据 (Flash 写入前必须擦除) */
-            if (flash_check(0, 2))     /* 页2有数据 → 擦除 */
+            if (flash_check(0, 2)) /* 页2有数据 → 擦除 */
                 flash_erase_page(0, 2);
-            if (flash_check(0, 12))    /* 页12有数据 → 擦除 */
+            if (flash_check(0, 12)) /* 页12有数据 → 擦除 */
                 flash_erase_page(0, 12);
 
             /* 写坐标数据到页2 */
-            if (!flash_check(0, 2))    /* 确认已擦除 (全0xFF) */
+            if (!flash_check(0, 2)) /* 确认已擦除 (全0xFF) */
             {
                 for (uint8 nn = 0; nn < n; nn++)
                     writeDoubleToFlash1(cod_saved[nn].x, cod_saved[nn].y, nn);
                 flash_write_page_from_buffer(0, 2, FLASH_PAGE_LENGTH);
-                flag_save = 1;         /* 标记已保存 */
+                flag_save = 1; /* 标记已保存 */
                 flash_buffer_clear();
             }
 
@@ -291,10 +288,11 @@ void ins_navigation(void)
         if (key_get_state(KEY_1) == KEY_SHORT_PRESS)
         {
             key_clear_state(KEY_1);
-            ins_getdata = 0;           /* 清除新数据标记 */
-            flag_1 = 1;                /* 触发 case 1 的 Flash 加载 */
+            ins_getdata = 0; /* 清除新数据标记 */
+            flag_1 = 1;      /* 触发 case 1 的 Flash 加载 */
             ins_mode = 1;
             flag_save = 0;
+            turn_mode = 7; /* 切换到惯导转向模式 */
         }
         break;
 
@@ -330,12 +328,12 @@ void ins_navigation(void)
             for (uint8 nnn = 0; nnn < n; nnn++)
             {
                 flash_read_page_to_buffer(0, 2, FLASH_PAGE_LENGTH);
-                cod_target[nnn].x = readFlash_to_double1(0, nnn);  /* 读X */
-                cod_target[nnn].y = readFlash_to_double1(1, nnn);  /* 读Y */
+                cod_target[nnn].x = readFlash_to_double1(0, nnn); /* 读X */
+                cod_target[nnn].y = readFlash_to_double1(1, nnn); /* 读Y */
             }
             flash_buffer_clear();
 
-            flag_1 = 0;  /* 加载完成, 后续帧不再加载 */
+            flag_1 = 0; /* 加载完成, 后续帧不再加载 */
         }
 
         /* 每帧: 计算到当前目标航点的距离和方位 */
@@ -353,7 +351,8 @@ void ins_navigation(void)
                 Yao.Outp_Angle_Pitch = 0;
                 Yao.Outp_Speed_Pitch = 0;
                 small_driver_set_duty(0, 0);
-                break;  /* 退出 switch, 保持在 ins_mode=1 但不再执行 */
+                // turn_mode = 3; /* 切换回开环转向模式 */
+                break; /* 退出 switch, 保持在 ins_mode=1 但不再执行 */
             }
 
             /* 推进到下一个航点 */
@@ -365,21 +364,144 @@ void ins_navigation(void)
         }
         break;
 
-    /* ================================================================
-     *  ins_mode=2: 分段编辑模式 → 转发到 ins_segment.c
-     *  ins_mode=3: 分段导航模式 → 转发到 ins_segment.c
-     *
-     *  两个 case 仅做转发, 所有逻辑在 ins_segment.c 中实现。
-     *  这样 Ins.c 无需引入任何分段惯导的内部实现细节,
-     *  只通过 Ins.h → ins_segment.h 的声明来调用。
-     * ================================================================ */
-    case 2:
-        ins_seg_edit_mode();
-        break;
+        /* ================================================================
+         *  ins_mode=4: 自动定距打点 + Pure Pursuit 导航模式
+         *
+         *  用途: 自动按固定距离打点，使用 Pure Pursuit 算法循迹
+         *
+         *  KEY_3 短按 → 开始自动定距打点 (调用 ins_auto_record_start)
+         *  KEY_2 短按 → 结束打点，保存到 Flash (调用 ins_auto_record_stop + save)
+         *  KEY_1 短按 → 从 Flash 读取航点，开始 Pure Pursuit 导航 (调用 load + nav_start)
+         *
+         *  状态标志:
+         *    g_ins_auto.is_recording: 是否正在录制
+         *    g_ins_auto.is_navigating: 是否正在导航
+         *    flag_save: 是否已保存到 Flash
+         * ================================================================ */
+        case 4:
+            /* KEY_3 短按: 开始自动定距打点 */
+            if (key_get_state(KEY_3) == KEY_SHORT_PRESS)
+            {
+                key_clear_state(KEY_3);
+                ins_auto_record_start(); /* 开始录制，清空航点数组，重置距离计数器 */
+                flag_save = 0;           /* 清除保存标志 */
+                ins_getdata = 1;         /* 标记有新数据 (供其他模块查询) */
+            }
 
-    case 3:
-        ins_seg_run_mode();
-        break;
+            /* KEY_2 短按: 结束打点，保存到 Flash */
+            if (key_get_state(KEY_2) == KEY_SHORT_PRESS)
+            {
+                key_clear_state(KEY_2);
+                ins_auto_record_stop(); /* 停止录制 */
+
+                /* 检查航点数量是否为0 */
+                if (g_ins_auto.wp_count == 0)
+                {
+                    flag_save = 0; /* 无航点，不保存 */
+                    break;
+                }
+
+                /* 计算需要的页数 */
+                uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
+                if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
+                    pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
+
+                /* 先擦除旧数据 (Flash 写入前必须擦除) */
+                /* 只擦除实际需要的页: 页60(元数据) + 页61到(61+pages_needed-1) */
+                uint8 last_page = INS_AUTO_FLASH_PAGE_DATA + pages_needed - 1;
+                if (last_page > 92)
+                    last_page = 92;
+
+                for (uint8 page = 60; page <= last_page; page++)
+                {
+                    if (flash_check(0, page))
+                        flash_erase_page(0, page);
+                }
+
+                /* 写航点数量到页60 (元数据页) */
+                flash_buffer_clear();
+                flash_union_buffer[0].uint16_type = g_ins_auto.wp_count;
+                flash_write_page_from_buffer(0, 60, FLASH_PAGE_LENGTH);
+
+                /* 写航点坐标数据到页61-92 */
+                /* 每页可存储128个航点 (512 uint32 / 4 = 128) */
+                for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
+                {
+                    uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
+
+                    /* 计算当前页的航点范围 */
+                    uint16 start_wp = page_idx * 128;
+                    uint16 end_wp = start_wp + 128;
+                    if (end_wp > g_ins_auto.wp_count)
+                        end_wp = g_ins_auto.wp_count;
+
+                    /* 清空缓冲区并写入当前页的航点数据 */
+                    flash_buffer_clear();
+                    for (uint16 nn = start_wp; nn < end_wp; nn++)
+                    {
+                        uint8 buffer_idx = (nn - start_wp);
+                        writeDoubleToFlash1(g_ins_auto.waypoints[nn].x,
+                                            g_ins_auto.waypoints[nn].y, buffer_idx);
+                    }
+
+                    flash_write_page_from_buffer(0, flash_page, FLASH_PAGE_LENGTH);
+                }
+
+                flag_save = 1; /* 标记已保存 */
+            }
+
+            /* KEY_1 短按: 从 Flash 读取航点，开始 Pure Pursuit 导航 */
+            if (key_get_state(KEY_1) == KEY_SHORT_PRESS)
+            {
+                key_clear_state(KEY_1);
+                ins_getdata = 0; /* 清除新数据标记 */
+                flag_1 = 1;      /* 触发 case 1 的 Flash 加载 */
+                ins_mode = 5;
+                flag_save = 0;
+            }
+            break;
+
+        case 5:
+            if (flag_1)
+            {
+                /* 从页60读取航点数量 */
+                flash_read_page_to_buffer(0, 60, FLASH_PAGE_LENGTH);
+                g_ins_auto.wp_count = flash_union_buffer[0].uint16_type;
+                flash_buffer_clear();
+
+                /* 从页61-92读取航点坐标数据 */
+                /* 每页存储128个航点 */
+                uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
+                if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
+                    pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
+
+                for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
+                {
+                    uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
+                    flash_read_page_to_buffer(0, flash_page, FLASH_PAGE_LENGTH);
+
+                    /* 计算当前页的航点范围 */
+                    uint16 start_wp = page_idx * 128;
+                    uint16 end_wp = start_wp + 128;
+                    if (end_wp > g_ins_auto.wp_count)
+                        end_wp = g_ins_auto.wp_count;
+
+                    /* 读取当前页的航点数据 */
+                    for (uint16 nnn = start_wp; nnn < end_wp; nnn++)
+                    {
+                        uint8 buffer_idx = (nnn - start_wp);
+                        g_ins_auto.waypoints[nnn].x = readFlash_to_double1(0, buffer_idx);
+                        g_ins_auto.waypoints[nnn].y = readFlash_to_double1(1, buffer_idx);
+                    }
+
+                    flash_buffer_clear();
+                }
+
+                ins_auto_nav_start();
+                flag_1 = 0; /* 加载完成, 后续帧不再加载 */
+            }
+            ins_auto_record_navigation();
+            break;
 
     default:
         break;

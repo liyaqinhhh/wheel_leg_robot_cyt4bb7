@@ -13,7 +13,7 @@
 #include "servo.h"
 #include "ekf.h"
 #include "small_driver_uart_control.h"
-#include "ins_interface.h"
+#include "ins_auto_record.h"  /* 自动打点模块 */
 
 void Init_All(void)
 {
@@ -55,8 +55,8 @@ void Init_All(void)
 
     // 鍙傛暟鍒濆�??
 
-    imu660ra.offset_angle.pitch = 19.39; // �??5�??.1
-    imu660ra.offset_angle.roll = 6.39;   //
+    imu660ra.offset_angle.pitch = 0.1; // �??5�??.1
+    imu660ra.offset_angle.roll = -0.75;   //
     Yao.Target_Speed = 0;
     Yao.Target_height = 3;
 
@@ -146,6 +146,9 @@ void Init_All(void)
     // ins_core_init();
     // ins_track_init();
     // ins_api_load_imu_bias();  // 从 Flash 加载陀螺仪零偏
+    
+    // 自动打点模块初始化（ins_mode=4 使用）
+    ins_auto_record_init();
 
     // cpu_wait_event_ready();
 }

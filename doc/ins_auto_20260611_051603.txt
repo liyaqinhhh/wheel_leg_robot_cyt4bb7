@@ -1,0 +1,328 @@
+Ins Auto Telemetry Data Record
+Record Time: 2026-06-11T05:16:03.899285
+============================================================
+
+Trajectory Points: 158
+Waypoints: 0
+
+Trajectory Points (x, y, mode, timestamp):
+  0.00, 0.00, 4, 1781126156.5684102
+  0.00, 0.00, 4, 1781126156.6258478
+  0.00, 0.00, 4, 1781126156.6713839
+  0.00, 0.00, 4, 1781126156.6964307
+  0.00, 0.00, 4, 1781126156.7555563
+  0.00, 0.00, 4, 1781126156.8070827
+  0.00, 0.00, 4, 1781126156.8600538
+  0.00, 0.00, 4, 1781126156.923993
+  0.00, 0.00, 4, 1781126156.9302292
+  0.00, 0.00, 4, 1781126156.9557438
+  0.00, 0.00, 4, 1781126157.020494
+  0.00, 0.00, 4, 1781126157.0869622
+  0.00, 0.00, 4, 1781126157.1281562
+  0.00, 0.00, 4, 1781126157.1571915
+  0.00, 0.00, 4, 1781126157.1859624
+  0.00, 0.00, 4, 1781126157.2572532
+  0.00, 0.00, 4, 1781126157.2634163
+  0.00, 0.00, 4, 1781126157.3248775
+  0.00, 0.00, 4, 1781126157.3294408
+  0.00, 0.00, 4, 1781126157.362446
+  0.00, 0.00, 4, 1781126157.3971539
+  0.00, 0.00, 4, 1781126157.4354317
+  0.00, 0.00, 4, 1781126157.4880342
+  0.00, 0.00, 4, 1781126157.5282154
+  0.00, 0.00, 4, 1781126157.5952258
+  0.00, 0.00, 4, 1781126157.6877573
+  0.00, 0.00, 4, 1781126157.7212775
+  0.00, 0.00, 4, 1781126157.7899396
+  0.00, 0.00, 4, 1781126157.8072033
+  0.00, 0.00, 4, 1781126157.8698099
+  0.00, 0.00, 4, 1781126157.9033303
+  0.00, 0.00, 4, 1781126157.9359426
+  0.00, 0.00, 4, 1781126157.9697165
+  0.00, 0.00, 4, 1781126158.00291
+  0.00, 0.00, 4, 1781126158.0740411
+  0.00, 0.00, 4, 1781126158.1283038
+  0.00, 0.00, 4, 1781126158.2077832
+  0.00, 0.00, 4, 1781126158.2341936
+  0.00, 0.00, 4, 1781126158.2693472
+  0.00, 0.00, 4, 1781126158.351161
+  0.00, 0.00, 4, 1781126158.373233
+  0.00, 0.00, 4, 1781126158.4186213
+  0.00, 0.00, 4, 1781126158.4242637
+  0.00, 0.00, 4, 1781126158.4296315
+  0.00, 0.00, 4, 1781126158.4544144
+  0.00, 0.00, 4, 1781126158.4939601
+  0.00, 0.00, 4, 1781126158.5167675
+  0.00, 0.00, 4, 1781126158.590993
+  0.00, 0.00, 4, 1781126158.630898
+  0.00, 0.00, 4, 1781126158.6516674
+  0.00, 0.00, 4, 1781126158.7078311
+  0.00, 0.00, 4, 1781126158.7381675
+  0.00, 0.00, 4, 1781126158.7523353
+  0.00, 0.00, 4, 1781126158.7811072
+  0.00, 0.00, 4, 1781126158.841803
+  0.00, 0.00, 4, 1781126158.8817236
+  0.00, 0.00, 4, 1781126158.9110894
+  0.00, 0.00, 4, 1781126158.9657135
+  0.00, 0.00, 4, 1781126159.0193079
+  0.00, 0.00, 4, 1781126159.0654562
+  0.00, 0.00, 4, 1781126159.0844543
+  0.00, 0.00, 4, 1781126159.1292648
+  0.00, 0.00, 4, 1781126159.1937447
+  0.00, 0.00, 4, 1781126159.2546253
+  0.00, 0.00, 4, 1781126159.2617185
+  0.00, 0.00, 4, 1781126159.2880878
+  0.00, 0.00, 4, 1781126160.0088625
+  0.00, 0.00, 4, 1781126160.0512593
+  0.00, 0.00, 4, 1781126160.0840166
+  0.00, 0.00, 4, 1781126160.130268
+  0.00, 0.00, 4, 1781126160.1966581
+  0.00, 0.00, 4, 1781126160.2587845
+  0.00, 0.00, 4, 1781126160.2882106
+  0.00, 0.00, 4, 1781126160.3029754
+  0.00, 0.00, 4, 1781126160.3670218
+  0.00, 0.00, 4, 1781126160.3878462
+  0.00, 0.00, 4, 1781126160.4355457
+  0.00, 0.00, 4, 1781126160.4865334
+  0.00, 0.00, 4, 1781126160.5092375
+  0.00, 0.00, 4, 1781126160.5677977
+  0.00, 0.00, 4, 1781126160.6077383
+  0.00, 0.00, 4, 1781126160.6444376
+  0.00, 0.00, 4, 1781126160.7060351
+  0.00, 0.00, 4, 1781126160.7595217
+  0.00, 0.00, 4, 1781126160.7932491
+  0.00, 0.00, 4, 1781126160.832899
+  0.00, 0.00, 4, 1781126160.8926842
+  0.00, 0.00, 4, 1781126160.9246573
+  0.00, 0.00, 4, 1781126160.9985306
+  0.00, 0.00, 4, 1781126161.0024397
+  0.00, 0.00, 4, 1781126161.0229847
+  0.00, 0.00, 4, 1781126161.0829275
+  0.00, 0.00, 4, 1781126161.1239219
+  0.00, 0.00, 4, 1781126161.1500905
+  0.00, 0.00, 4, 1781126161.211297
+  0.00, 0.00, 4, 1781126161.26859
+  0.00, 0.00, 4, 1781126161.3011997
+  0.00, 0.00, 4, 1781126161.3158839
+  0.00, 0.00, 4, 1781126161.3913229
+  0.00, 0.00, 4, 1781126161.4202123
+  0.00, 0.00, 4, 1781126161.4347928
+  0.00, 0.00, 4, 1781126161.4764261
+  0.00, 0.00, 4, 1781126161.5227602
+  0.00, 0.00, 4, 1781126161.5773914
+  0.00, 0.00, 4, 1781126161.635624
+  0.00, 0.00, 4, 1781126161.6934676
+  0.00, 0.00, 4, 1781126161.7265096
+  0.00, 0.00, 4, 1781126161.7568154
+  0.00, 0.00, 4, 1781126161.803025
+  0.00, 0.00, 4, 1781126161.8231878
+  0.00, 0.00, 4, 1781126161.865526
+  0.00, 0.00, 4, 1781126161.8969321
+  0.00, 0.00, 4, 1781126161.9355245
+  0.00, 0.00, 4, 1781126161.9821062
+  0.00, 0.00, 4, 1781126162.016648
+  0.00, 0.00, 4, 1781126162.0604596
+  0.00, 0.00, 4, 1781126162.1022887
+  0.00, 0.00, 4, 1781126162.1453395
+  0.00, 0.00, 4, 1781126162.2046354
+  0.00, 0.00, 4, 1781126162.2496557
+  0.00, 0.00, 4, 1781126162.313299
+  0.00, 0.00, 4, 1781126162.375999
+  0.00, 0.00, 4, 1781126162.451041
+  0.00, 0.00, 4, 1781126162.485791
+  0.00, 0.00, 4, 1781126162.4998505
+  0.00, 0.00, 4, 1781126162.5208478
+  0.00, 0.00, 4, 1781126162.5488353
+  0.00, 0.00, 4, 1781126162.579344
+  0.00, 0.00, 4, 1781126162.6250153
+  0.00, 0.00, 4, 1781126162.6481721
+  0.00, 0.00, 4, 1781126162.7094576
+  0.00, 0.00, 4, 1781126162.7693517
+  0.00, 0.00, 4, 1781126162.8493829
+  0.00, 0.00, 4, 1781126162.8889308
+  0.00, 0.00, 4, 1781126162.910792
+  0.00, 0.00, 4, 1781126162.9534426
+  0.00, 0.00, 4, 1781126162.9790657
+  0.00, 0.00, 4, 1781126163.0165277
+  0.00, 0.00, 4, 1781126163.0783348
+  0.00, 0.00, 4, 1781126163.086198
+  0.00, 0.00, 4, 1781126163.1440582
+  0.00, 0.00, 4, 1781126163.1718588
+  0.00, 0.00, 4, 1781126163.2299426
+  0.00, 0.00, 4, 1781126163.2786584
+  0.00, 0.00, 4, 1781126163.3163652
+  0.00, 0.00, 4, 1781126163.3389792
+  0.00, 0.00, 4, 1781126163.4174464
+  0.00, 0.00, 4, 1781126163.46052
+  0.00, 0.00, 4, 1781126163.519754
+  0.00, 0.00, 4, 1781126163.5331473
+  0.00, 0.00, 4, 1781126163.6096127
+  0.00, 0.00, 4, 1781126163.6377573
+  0.00, 0.00, 4, 1781126163.6615505
+  0.00, 0.00, 4, 1781126163.6984618
+  0.00, 0.00, 4, 1781126163.7182207
+  0.00, 0.00, 4, 1781126163.7741573
+  0.00, 0.00, 4, 1781126163.8047068
+  0.00, 0.00, 4, 1781126163.8618236
+
+Waypoints (x, y, index, mode):
+
+Raw Data Log:
+  [2026-06-11T05:15:56.609926] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.657689] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.684273] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.738411] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.796719] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.860040] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.913411] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.930205] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:56.934096] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.000770] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.064741] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.128140] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.132212] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.185940] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.244329] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.263389] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.314332] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.329423] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.333806] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.386430] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.402218] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.455030] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.517769] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.584412] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.660310] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.721251] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.779540] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.807179] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.869794] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.875510] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.935922] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:57.950479] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.002882] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.063652] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.128278] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.207765] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.212054] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.269323] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.351142] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.355822] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.418599] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.424250] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.429612] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.434099] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.493941] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.498369] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.559277] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.630879] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.634634] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.692182] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.738140] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.742052] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.766418] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.811892] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.869607] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.885405] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:58.931440] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.002527] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.050252] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.069251] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.113417] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.175656] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.241379] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.261692] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.277043] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:15:59.334952] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.029836] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.054931] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.119454] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.179919] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.242514] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.288179] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.291728] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.348034] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.370891] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.417229] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.473292] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.490795] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.543454] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.597108] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.622908] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.686460] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.743579] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.793226] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.810056] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.875336] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.924631] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:00.981047] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.002429] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.006607] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.059188] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.109460] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.129608] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.194126] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.252617] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.301172] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.305225] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.373124] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.420182] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.423797] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.438658] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.494982] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.559540] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.616707] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.675822] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.726480] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.739441] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.785059] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.806637] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.849014] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.869077] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.924616] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.971553] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:01.995569] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.049945] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.064431] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.124277] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.188786] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.236656] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.298645] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.375980] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.430675] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.485758] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.499833] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.505369] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.548801] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.560905] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.612132] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.631218] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.698321] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.758051] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.832410] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.888916] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.894046] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.953422] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:02.961915] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.004636] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.066043] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.086184] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.133316] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.149145] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.211368] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.268331] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.316337] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.320255] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.401556] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.460490] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.509285] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.533126] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.590554] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.637726] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.644706] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.698417] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.702756] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.763657] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.788413] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.836145] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}
+  [2026-06-11T05:16:03.896018] I: {'ins_mode': 4, 'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'wp_current': 0, 'wp_count': 0, 'found_wp': 0, 'dis_ins': 0.0}

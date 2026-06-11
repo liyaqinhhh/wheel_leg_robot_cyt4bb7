@@ -115,4 +115,35 @@ void Interrupt_8ms(void);
 void Interrupt_16ms(void);
 void Interrupt_40ms(void);
 
+/* ---- 内部API函数（按中断时间分组） ---- */
+
+/* 1ms中断API */
+void Update_TOF_Sensor(void);           /* 更新TOF距离传感器读数 */
+void Update_Yaw_Integration(void);      /* 更新偏航角积分 */
+void Update_Angle_Z(void);              /* 更新偏航角归一化和跨边界圈数检测 */
+void Update_Single_Leg_Timer(void);     /* 更新单腿站立计时器 */
+
+/* 2ms中断API */
+void jump_text(void);                   /* 跳跃控制文本显示 */
+void Update_Jump_Control(void);         /* 更新跳跃控制 */
+void Update_Gyro_PID_Loop(void);        /* 更新角速度环PID（内环） */
+
+/* 4ms中断API */
+void Update_Kalman_Filter(void);        /* 更新卡尔曼滤波姿态 */
+void Update_4ms_Counter(void);          /* 更新4ms计数器 */
+void Update_Angle_PID_Loop(void);       /* 更新俯仰角度环PID（外环） */
+void Update_Steering_Control(void);     /* 更新转向控制 */
+
+/* 16ms中断API */
+void Update_INS_Coordinate(void);       /* 更新惯导坐标 */
+void Update_Speed_PID_Loop(void);       /* 更新速度环PID（最外环） */
+
+/* 40ms中断API */
+void Update_Zebra_Timeout(void);        /* 更新斑马线超时检测 */
+void Update_Yaw_Drift_Compensation(void); /* 更新偏航角慢漂补偿 */
+void Update_Telemetry_Send(void);       /* 更新遥测数据发送 */
+
+/* 主循环API */
+void control_main(void);                /* 电机控制输出（主循环调用） */
+
 #endif /* CODE_CONTROLPART_INTERRUPT_H_ */

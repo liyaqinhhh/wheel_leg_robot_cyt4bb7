@@ -319,7 +319,7 @@ void servo_balance(void)
 
     // 增量PID：输入=左轮速-右轮速，输出=平衡补偿PWM
     er_X = (int16)PID_Increase(&PID_all.Pid_Inc_X, erect_Inc_X,
-               (float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data), 150);
+               (float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data), 0);
      //printf("速度: %f\n", (float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data));   
     // 低通滤波，平滑输出抖动
     er_X = (int16)(a * er_X + (1 - a) * er_X_l);

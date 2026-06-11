@@ -30,6 +30,23 @@
 PID_ERECT PID_all;
 IKparam IKParam;
 
+/* ---- 角度归一化函数 ----
+ * 将角度归一化到 [-180°, 180°] 范围
+ * 用于偏航角误差计算，避免 ±360° 的跳变
+ */
+static inline float normalize_angle(float angle)
+{
+    while (angle > 180.0f)
+    {
+        angle -= 360.0f;
+    }
+    while (angle < -180.0f)
+    {
+        angle += 360.0f;
+    }
+    return angle;
+}
+
 /* ---- Spin3 原地旋转控制变量 ----
  * 功能：让机器人绕偏航轴旋转指定圈数（如1080°=3圈）后锁定。
  * 流程：Spin3_Start(dir) 激活 → 每周期检查是否到位 → 到位后保持spin3_hold_ticks周期 → 完成
@@ -90,11 +107,11 @@ float erect_Angle_Roll[4] = {0, 0, 0, 0}; /* 翻滚角度环 */
 float erect_turn[4] = {0, 0, 0, 0}; /* 转向PID */
 
 /* ---- 偏航控制参数 ---- */
-float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* 偏航角速度环 */
-float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* 偏航角度环1（主） */
-float erect_Angle_Yaw_2[4] = {1.7, 0, 0.8, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
-float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* 偏航角度环3（视觉融合用） */
-float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合用） */
+float erect_Gyro_Yaw[4] = {2.5, 0, 0, 0};          /* 偏航角速度环 */
+float erect_Angle_Yaw[4] = {650, 0, 0, 0};       /* 偏航角度环1（主） */
+float erect_Angle_Yaw_2[4] = {1.5, 0.025, 3, 200}; /* 偏航角度环2（备用，历史值300,0,0,0） */
+float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};       /* 偏航角度环3（视觉融合用） */
+float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};       /* 偏航角度环4（惯导融合用） */
 
 /* ---- 运动学增量式PID参数 ----
  * erect_Inc_X: X方向前后位移控制，值越大响应越强。
@@ -619,8 +636,8 @@ float Cascade_angle_Yaw(PID_INFO *pid_info, float *PID_Parm, float NowPoint, flo
     float V_out;
     float a = 0.7;
 
-    /* 1. 计算角度误差 */
-    pid_info->iError = (NowPoint - SetPoint);
+    /* 1. 计算角度误差（归一化到 [-180°, 180°]） */
+    pid_info->iError = normalize_angle(NowPoint - SetPoint);
 
     /* 2. 低通滤波 */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
@@ -652,22 +669,22 @@ float Cascade_angle_Yaw_2(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    /* 1. 计算角度误差 */
-    pid_info->iError = (NowPoint - SetPoint);
+    /* 1. 计算角度误差（归一化到 [-180°, 180°]） */
+    pid_info->iError = normalize_angle(NowPoint - SetPoint);
 
     /* 2. 低通滤波 */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. 积分限幅（已注释） */
-    // if(PID_Parm[3])
-    // {
-    //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
-    // }
+    /* 3. 积分限幅 */
+    if (PID_Parm[3])
+    {
+        pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
+    }
 
-    /* 4. 计算输出（仅PD） */
+    /* 4. 计算输出（PID） */
     V_out = PID_Parm[KP] * pid_info->iError +
-            // PID_Parm[KI] * pid_info->SumError +
+            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
     pid_info->LastError = pid_info->iError;
 
@@ -685,22 +702,22 @@ float Cascade_angle_Yaw_3(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    /* 1. 计算角度误差 */
-    pid_info->iError = (NowPoint - SetPoint);
+    /* 1. 计算角度误差（归一化到 [-180°, 180°]） */
+    pid_info->iError = normalize_angle(NowPoint - SetPoint);
 
     /* 2. 低通滤波 */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;
     pid_info->SumError += pid_info->iError;
 
-    /* 3. 积分限幅（已注释） */
-    // if(PID_Parm[3])
-    // {
-    //     pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
-    // }
+    /* 3. 积分限幅 */
+    if (PID_Parm[3])
+    {
+        pid_info->SumError = limit(pid_info->SumError, PID_Parm[3]);
+    }
 
-    /* 4. 计算输出（仅PD） */
+    /* 4. 计算输出（PID） */
     V_out = PID_Parm[KP] * pid_info->iError +
-            // PID_Parm[KI] * pid_info->SumError +
+            PID_Parm[KI] * pid_info->SumError +
             PID_Parm[KD] * (pid_info->iError - pid_info->LastError);
     pid_info->LastError = pid_info->iError;
 
@@ -718,8 +735,8 @@ float Cascade_angle_Yaw_4(PID_INFO *pid_info, float *PID_Parm, float NowPoint, f
     float V_out;
     float a = 0.7;
 
-    /* 1. 计算角度误差 */
-    pid_info->iError = (NowPoint - SetPoint);
+    /* 1. 计算角度误差（归一化到 [-180°, 180°]） */
+    pid_info->iError = normalize_angle(NowPoint - SetPoint);
 
     /* 2. 低通滤波 */
     pid_info->iError = (1 - a) * pid_info->iError + a * pid_info->LastError;

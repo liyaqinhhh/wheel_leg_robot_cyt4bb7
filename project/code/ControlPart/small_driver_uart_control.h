@@ -30,8 +30,14 @@ typedef struct
 } small_device_value_struct;
 
 extern small_device_value_struct motor_value;
-extern uint16_t num; 
-extern uint16_t num_1;  
+extern uint16_t num;
+extern uint16_t num_1;
+
+// 电机不对称校准参数
+// 用于补偿左右电机输出差异，消除系统性偏航误差
+// 计算方法：motor_asymmetry_offset = (右电机平均值 - 左电机平均值) / 2
+// 当前值：65.25（基于遥测数据 telemetry_turn_test_20260610_225051.csv）
+extern float motor_asymmetry_offset;
 
 void uart_control_callback(void); // 无刷驱动 串口接收回调函数
 

@@ -1215,28 +1215,16 @@
                 <name>$PROJ_DIR$\..\..\code\ins\Ins.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_core.c</name>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_auto_record.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_core.h</name>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_auto_record.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.c</name>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_pure_pursuit.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_interface.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_segment.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_segment.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_track.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\code\ins\ins_track.h</name>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_pure_pursuit.h</name>
             </file>
         </group>
         <group>

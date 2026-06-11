@@ -17,6 +17,10 @@
 #include "Init.h"
 #include "small_driver_uart_control.h"
 #include "Ins.h"
+#include "ins_auto_record.h"  /* 自动打点模块 */
+
+/* 外部变量声明 */
+extern InsAuto_State g_ins_auto;  /* 自动打点全局状态 */
 
 uint8 menu_mode = 0;
 int8 page = 0;
@@ -30,22 +34,48 @@ uint8  Change_Control = 0;    // 写入后触发摄像头重初始化
 
 void IPS200_Show1(void)
 {
-    ips200_show_int( 0, 0, motor_value.receive_left_speed_data, 5 );
+    ips200_show_int( 0, 0,motor_value.receive_left_speed_data, 5 );
     ips200_show_int( 60, 0, motor_value.receive_right_speed_data, 5 );
     ips200_show_float( 0 , 16 ,  Yao.Outp_Gyro_Yaw , 3 , 3 );
     ips200_show_float( 60 , 16 ,  Yao.Outp_Gyro_Pitch  , 3 , 3 );
     //ips200_show_float( 120 , 16 ,  Yao.Outp_Gyro_Pitch  , 3 , 3 );
 
-    ips200_show_string(0 , 48 , "Yaw:");
-    ips200_show_float( 60 , 48 , imu660ra.eulerAngle.yaw  , 3 , 3 );
+    ips200_show_string(0 , 32 , "Yaw:");
+    ips200_show_float( 60 , 32 , imu660ra.eulerAngle.yaw  , 3 , 3 );
     
-    ips200_show_string(0 , 64 , "Pitch:");
-    ips200_show_float( 60 , 64 , imu660ra.eulerAngle.pitch , 3 , 3 );
+    ips200_show_string(0 , 48 , "Pitch:");
+    ips200_show_float( 60 , 48 , imu660ra.eulerAngle.pitch   , 3 , 3 );
     
-    ips200_show_string(0 , 80 , "n:");
-    ips200_show_float( 60 , 80 , n , 3 , 3 );
-    ips200_show_float( 0 , 128 , (float)flag_save , 3 , 3 );
-    ips200_show_float( 60 , 128 , (float)target, 3 , 3 );
+    ips200_show_string(0 , 64 , "X:");
+    ips200_show_float( 60 , 64 , cod_realtime.x , 3 , 3 );
+    ips200_show_string(0 , 80 , "Y:");
+    ips200_show_float( 60 , 80 , cod_realtime.y , 3 , 3 );
+    
+    /* 根据 ins_mode 切换显示内容 */
+    if (ins_mode == 4||ins_mode == 5)
+    {
+
+        
+        /* ins_mode=4: 自动打点 + Pure Pursuit 导航模式显示 */
+        ips200_show_string(0 , 96 , "n:");
+        ips200_show_float( 60 , 96 , (float)g_ins_auto.wp_count , 3 , 3 );
+        
+
+        ips200_show_float( 0 , 112 , (float)g_ins_auto.is_recording , 3 , 3 );
+        ips200_show_float( 60 , 112 , (float)flag_2 , 3 , 3 );
+        
+        
+        ips200_show_float( 0 , 128 , (float)g_ins_auto.wp_current , 3 , 3 );
+        ips200_show_float( 60 , 128 , (float)flag_1 , 3 , 3 );
+    }
+    else
+    {
+        /* ins_mode=0/1: 原有的手动打点循迹模式显示 */
+        ips200_show_string(0 , 96 , "n:");
+        ips200_show_float( 60 , 96 , n , 3 , 3 );
+        ips200_show_float( 0 , 128 , (float)flag_save , 3 , 3 );
+        ips200_show_float( 60 , 128 , (float)target, 3 , 3 );
+    }
 
     // ips200_show_string(0 , 80 , "n:");
     // ips200_show_float( 60 , 80 , imu660ra_gyro_z , 3 , 3 );
@@ -164,7 +194,7 @@ void store_or_read_DATA(int way)
 //         // in addition
 //         flash_union_buffer[85].uint8_type = Error_Line;
 //         flash_union_buffer[86].uint8_type = Single_jg_line;
-//         flash_union_buffer[87].uint16_type = Image_count_Single_End;
+//         flash_union_buffer[87].uint16_type = Image_count_Single_end;
 //         flash_union_buffer[88].uint16_type = Image_Gain;
 //         flash_union_buffer[89].uint16_type = Image_EpTime;
 //         flash_union_buffer[90].uint16_type = ramp_judge_dis;
@@ -278,7 +308,7 @@ void store_or_read_DATA(int way)
 //         // in addition
 //         Error_Line = flash_union_buffer[85].uint8_type;
 //         Single_jg_line = flash_union_buffer[86].uint8_type;
-//         Image_count_Single_End = flash_union_buffer[87].uint16_type;
+//         Image_count_Single_end = flash_union_buffer[87].uint16_type;
 //         Image_Gain = flash_union_buffer[88].uint16_type;
 //         Image_EpTime = flash_union_buffer[89].uint16_type;
 //         ramp_judge_dis = flash_union_buffer[90].uint16_type;

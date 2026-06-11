@@ -34,7 +34,7 @@
 #ifndef CODE_CENTER_INS_H_
 #define CODE_CENTER_INS_H_
 
-#include "ins_segment.h"  /* 分段惯导模块: ins_mode=2/3 的入口声明 */
+ /* 分段惯导模块: ins_mode=2/3 的入口声明 */
 
 /*
  * 角度/弧度互转宏
@@ -75,7 +75,7 @@ void get_realtime_coordinate( int speed, float time, float yaw );
  * 计算从 (x1,y1) 到 (x2,y2) 的距离和方位角
  * 输出设置全局变量:
  *   dis_ins = sqrt((x2-x1)^2 + (y2-y1)^2)   距离
- *   yaw_ins = atan2(dy, dx) → 角度 0~360°  方位角
+ *   yaw_ins = atan2(dy, dx) → 角度 [-180°, 180°]  方位角
  *
  * 此函数无副作用 (除设置 dis_ins/yaw_ins 外),
  * 可被分段惯导模块 ins_segment.c 复用。
@@ -114,9 +114,11 @@ extern Coordinates cod_saved[30];   /* 录制暂存: ins_mode=0 按键录点时�
 extern Coordinates cod_target[30];  /* 导航目标: ins_mode=1 从 Flash 加载的航点 */
 extern double dis_ins;              /* 到目标点的距离 */
 extern double yaw_ins;              /* 到目标点的方位角 0~360° */
-extern uint8 ins_mode;              /* 惯导模式: 0/1/2/3 */
+extern volatile uint8 ins_mode;              /* 惯导模式: 0/1/2/3 */
 extern uint8 n;                     /* 航点数量 */
 extern uint8 target;                /* 当前目标航点索引 */
 extern uint8 flag_save;             /* Flash 保存状态: 0=未保存 1=已保存 */
+extern bool flag_1;  
+extern bool flag_2;             /* 首次进入 ins_mode=1 的标志: true=需从Flash加载 */
 
 #endif /* CODE_CENTER_INS_H_ */
