@@ -168,9 +168,9 @@ void get_realtime_coordinate(int speed, float time, float yaw)
 
     /* 偏航角 度 → 弧度 */
     temp1 = ANGLE_TO_RAD(yaw);
-    /* 航位推算: 速度 × 时间 = 位移, 分解到 X/Y 轴 */
-    dx = speed * time * cos(temp1);
-    dy = speed * time * sin(temp1);
+    /* 航位推算: 速度(rev/s) × 时间(s) × 周长(cm) = 位移(cm), 分解到 X/Y 轴 */
+    dx = speed * time * cos(temp1) * WHEEL_CIRCUMFERENCE_CM;
+    dy = speed * time * sin(temp1) * WHEEL_CIRCUMFERENCE_CM;
 
     /* 累加到实时坐标 (积分) */
     cod_realtime.x += dx;
@@ -206,6 +206,11 @@ void get_target(double x1, double y1, double x2, double y2)
 
     dis_ins = temp2;               /* 距离 */
     yaw_ins = RAD_TO_ANGLE(temp1); /* 弧度 → 度 [-180°, 180°] */
+
+    if (yaw_ins > 180)
+        yaw_ins -= 360;
+    if (yaw_ins < -180)
+        yaw_ins += 360;
 }
 
 /* ==================================================================
@@ -364,144 +369,173 @@ void ins_navigation(void)
         }
         break;
 
-        /* ================================================================
-         *  ins_mode=4: 自动定距打点 + Pure Pursuit 导航模式
-         *
-         *  用途: 自动按固定距离打点，使用 Pure Pursuit 算法循迹
-         *
-         *  KEY_3 短按 → 开始自动定距打点 (调用 ins_auto_record_start)
-         *  KEY_2 短按 → 结束打点，保存到 Flash (调用 ins_auto_record_stop + save)
-         *  KEY_1 短按 → 从 Flash 读取航点，开始 Pure Pursuit 导航 (调用 load + nav_start)
-         *
-         *  状态标志:
-         *    g_ins_auto.is_recording: 是否正在录制
-         *    g_ins_auto.is_navigating: 是否正在导航
-         *    flag_save: 是否已保存到 Flash
-         * ================================================================ */
-        case 4:
-            /* KEY_3 短按: 开始自动定距打点 */
-            if (key_get_state(KEY_3) == KEY_SHORT_PRESS)
+    /* ================================================================
+     *  ins_mode=4: 自动定距打点 + Pure Pursuit 导航模式
+     *
+     *  用途: 自动按固定距离打点，使用 Pure Pursuit 算法循迹
+     *
+     *  KEY_3 短按 → 开始自动定距打点 (调用 ins_auto_record_start)
+     *  KEY_2 短按 → 结束打点，保存到 Flash (调用 ins_auto_record_stop + save)
+     *  KEY_1 短按 → 从 Flash 读取航点，开始 Pure Pursuit 导航 (调用 load + nav_start)
+     *
+     *  状态标志:
+     *    g_ins_auto.is_recording: 是否正在录制
+     *    g_ins_auto.is_navigating: 是否正在导航
+     *    flag_save: 是否已保存到 Flash
+     * ================================================================ */
+    case 4:
+        /* KEY_3 短按: 开始自动定距打点 */
+        if (key_get_state(KEY_3) == KEY_SHORT_PRESS)
+        {
+            key_clear_state(KEY_3);
+            ins_auto_record_start(); /* 开始录制，清空航点数组，重置距离计数器 */
+            flag_save = 0;           /* 清除保存标志 */
+            ins_getdata = 1;         /* 标记有新数据 (供其他模块查询) */
+        }
+
+        /* KEY_2 短按: 结束打点，保存到 Flash */
+        if (key_get_state(KEY_2) == KEY_SHORT_PRESS)
+        {
+            key_clear_state(KEY_2);
+            ins_auto_record_stop(); /* 停止录制 */
+
+            /* 检查航点数量是否为0 */
+            if (g_ins_auto.wp_count == 0)
             {
-                key_clear_state(KEY_3);
-                ins_auto_record_start(); /* 开始录制，清空航点数组，重置距离计数器 */
-                flag_save = 0;           /* 清除保存标志 */
-                ins_getdata = 1;         /* 标记有新数据 (供其他模块查询) */
+                flag_save = 0; /* 无航点，不保存 */
+                break;
             }
 
-            /* KEY_2 短按: 结束打点，保存到 Flash */
-            if (key_get_state(KEY_2) == KEY_SHORT_PRESS)
+            /* 计算需要的页数 */
+            uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
+            if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
+                pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
+
+            /* 先擦除旧数据 (Flash 写入前必须擦除) */
+            /* 只擦除实际需要的页: 页60(元数据) + 页61到(61+pages_needed-1) */
+            uint8 last_page = INS_AUTO_FLASH_PAGE_DATA + pages_needed - 1;
+            if (last_page > 92)
+                last_page = 92;
+
+            for (uint8 page = 60; page <= last_page; page++)
             {
-                key_clear_state(KEY_2);
-                ins_auto_record_stop(); /* 停止录制 */
+                if (flash_check(0, page))
+                    flash_erase_page(0, page);
+            }
 
-                /* 检查航点数量是否为0 */
-                if (g_ins_auto.wp_count == 0)
-                {
-                    flag_save = 0; /* 无航点，不保存 */
-                    break;
-                }
+            /* 写航点数量到页60 (元数据页) */
+            flash_buffer_clear();
+            flash_union_buffer[0].uint16_type = g_ins_auto.wp_count;
+            flash_write_page_from_buffer(0, 60, FLASH_PAGE_LENGTH);
 
-                /* 计算需要的页数 */
-                uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
-                if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
-                    pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
+            /* 写航点坐标数据到页61-92 */
+            /* 每页可存储128个航点 (512 uint32 / 4 = 128) */
+            for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
+            {
+                uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
 
-                /* 先擦除旧数据 (Flash 写入前必须擦除) */
-                /* 只擦除实际需要的页: 页60(元数据) + 页61到(61+pages_needed-1) */
-                uint8 last_page = INS_AUTO_FLASH_PAGE_DATA + pages_needed - 1;
-                if (last_page > 92)
-                    last_page = 92;
+                /* 计算当前页的航点范围 */
+                uint16 start_wp = page_idx * 128;
+                uint16 end_wp = start_wp + 128;
+                if (end_wp > g_ins_auto.wp_count)
+                    end_wp = g_ins_auto.wp_count;
 
-                for (uint8 page = 60; page <= last_page; page++)
-                {
-                    if (flash_check(0, page))
-                        flash_erase_page(0, page);
-                }
-
-                /* 写航点数量到页60 (元数据页) */
+                /* 清空缓冲区并写入当前页的航点数据 */
                 flash_buffer_clear();
-                flash_union_buffer[0].uint16_type = g_ins_auto.wp_count;
-                flash_write_page_from_buffer(0, 60, FLASH_PAGE_LENGTH);
-
-                /* 写航点坐标数据到页61-92 */
-                /* 每页可存储128个航点 (512 uint32 / 4 = 128) */
-                for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
+                for (uint16 nn = start_wp; nn < end_wp; nn++)
                 {
-                    uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
-
-                    /* 计算当前页的航点范围 */
-                    uint16 start_wp = page_idx * 128;
-                    uint16 end_wp = start_wp + 128;
-                    if (end_wp > g_ins_auto.wp_count)
-                        end_wp = g_ins_auto.wp_count;
-
-                    /* 清空缓冲区并写入当前页的航点数据 */
-                    flash_buffer_clear();
-                    for (uint16 nn = start_wp; nn < end_wp; nn++)
-                    {
-                        uint8 buffer_idx = (nn - start_wp);
-                        writeDoubleToFlash1(g_ins_auto.waypoints[nn].x,
-                                            g_ins_auto.waypoints[nn].y, buffer_idx);
-                    }
-
-                    flash_write_page_from_buffer(0, flash_page, FLASH_PAGE_LENGTH);
+                    uint8 buffer_idx = (nn - start_wp);
+                    writeDoubleToFlash1(g_ins_auto.waypoints[nn].x,
+                                        g_ins_auto.waypoints[nn].y, buffer_idx);
                 }
 
-                flag_save = 1; /* 标记已保存 */
+                flash_write_page_from_buffer(0, flash_page, FLASH_PAGE_LENGTH);
             }
 
-            /* KEY_1 短按: 从 Flash 读取航点，开始 Pure Pursuit 导航 */
-            if (key_get_state(KEY_1) == KEY_SHORT_PRESS)
-            {
-                key_clear_state(KEY_1);
-                ins_getdata = 0; /* 清除新数据标记 */
-                flag_1 = 1;      /* 触发 case 1 的 Flash 加载 */
-                ins_mode = 5;
-                flag_save = 0;
-            }
-            break;
+            flag_save = 1; /* 标记已保存 */
+        }
 
-        case 5:
-            if (flag_1)
+        /* KEY_1 短按: 从 Flash 读取航点，开始 Pure Pursuit 导航 */
+        if (key_get_state(KEY_1) == KEY_SHORT_PRESS)
+        {
+            key_clear_state(KEY_1);
+            ins_getdata = 0; /* 清除新数据标记 */
+            flag_1 = 1;      /* 触发 case 1 的 Flash 加载 */
+            ins_mode = 5;
+            flag_save = 0;
+        }
+        break;
+
+    case 5:
+        if (flag_1)
+        {
+            /* 从页60读取航点数量 */
+            flash_read_page_to_buffer(0, 60, FLASH_PAGE_LENGTH);
+            g_ins_auto.wp_count = flash_union_buffer[0].uint16_type;
+            flash_buffer_clear();
+
+            /* 从页61-92读取航点坐标数据 */
+            /* 每页存储128个航点 */
+            uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
+            if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
+                pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
+
+            for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
             {
-                /* 从页60读取航点数量 */
-                flash_read_page_to_buffer(0, 60, FLASH_PAGE_LENGTH);
-                g_ins_auto.wp_count = flash_union_buffer[0].uint16_type;
+                uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
+                flash_read_page_to_buffer(0, flash_page, FLASH_PAGE_LENGTH);
+
+                /* 计算当前页的航点范围 */
+                uint16 start_wp = page_idx * 128;
+                uint16 end_wp = start_wp + 128;
+                if (end_wp > g_ins_auto.wp_count)
+                    end_wp = g_ins_auto.wp_count;
+
+                /* 读取当前页的航点数据 */
+                for (uint16 nnn = start_wp; nnn < end_wp; nnn++)
+                {
+                    uint8 buffer_idx = (nnn - start_wp);
+                    g_ins_auto.waypoints[nnn].x = readFlash_to_double1(0, buffer_idx);
+                    g_ins_auto.waypoints[nnn].y = readFlash_to_double1(1, buffer_idx);
+                }
+
                 flash_buffer_clear();
-
-                /* 从页61-92读取航点坐标数据 */
-                /* 每页存储128个航点 */
-                uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
-                if (pages_needed > INS_AUTO_FLASH_PAGE_COUNT)
-                    pages_needed = INS_AUTO_FLASH_PAGE_COUNT;
-
-                for (uint8 page_idx = 0; page_idx < pages_needed; page_idx++)
-                {
-                    uint8 flash_page = INS_AUTO_FLASH_PAGE_DATA + page_idx;
-                    flash_read_page_to_buffer(0, flash_page, FLASH_PAGE_LENGTH);
-
-                    /* 计算当前页的航点范围 */
-                    uint16 start_wp = page_idx * 128;
-                    uint16 end_wp = start_wp + 128;
-                    if (end_wp > g_ins_auto.wp_count)
-                        end_wp = g_ins_auto.wp_count;
-
-                    /* 读取当前页的航点数据 */
-                    for (uint16 nnn = start_wp; nnn < end_wp; nnn++)
-                    {
-                        uint8 buffer_idx = (nnn - start_wp);
-                        g_ins_auto.waypoints[nnn].x = readFlash_to_double1(0, buffer_idx);
-                        g_ins_auto.waypoints[nnn].y = readFlash_to_double1(1, buffer_idx);
-                    }
-
-                    flash_buffer_clear();
-                }
-
-                ins_auto_nav_start();
-                flag_1 = 0; /* 加载完成, 后续帧不再加载 */
             }
-            ins_auto_record_navigation();
-            break;
+
+            ins_auto_nav_start();
+            flag_1 = 0; /* 加载完成, 后续帧不再加载 */
+        }
+        // if(g_ins_auto.nav_finished == 0)
+        // {
+        //     get_target(cod_realtime.x, cod_realtime.y,
+        //            g_ins_auto.waypoints[g_ins_auto.wp_current].x,
+        //            g_ins_auto.waypoints[g_ins_auto.wp_current].y);
+        // }
+
+        // /* 到达判定: 使用可配置阈值, 替代硬编码常数20 */
+        // if (dis_ins < g_ins_auto.config.arrival_threshold && dis_ins != 0)
+        // {
+        //     /* 推进到下一个航点 */
+        //     g_ins_auto.wp_current++;
+
+        //     /* 到达最后一个航点 → 停车保持平衡 */
+        //     if (g_ins_auto.wp_current >= g_ins_auto.wp_count)
+        //     {
+        //         /* 速度环目标归零, 让 PID 主动制动到静止, 同时保持平衡 */
+        //         Target_Speed = 0;
+        //         Yao.Outp_turn = 0;
+        //         /* 不归零 Outp_Gyro_Pitch/Outp_Angle_Pitch/Outp_Speed_Pitch:
+        //          * 它们由 Interrupt.c 的 PID 循环持续更新, 清零反而造成短暂失控 */
+        //         /* 不调用 small_driver_set_duty(0,0), control_main 正常驱动电机保持平衡 */
+        //         g_ins_auto.nav_finished = 1;
+        //         ins_auto_nav_stop();
+        //         //ins_mode = 3; /* 导航完成, 回到打点模式, 防止下一帧再次进入 case 5 */
+        //         flag_main = 2;
+        //         break;      /* 退出 switch */
+        //     }
+        //}
+        ins_auto_record_navigation();
+        break;
 
     default:
         break;

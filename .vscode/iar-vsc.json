@@ -1,12 +1,20 @@
 {
   "workspace": {
-    "path": "${workspaceFolder}\\project\\iar\\cyt4bb7.eww"
+    "path": "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.eww"
   },
   "workspaces": {
     "${workspaceFolder}\\project\\iar\\cyt4bb7.eww": {
       "configs": {
         "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.ewp": "Debug",
         "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_1.ewp": "Debug"
+      },
+      "selected": {
+        "path": "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.ewp"
+      }
+    },
+    "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.eww": {
+      "configs": {
+        "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.ewp": "Debug"
       },
       "selected": {
         "path": "${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.ewp"

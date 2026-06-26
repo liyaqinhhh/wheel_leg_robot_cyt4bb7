@@ -2,11 +2,14 @@
 
 small_device_value_struct motor_value; // 定义通讯参数结构体
 
-// 电机不对称校准参数
+// 电机不对称校准参数（独立左右轮补偿）
 // 用于补偿左右电机输出差异，消除系统性偏航误差
-// 计算方法：motor_asymmetry_offset = (右电机平均值 - 左电机平均值) / 2
-// 当前值：65.25（基于遥测数据 telemetry_turn_test_20260610_225051.csv）
-float motor_asymmetry_offset = 65.25f;
+// 调参方法：pitch≈0 稳态时，看遥测数据（$T 帧）的 motor_l / motor_r
+//   - 如果 motor_R > motor_L → 右轮偏弱 → motor_right_offset 加大
+//   - 如果 motor_L > motor_R → 左轮偏弱 → motor_left_offset 加大
+// 建议初始值：motor_right_offset = 50, motor_left_offset = 0
+float motor_left_offset  = 0.0f;
+float motor_right_offset = 0.0f;//17.0f;
 
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     无刷驱动 串口接收回调函数
@@ -85,10 +88,9 @@ void uart_control_callback(void)
 //-------------------------------------------------------------------------------------------------------------------
 void small_driver_set_duty(int16 left_duty_1, int16 right_duty_1)
 {
-    // 应用电机不对称校准补偿
-    // 左轮增加补偿，右轮减少补偿，以平衡左右电机输出差异
-    int16 left_duty_compensated = left_duty_1 + (int16)motor_asymmetry_offset;
-    int16 right_duty_compensated = right_duty_1 - (int16)motor_asymmetry_offset;
+    // 独立左右轮不对称校准补偿
+    int16 left_duty_compensated  = left_duty_1  + (int16)motor_left_offset;
+    int16 right_duty_compensated = right_duty_1 + (int16)motor_right_offset;
 
     int16 right_duty = -right_duty_compensated;
     int16 left_duty = -left_duty_compensated;

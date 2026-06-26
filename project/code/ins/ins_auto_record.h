@@ -60,21 +60,53 @@
  * ================================================================== */
 
 /* 自动打点距离阈值 (单位: 编码器脉冲) */
-#define INS_AUTO_RECORD_DISTANCE 40.0
+#define INS_AUTO_RECORD_DISTANCE 20.0
 
 /* Pure Pursuit 前瞻距离
  * 建议值: 打点距离的 3-4 倍 = 30-40
  * 前瞻距离越大，轨迹越平滑但转弯精度降低
  * 前瞻距离越小，跟踪精度越高但可能震荡
  */
-#define INS_AUTO_LOOKAHEAD_DEFAULT 80.0
+#define INS_AUTO_LOOKAHEAD_DEFAULT 60.0
 
 /* 到达航点判定阈值 (单位: 编码器脉冲) */
-#define INS_AUTO_ARRIVAL_THRESHOLD 15.0
+#define INS_AUTO_ARRIVAL_THRESHOLD 7.0
 
 /* Pure Pursuit 最小转弯半径限制 (防止除零) */
-#define INS_AUTO_MIN_RADIUS 1
+#define INS_AUTO_MIN_RADIUS 0.1
 
+/* 目标偏航角最大变化率 (度/帧, 每8ms一帧)
+ * 5°/帧 ≈ 625°/s 的转向角速度上限
+ * 设小值限制拐弯速度，设大值允许急转 */
+#define INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME 2.3f
+
+/* ==================================================================
+ *  自适应前瞻距离配置
+ * ==================================================================
+ * Ld = Ld_base + k_speed * |speed| - k_curv * |curvature|
+ *   - 直道高速时前瞻增大（平滑）
+ *   - 弯道急时前瞻缩小（贴线）
+ * 最终钳位到 [MIN_LOOKAHEAD, MAX_LOOKAHEAD]
+ */
+#define INS_AUTO_ADAPTIVE_LD_ENABLE 1         /* 1=启用自适应, 0=停用（回退到固定值） */
+#define INS_AUTO_ADAPTIVE_LD_SPEED_GAIN 0.0f  /* 速度增益 (Ld每单位速度增加量) */
+#define INS_AUTO_ADAPTIVE_LD_CURV_GAIN 180.0f /* 曲率增益 (Ld每单位|curvature|减小量) */
+/* ==================================================================
+ *  防漏点/过线检测配置
+ * ==================================================================
+ * 问题：急弯切角偏差导致小车物理越过航点，但距离容差判定未触发 → 回头绕圈
+ * 解决：向量点乘判定 —— 目标点甩到车身后方 → 强制切换
+ *
+ * 原理：
+ *   前向向量: F = (cos(yaw), sin(yaw))
+ *   指向目标: T = (wp.x - car.x, wp.y - car.y)
+ *   点乘 F·T < 0 → T 与 F 夹角 > 90° → 目标已在后方 → 已越过
+ *
+ * 安全距离：只有航点在 PASS_GUARD_MAX_DIST 以内才允许点乘强制切换
+ *           防止坐标系跳变导致远距离航点误触发
+ */
+#define INS_AUTO_PASS_GUARD_ENABLE 1       /* 1=启用过线检测, 0=停用 */
+#define INS_AUTO_PASS_GUARD_MAX_DIST 50.0f /* 点乘生效的最大距离 (cm)，超出此距离不做强制切换 */
 /* ==================================================================
  *  数据结构
  * ================================================================== */
@@ -84,10 +116,11 @@
  */
 typedef struct
 {
-    float record_distance;    /* 打点距离阈值 */
-    float lookahead_distance; /* Pure Pursuit 前瞻距离 */
-    float arrival_threshold;  /* 到达判定阈值 */
-    uint8 auto_record_enable; /* 自动打点使能: 0=禁用, 1=启用 */
+    float record_distance;           /* 打点距离阈值 */
+    float lookahead_distance;        /* Pure Pursuit 前瞻距离（固定模式） */
+    float arrival_threshold;         /* 到达判定阈值 */
+    uint8 auto_record_enable;        /* 自动打点使能: 0=禁用, 1=启用 */
+    uint8 adaptive_lookahead_enable; /* 自适应前瞻使能: 0=固定, 1=自适应 */
 } InsAuto_Config;
 
 /*

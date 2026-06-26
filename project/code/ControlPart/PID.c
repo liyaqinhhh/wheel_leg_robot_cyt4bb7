@@ -90,8 +90,8 @@ volatile uint16 spin3_hold_ticks = 40;    /* 到位后需保持的控制周期�
 // float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };
-float erect_Gyro_Pitch[4] = {0.82, 0, 0, 0};  /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
-float erect_Angle_Pitch[4] = {250, 0, 20, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
+float erect_Gyro_Pitch[4] = {0.9, 0, 0, 0};   /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
+float erect_Angle_Pitch[4] = {250, 0, 36, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
 float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* 俯仰速度环:   {KP, KP2, KD, 积分限幅} */
 
 /* ---- 翻滚角平衡参数 ----
@@ -107,11 +107,11 @@ float erect_Angle_Roll[4] = {0, 0, 0, 0}; /* 翻滚角度环 */
 float erect_turn[4] = {0, 0, 0, 0}; /* 转向PID */
 
 /* ---- 偏航控制参数 ---- */
-float erect_Gyro_Yaw[4] = {2.5, 0, 0, 0};          /* 偏航角速度环 */
-float erect_Angle_Yaw[4] = {650, 0, 0, 0};       /* 偏航角度环1（主） */
-float erect_Angle_Yaw_2[4] = {1.5, 0.025, 3, 200}; /* 偏航角度环2（备用，历史值300,0,0,0） */
-float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};       /* 偏航角度环3（视觉融合用） */
-float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};       /* 偏航角度环4（惯导融合用） */
+float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* 偏航角速度环 */
+float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* 偏航角度环1（主） */
+float erect_Angle_Yaw_2[4] = {70, 0, 0, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
+float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* 偏航角度环3（视觉融合用） */
+float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合用） */
 
 /* ---- 运动学增量式PID参数 ----
  * erect_Inc_X: X方向前后位移控制，值越大响应越强。
@@ -119,11 +119,11 @@ float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};       /* 偏航角度环4（惯导融
  * erect_Inc_Roll: 翻滚稳定控制，通过左右腿Y坐标差实现侧倾补偿。
  */
 // 速度环，改变机械零点
-float erect_Inc_X[4] = {2.7, 0, 0, 0};  /* X位移: {KP, KI, KD, 积分限幅} */
-float erect_Inc_Y[3] = {1, 0, 0};       /* Y高度:  {KP, KI, KD} */
-float erect_Inc_Roll[3] = {0.15, 0, 0}; /* 翻滚:   {KP, KI, KD} */
-float erect_yawan[3] = {0, 0, 0};       /* 偏航辅助: {KP, KI, KD} */
-float erect_Km[3] = {1.1, 0.1, 0.05};   /* 运动学混合系数（预留） */
+float erect_Inc_X[4] = {0.004, 0, 0, 0}; /* X位移: {KP, KI, KD, 积分限幅} */ // 2.7
+float erect_Inc_Y[3] = {1.2, 0, 0};                                          /* Y高度:  {KP, KI, KD} */
+float erect_Inc_Roll[3] = {0.20, 0, 0.1};                                    /* 翻滚:   {KP, KI, KD} */
+float erect_yawan[3] = {0, 0, 0};                                            /* 偏航辅助: {KP, KI, KD} */
+float erect_Km[3] = {1.1, 0.1, 0.05};                                        /* 运动学混合系数（预留） */
 
 /* ---- SZR转向调节参数 ---- */
 float erect_SZR[4] = {0, 0, 0, 0}; /* SZR: {KP, KP2, KD, 积分限幅} */
@@ -183,6 +183,25 @@ float steer_wrap_deg180(float x)
     while (x < -180.0f)
         x += 360.0f;
     return x;
+}
+
+/**
+ * @brief   将 [-180°, 180°] 范围的目标角展开到连续角度坐标系
+ * @param   target_deg              目标角（[-180, 180] 范围）
+ * @param   current_continuous_deg  当前连续累计角度（可超过 ±180°）
+ * @return  展开后的目标角，与 current_continuous_deg 处于同一连续坐标系
+ *
+ * 原理: 在 target_deg 上加减整数个 360°，使其最接近 current_continuous_deg。
+ *       配合 angle_Z（连续累计偏航角）使用，消除 ±180° 边界跳变问题。
+ */
+float unwrap_to_continuous(float target_deg, float current_continuous_deg)
+{
+    float diff = target_deg - current_continuous_deg;
+    while (diff > 180.0f)
+        diff -= 360.0f;
+    while (diff < -180.0f)
+        diff += 360.0f;
+    return current_continuous_deg + diff;
 }
 
 /************************************* 五连杆逆运动学逆解 *************************************/
@@ -287,7 +306,7 @@ void inverseKinematics()
     servo_set_angle(LB, servoLeftRear);
     servo_set_angle(RB, servoRightRear);
 
-    // servo_set_angle(RF, 225); servo_set_angle(RB, -45);
+    // servo_set_angle(RF, 180); servo_set_angle(RB, 0);
     // servo_set_angle(LF, 225); servo_set_angle(LB, -45);
 }
 
@@ -324,130 +343,128 @@ void Adapt_Terrain(void)
     //    static float a = 0.1;
     //    get_eulerAngle();
 
-    // 平锟斤拷锟斤拷锟姐顶锟斤拷锟斤拷锟疥，锟斤拷锟节匡拷锟芥换为PID
-    vv1 = 0.05f * (float)(motor_value.receive_left_speed_data - motor_value.receive_right_speed_data) + 0.95 * vv1;
+    // 平滑计算顶点坐标，后期可替换为PID
+    vv1 = 0.05f * (float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data) + 0.95 * vv1;
     dif_now = func_abs((float)(motor_value.receive_left_speed_data + motor_value.receive_right_speed_data));
     dd2 = func_abs(dif_now - dif_last);
     dif_last = dif_now;
     if (turn_mode == 0)
         X = PID_Increase_X(&PID_all.Pid_Inc_X, temp_kx_x, vv1, 0);
     else
-        X = PID_Increase_X(&PID_all.Pid_Inc_X, temp_kx_x, vv1 + k11 * dd2, 0);
+        X = PID_Increase_X(&PID_all.Pid_Inc_X, temp_kx_x, vv1 + k11 * dd2, (float)Target_Speed);
     Y = Y - PID_Increase_Y(&PID_all.Pid_Inc_Y, erect_Inc_Y, Y, Yao.Target_height);
     //    X = a * X + (1-a) * X_l;
-    //    SZR = PID_SZR_is_GOD( &PID_all.Pid_SZR, erect_SZR, (Deviation_Value*10 + 0.2f), 0 );
+    SZR = PID_SZR_is_GOD(&PID_all.Pid_SZR, erect_SZR, (Deviation_Value * 10 + 0.2f), 0);
 
     X_l = X;
 
-    //    roll_filter = 0.5f * roll_filter + 0.5f * imu660ra.eulerAngle.roll;
+    roll_filter = 0.5f * roll_filter + 0.5f * imu660ra.eulerAngle.roll;
     if (flag_Single_HighState == 1)
-        stab_roll += PID_Increase_Roll(&PID_all.Pid_Inc_Roll, erect_Inc_Roll, imu660ra.eulerAngle.roll, (float)Yao.Target_height);
+        stab_roll += PID_Increase_Roll(&PID_all.Pid_Inc_Roll, erect_Inc_Roll, imu660ra.eulerAngle.roll, 0);
     else
         stab_roll = 0;
 
-    stab_roll = func_limit(stab_roll, Single_Height - 3);
-    //    if(flag_yawan == 1)
-    //        yawan = PID_GOGOGO( &PID_all.Pid_GOGOGO, erect_yawan, Deviation_Value, 0 );
-    //    else
-    //        yawan = 0;
+    stab_roll = limit(stab_roll, Single_Height - 3);
+    if (flag_yawan == 1)
+        yawan = PID_GOGOGO(&PID_all.Pid_GOGOGO, erect_yawan, Deviation_Value, 0);
+    else
+        yawan = 0;
 
     //    stab_roll = stab_roll + erect_Km[2] * (0 - imu660ra.eulerAngle.roll);
 
     //    if(Yao.Target_Speed == 0)
     //        X = 0;
-    //    if(flag_stop == 0)
-    //    {
-    //        if(flag_jump == 0)
-    //        {
-    //            if(flag_jump_2 == 1)
-    //            {
-    //                IKParam.XLeft  = 1.75;
-    //                IKParam.XRight = 1.75;
-    //            }
-    //            else
-    //            {
-    IKParam.XLeft = 1.75 - X - SZR;
-    IKParam.XRight = 1.75 - X + SZR;
-    //            }
-    //            IKParam.XLeft  = 1.75-X - SZR;
-    //            IKParam.XRight = 1.75-X + SZR;
-    //
-    //            IKParam.YLeft  = Y - stab_roll;
-    //            IKParam.YRight = Y + stab_roll;
-
-    if (stab_roll >= 0)
+    if (flag_main == 0 || flag_main == 2)
     {
-        IKParam.YLeft = Y - stab_roll;
-        IKParam.YRight = Y;
+        if (flag_jump == 0)
+        {
+            if (flag_jump_2 == 1)
+            {
+                IKParam.XLeft = 1.75;
+                IKParam.XRight = 1.75;
+            }
+            else
+            {
+                IKParam.XLeft = 1.75 - X - SZR;
+                IKParam.XRight = 1.75 - X + SZR;
+            }
+            //            IKParam.XLeft  = 1.75-X - SZR;
+            //            IKParam.XRight = 1.75-X + SZR;
+
+            //            IKParam.YLeft  = Y - stab_roll;
+            //            IKParam.YRight = Y + stab_roll;
+
+            if (stab_roll >= 0)
+            {
+                IKParam.YLeft = Y;
+                IKParam.YRight = Y - stab_roll;
+            }
+            else
+            {
+                IKParam.YLeft = Y + stab_roll;
+                IKParam.YRight = Y;
+            }
+
+            if (yawan > 0)
+                IKParam.YLeft += yawan;
+            else if (yawan < 0)
+                IKParam.YRight -= yawan;
+        }
+        else
+        {
+            if (flag_jump_1 == 1)
+            {
+                IKParam.XLeft = 1.75 - X - SZR;
+                IKParam.XRight = 1.75 - X + SZR;
+            }
+        }
     }
     else
     {
+        IKParam.XLeft = 1.75;
         IKParam.YLeft = Y;
-        IKParam.YRight = Y + stab_roll;
+        IKParam.XRight = 1.75;
+        IKParam.YRight = Y;
     }
-    // //
-    //            if(yawan >0)
-    //                IKParam.YLeft += yawan;
-    //            else if(yawan < 0)
-    //                IKParam.YRight -= yawan;
-    //        }
-    //        else
-    //        {
-    //            if(flag_jump_1 == 1)
-    //            {
-    //                IKParam.XLeft  = 1.75-X - SZR;
-    //                IKParam.XRight = 1.75-X + SZR;
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    // Y = 2.5;
-    // IKParam.XLeft  = 1.75;
-    // IKParam.YLeft  = Y;
-    // IKParam.XRight = 1.75;
-    // IKParam.YRight = Y;
-    //    }
-    //
 
-    //    if(Single_state == 1 && flag_Single_HighState == 0) // 锟斤拷锟斤拷
-    //    {
-    ////        TCount_falg_4ms= 1;
-    //        temp_kx_x[0] = erect_Inc_X[0] * 2;
-    //        temp_kx_x[1] = 0;
-    //        temp_kx_x[2] = 0;
-    //        temp_kx_x[3] = 0;
-    ////        if(func_abs(Y - Yao.Target_height) <= 0.1)
-    ////        {
-    ////            IKParam.XLeft  -= 0.1;
-    ////            IKParam.XRight -= 0.1;
-    //            IKParam.XLeft  = func_limit_ab(IKParam.XLeft,-3,3);
-    //            IKParam.XRight = func_limit_ab(IKParam.XRight,-3,3);
-    ////            if(TCount_4ms >= 15)
-    ////                TCount_falg_4ms = 0;
-    ////        }
-    ////        IKParam.YLeft  = 6;
-    ////        IKParam.YRight = 6;
-    //    }
-    //    else
-    //    {
-    //        temp_kx_x[0] = erect_Inc_X[0];
-    //        temp_kx_x[1] = 0;
-    //        temp_kx_x[2] = 0;
-    //        temp_kx_x[3] = 0;
-    //        IKParam.XLeft  = Limit_Float(IKParam.XLeft ,-1.0f,4.5f);
-    //        IKParam.XRight = Limit_Float(IKParam.XRight,-1.0f,4.5f);
-    //        IKParam.YLeft  = Limit_Float(IKParam.YLeft ,3.0f,14.0f);
-    //        IKParam.YRight = Limit_Float(IKParam.YRight,3.0f,14.0f);
-    //    } // 锟斤拷锟斤拷:2.6, 14.8, 7
+    if (Single_state == 1 && flag_Single_HighState == 0) // 减速
+    {
+        //        TCount_falg_4ms= 1;
+        temp_kx_x[0] = erect_Inc_X[0] * 2;
+        temp_kx_x[1] = 0;
+        temp_kx_x[2] = 0;
+        temp_kx_x[3] = 0;
+        //        if(func_abs(Y - Yao.Target_height) <= 0.1)
+        //        {
+        //            IKParam.XLeft  -= 0.1;
+        //            IKParam.XRight -= 0.1;
+        IKParam.XLeft = func_limit_ab(IKParam.XLeft, -3, 3);
+        IKParam.XRight = func_limit_ab(IKParam.XRight, -3, 3);
+        //            if(TCount_4ms >= 15)
+        //                TCount_falg_4ms = 0;
+        //        }
+        //        IKParam.YLeft  = 6;
+        //        IKParam.YRight = 6;
+    }
+    else
+    {
+        temp_kx_x[0] = erect_Inc_X[0];
+        temp_kx_x[1] = 0;
+        temp_kx_x[2] = 0;
+        temp_kx_x[3] = 0;
+        IKParam.XLeft = Limit_Float(IKParam.XLeft, -1.0f, 4.5f);
+        IKParam.XRight = Limit_Float(IKParam.XRight, -1.0f, 4.5f);
+        IKParam.YLeft = Limit_Float(IKParam.YLeft, 3.0f, 14.0f);
+        IKParam.YRight = Limit_Float(IKParam.YRight, 3.0f, 14.0f);
+    } // 收腿:2.6, 14.8, 7
     //    IKParam.XLeft  = -1;
     //    IKParam.XRight = -1;
     //    IKParam.YLeft  = 3;
     //    IKParam.YRight = 3;
 
-    // 锟剿讹拷学锟斤拷锟斤拷悴拷锟斤拷锟斤拷锟�
-    //    if(flag_jump_1 == 1 || flag_jump == 0)
-    inverseKinematics();
+    // 运动学逆解算并输出舵机
+    if (flag_jump_1 == 1 || flag_jump == 0)
+        inverseKinematics();
 }
 
 /************************************* 转向PID（含陀螺仪前馈） ************************************/

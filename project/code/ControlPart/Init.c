@@ -13,7 +13,7 @@
 #include "servo.h"
 #include "ekf.h"
 #include "small_driver_uart_control.h"
-#include "ins_auto_record.h"  /* 自动打点模块 */
+#include "ins_auto_record.h" /* 自动打点模块 */
 
 void Init_All(void)
 {
@@ -29,22 +29,25 @@ void Init_All(void)
     wireless_uart_init(); // 鏃犵嚎涓插彛
                           //   lora3a22_init();//遥控初始化
     dl1b_init();
-    imu660ra_init();                      // 闄€铻轰�?
+    imu660rb_init();                      // 闄€铻轰�?
                                           //  gyroOffset_init();
     adc_init(ADC0_CH06_P06_6, ADC_12BIT); // 鐢垫�?
     //                                       // mt9v03x_init();                       // 鎬婚捇椋?
-                                          //    uart_init (WIRELESS_UART_INDEX, WIRELESS_UART_BUAD_RATE, WIRELESS_UART_RX_PIN, WIRELESS_UART_TX_PIN);   // 鍒濆鍖栦覆�??
+    //    uart_init (WIRELESS_UART_INDEX, WIRELESS_UART_BUAD_RATE, WIRELESS_UART_RX_PIN, WIRELESS_UART_TX_PIN);   // 鍒濆鍖栦覆�??
 
     // IPS
     ips200_set_font(IPS200_6X8_FONT);             // 璁剧疆瀛椾綋澶у皬涓?6 * 8鍍忕�?
     ips200_set_color(RGB565_BLACK, RGB565_WHITE); // 璁剧疆棰滆壊涓哄僵鑹?
     ips200_set_dir(IPS200_PORTAIT);               // 璁剧疆涓虹珫灞忔樉绀?
-    ips200_init(IPS200_TYPE_PARALLEL8);           // 鍙屾帓骞跺彛娆惧�?
+    ips200_init(IPS200_TYPE_SPI);           // 鍙屾帓骞跺彛娆惧�?
 
     flash_init();
     // Init_Nag();
     //     imu963ra_kalman_filter_init(&imu, 0.000001, 0.1, 4 / 1000.0f);
-    imu963ra_kalman_filter_init(&imu, 0.0000003, 0.3, 4 / 1000.0f);
+    // imu963ra_kalman_filter_init(&imu, 0.00001, 0.05, 4 / 1000.0f);  // Q=1e-5, K=1.38% acc
+    // imu963ra_kalman_filter_init(&imu, 0.00005, 0.05, 4 / 1000.0f);  // Q=5e-5, K=3.02% acc
+    // imu963ra_kalman_filter_init(&imu, 0.0000003, 0.03, 4 / 1000.0f); // BUG: 3e-7 not 3e-5!
+    imu963ra_kalman_filter_init(&imu, 0.000006, 0.3, 4 / 1000.0f); // Q=3e-5, R=0.03, K=3.02%
 
     //    wifi_spi_init_all();
     //    wifi_spi_init("team", "12345qwert",WIFI_SPI_STATION);
@@ -55,8 +58,9 @@ void Init_All(void)
 
     // 鍙傛暟鍒濆�??
 
-    imu660ra.offset_angle.pitch = 0.1; // �??5�??.1
-    imu660ra.offset_angle.roll = -0.75;   //
+    // TODO: offset_angle 沿用 IMU660RA 标定值，IMU660RB 需重新标定
+    imu660ra.offset_angle.pitch = 2; // �??5�??.1
+    imu660ra.offset_angle.roll = -0.75; //-0.75
     Yao.Target_Speed = 0;
     Yao.Target_height = 3;
 
@@ -69,10 +73,7 @@ void Init_All(void)
     pid_para_init(&PID_all.Pid_Angle_Yaw);
 
     // // 鑿滃�?
-    if (menu_open && !flash_check(0, 1))        // Flash page 1 非空白才加载
-    store_or_read_DATA(READ);
     
-     system_delay_ms(100);
     //    mt9v03x_init();                                     // 鎬婚捇椋?
 
     // 鑸垫満PWM鍒濆鍖?
@@ -81,6 +82,10 @@ void Init_All(void)
 
     small_driver_uart_init();
 
+    // if (menu_open && !flash_check(0, 1)) // Flash page 1 非空白才加载
+    //     store_or_read_DATA(READ);
+
+    // system_delay_ms(100);
     // if (menu_open)
     // {
     //     store_or_read_DATA(READ);
@@ -136,7 +141,7 @@ void Init_All(void)
     //      };
     //      for (int i = 0; i < sizeof(all_pins) / sizeof(all_pins[0]); i++)
     //      {
-    //          gpio_init(all_pins[i], GPO, GPIO_HIGH, GPO_PUSH_PULL);
+    //          gpio_init(all_pins[i], GPO, GPIO_LOW, GPO_PUSH_PULL);
     //      }
     //  }
 
@@ -146,7 +151,7 @@ void Init_All(void)
     // ins_core_init();
     // ins_track_init();
     // ins_api_load_imu_bias();  // 从 Flash 加载陀螺仪零偏
-    
+
     // 自动打点模块初始化（ins_mode=4 使用）
     ins_auto_record_init();
 

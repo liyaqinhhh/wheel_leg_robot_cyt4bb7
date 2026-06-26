@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "IAR Build (CM7_0 Debug)",
+			"type": "shell",
+			"command": "D:\\iar\\common\\bin\\IarBuild.exe",
+			"args": [
+				"${workspaceFolder}\\project\\iar\\project_config\\cyt4bb7_cm_7_0.eww",
+				"-build",
+				"Debug"
+			],
+			"group": "build"
+		}
+	]
+}

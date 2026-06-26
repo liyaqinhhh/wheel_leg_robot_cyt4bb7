@@ -11,9 +11,9 @@ Features:
   6. Auto-save data to doc folder
 
 Data Frame Formats:
-  $I: Navigation telemetry - mode,realtime_x,realtime_y,target_x,target_y,yaw,wp_current,wp_count,found_wp,distance
-  $W: Waypoint marker - wp_index,wp_x,wp_y,ins_mode
-  $P: Pure Pursuit details - lookahead,curvature,target_yaw,target_wp_index,dist_to_path,angle_to_path,wp_x,wp_y
+  $I: Navigation telemetry - ins_mode,realtime_x,realtime_y,target_x,target_y,yaw_ins,dis_ins
+  $W: Waypoint marker - wp_x,wp_y
+  $P: Pure Pursuit details - target_yaw,current_wp_x,current_wp_y
 
 Created on: 2026-06-11
 Author: GitHub Copilot
@@ -48,7 +48,6 @@ smart_car_auto = {
     'trajectory': [],
     'waypoints': [],
     'pp_state': None,
-    'data_log': [],
 }
 
 # ==================== Data Parser ====================
@@ -64,9 +63,10 @@ class DataParser:
                 return None, None
             
             # $I Navigation telemetry frame
+            # Format: $I,mode,realtime_x,realtime_y,target_x,target_y,yaw_ins,dis_ins
             if line.startswith('$I,'):
                 parts = line[3:].split(',')
-                if len(parts) >= 10:
+                if len(parts) >= 7:
                     return 'I', {
                         'ins_mode': int(parts[0]),
                         'realtime_x': float(parts[1]),
@@ -74,36 +74,26 @@ class DataParser:
                         'target_x': float(parts[3]),
                         'target_y': float(parts[4]),
                         'yaw_ins': float(parts[5]),
-                        'wp_current': int(parts[6]),
-                        'wp_count': int(parts[7]),
-                        'found_wp': int(parts[8]),
-                        'dis_ins': float(parts[9]),
+                        'dis_ins': float(parts[6]),
                     }
             
             # $W Waypoint marker frame
             elif line.startswith('$W,'):
                 parts = line[3:].split(',')
-                if len(parts) >= 4:
+                if len(parts) >= 2:
                     return 'W', {
-                        'wp_index': int(parts[0]),
-                        'wp_x': float(parts[1]),
-                        'wp_y': float(parts[2]),
-                        'ins_mode': int(parts[3]),
+                        'wp_x': float(parts[0]),
+                        'wp_y': float(parts[1]),
                     }
             
             # $P Pure Pursuit details frame
             elif line.startswith('$P,'):
                 parts = line[3:].split(',')
-                if len(parts) >= 8:
+                if len(parts) >= 3:
                     return 'P', {
-                        'lookahead': float(parts[0]),
-                        'curvature': float(parts[1]),
-                        'target_yaw': float(parts[2]),
-                        'target_wp_index': int(parts[3]),
-                        'distance_to_path': float(parts[4]),
-                        'angle_to_path': float(parts[5]),
-                        'current_wp_x': float(parts[6]),
-                        'current_wp_y': float(parts[7]),
+                        'target_yaw': float(parts[0]),
+                        'current_wp_x': float(parts[1]),
+                        'current_wp_y': float(parts[2]),
                     }
             
             return None, None
@@ -126,7 +116,7 @@ class InsAutoApp:
         self.parser = DataParser()
         self.serial_thread = None
         self.running = True
-        self.plot_update_interval = 50  # ms
+        self.plot_update_interval = 500  # ms (incremental draw, can be slower)
         
         # Create UI
         self.create_widgets()
@@ -207,9 +197,6 @@ class InsAutoApp:
         self.clear_btn = ttk.Button(ctrl_frame, text="Clear Trajectory", command=self.clear_trajectory, width=15)
         self.clear_btn.pack(pady=5)
         
-        self.save_btn = ttk.Button(ctrl_frame, text="Save Data", command=self.save_data, width=15)
-        self.save_btn.pack(pady=5)
-        
         # --- Legend ---
         legend_frame = ttk.LabelFrame(left_frame, text="Legend", padding="10")
         legend_frame.pack(fill=tk.X, pady=5)
@@ -268,7 +255,7 @@ Current Position: Blue circle
         self.log_text.tag_config('error', foreground='red')
     
     def setup_plot(self):
-        """Initialize trajectory plot"""
+        """Initialize trajectory plot with persistent artists for fast incremental updates"""
         self.ax.clear()
         self.ax.set_xlabel('X (encoder pulses)', fontsize=10)
         self.ax.set_ylabel('Y (encoder pulses)', fontsize=10)
@@ -280,6 +267,20 @@ Current Position: Blue circle
         self.ax.set_xlim(-200, 200)
         self.ax.set_ylim(-200, 200)
         self.ax.set_aspect('equal', adjustable='box')
+
+        # Persistent artists ¡ª updated via set_data/set_offsets (no clear needed)
+        self._collect_line, = self.ax.plot([], [], 'g--', linewidth=1.5, alpha=0.7, label='Collection')
+        self._nav_line, = self.ax.plot([], [], 'b-', linewidth=2, alpha=0.8, label='Navigation')
+        self._wp_scatter = self.ax.scatter([], [], c='green', s=100, marker='s',
+                                           edgecolors='darkgreen', linewidths=2, zorder=5)
+        self._target_scatter = self.ax.scatter([], [], c='red', s=150, marker='^',
+                                               edgecolors='darkred', linewidths=2, zorder=6, label='Target')
+        self._current_scatter = self.ax.scatter([], [], c='blue', s=200, marker='o',
+                                                edgecolors='navy', linewidths=2, zorder=7, label='Current')
+        self._lookahead_scatter = self.ax.scatter([], [], c='cyan', s=80, marker='o',
+                                                  alpha=0.6, zorder=4, label='Lookahead')
+        self._wp_annotations = []
+        self.ax.legend(loc='upper right', fontsize=8)
     
     def scan_ports(self):
         """Scan available serial ports"""
@@ -319,6 +320,10 @@ Current Position: Blue circle
             )
             smart_car_auto['serial_connected'] = True
             self.connect_btn.config(text="Disconnect")
+
+            # Clear buffer
+            smart_car_auto['serial_port'].reset_input_buffer()
+
             self.log_message(f"Connected to {port}", 'info')
             
             # Start receive thread
@@ -339,104 +344,68 @@ Current Position: Blue circle
     
     def receive_data(self):
         """Serial data receive thread"""
-        buffer = ""
+        buf = ""
         while smart_car_auto['serial_connected'] and self.running:
             try:
-                if smart_car_auto['serial_port'].in_waiting > 0:
-                    data = smart_car_auto['serial_port'].read(
+                if smart_car_auto['serial_port'] and smart_car_auto['serial_port'].is_open and smart_car_auto['serial_port'].in_waiting > 0:
+                    chunk = smart_car_auto['serial_port'].read(
                         smart_car_auto['serial_port'].in_waiting
-                    ).decode('utf-8', errors='ignore')
-                    buffer += data
-                    
-                    # Process line by line
-                    while '\n' in buffer:
-                        line, buffer = buffer.split('\n', 1)
-                        if line.strip():
-                            self.process_line(line.strip())
-                
-                time.sleep(0.01)  # 10ms check interval
-                
-            except Exception as e:
+                    )
+                    try:
+                        text = chunk.decode('utf-8', errors='replace')
+                    except Exception:
+                        text = chunk.decode('latin-1', errors='replace')
+                    buf += text
+                    while '\n' in buf:
+                        line, buf = buf.split('\n', 1)
+                        line_stripped = line.strip()
+                        if line_stripped:
+                            self.root.after(0, self.process_line, line_stripped)
+                else:
+                    time.sleep(0.01)
+            except (serial.SerialException, OSError):
                 if smart_car_auto['serial_connected']:
-                    self.log_message(f"Receive error: {e}", 'error')
+                    self.root.after(0, self.log_message, "Serial disconnected!", 'error')
+                    self.root.after(0, self.disconnect_serial)
                 break
+            except Exception:
+                time.sleep(0.02)
     
     def process_line(self, line):
         """Process a line of data"""
         frame_type, data = self.parser.parse_line(line)
         
         if frame_type == 'I':
-            # Navigation telemetry frame
-            smart_car_auto['ins_mode'] = data['ins_mode']
             smart_car_auto['current_pos'] = (data['realtime_x'], data['realtime_y'])
             smart_car_auto['target_pos'] = (data['target_x'], data['target_y'])
             smart_car_auto['yaw_ins'] = data['yaw_ins']
             smart_car_auto['dis_ins'] = data['dis_ins']
-            smart_car_auto['wp_current'] = data['wp_current']
-            smart_car_auto['wp_count'] = data['wp_count']
-            
-            # Add trajectory point
-            mode = data['ins_mode']
-            if mode in [0, 1, 4, 5]:
-                smart_car_auto['trajectory'].append({
-                    'x': data['realtime_x'],
-                    'y': data['realtime_y'],
-                    'mode': mode,
-                    'timestamp': time.time()
-                })
-            
-            # Log
-            mode_str = self.get_mode_string(mode)
-            self.log_message(
-                f"[{mode_str}] Pos: ({data['realtime_x']:.1f}, {data['realtime_y']:.1f}) "
-                f"Target: ({data['target_x']:.1f}, {data['target_y']:.1f}) "
-                f"Yaw: {data['yaw_ins']:.1f} Dist: {data['dis_ins']:.1f}",
-                'navigate' if mode in [1, 5] else 'info'
-            )
-            
-            # Save raw data
-            smart_car_auto['data_log'].append({
-                'timestamp': datetime.now().isoformat(),
-                'frame': 'I',
-                'data': data
+            smart_car_auto['ins_mode'] = data['ins_mode']
+            smart_car_auto['trajectory'].append({
+                'x': data['realtime_x'],
+                'y': data['realtime_y'],
+                'mode': data['ins_mode'],
+                'timestamp': time.time()
             })
         
         elif frame_type == 'W':
-            # Waypoint marker frame
-            wp = {
-                'x': data['wp_x'],
-                'y': data['wp_y'],
-                'index': data['wp_index'],
-                'mode': data['ins_mode']
-            }
+            if smart_car_auto['ins_mode'] != 5:
+                smart_car_auto['ins_mode'] = 4  # recording
+            wp = {'x': data['wp_x'], 'y': data['wp_y']}
             smart_car_auto['waypoints'].append(wp)
-            
+            wp_cnt = len(smart_car_auto['waypoints'])
             self.log_message(
-                f"[Waypoint] #{data['wp_index']} ({data['wp_x']:.1f}, {data['wp_y']:.1f})",
+                f"[Waypoint] #{wp_cnt} ({data['wp_x']:.1f}, {data['wp_y']:.1f})",
                 'waypoint'
             )
-            
-            smart_car_auto['data_log'].append({
-                'timestamp': datetime.now().isoformat(),
-                'frame': 'W',
-                'data': data
-            })
         
         elif frame_type == 'P':
-            # Pure Pursuit details frame
+            smart_car_auto['ins_mode'] = 5  # navigating
             smart_car_auto['pp_state'] = data
-            
             self.log_message(
-                f"[PP] Lookahead: {data['lookahead']:.1f} Curvature: {data['curvature']:.4f} "
-                f"Yaw: {data['target_yaw']:.1f} Lateral: {data['distance_to_path']:.1f}",
+                f"[PP] Yaw: {data['target_yaw']:.1f} WP: ({data['current_wp_x']:.1f}, {data['current_wp_y']:.1f})",
                 'pp'
             )
-            
-            smart_car_auto['data_log'].append({
-                'timestamp': datetime.now().isoformat(),
-                'frame': 'P',
-                'data': data
-            })
     
     def get_mode_string(self, mode):
         """Get mode string"""
@@ -449,131 +418,104 @@ Current Position: Blue circle
         return mode_map.get(mode, f"Mode{mode}")
     
     def update_plot(self):
-        """Update trajectory plot"""
+        """Update trajectory plot incrementally - set_data/set_offsets, no clear()"""
         if not self.running:
             return
-        
+
         try:
-            # Save current view limits (user may have zoomed/panned)
             current_xlim = self.ax.get_xlim()
             current_ylim = self.ax.get_ylim()
-            
-            self.ax.clear()
-            # Don't call setup_plot, do minimal setup here
-            self.ax.set_xlabel('X (encoder pulses)', fontsize=10)
-            self.ax.set_ylabel('Y (encoder pulses)', fontsize=10)
-            self.ax.set_title('Ins Real-time Trajectory', fontsize=12)
-            self.ax.grid(True, linestyle='--', alpha=0.7)
-            self.ax.set_axisbelow(True)
-            self.ax.xaxis.set_major_locator(plt.MultipleLocator(100))
-            self.ax.yaxis.set_major_locator(plt.MultipleLocator(100))
-            
-            # Track actual data extent
+
             all_x = []
             all_y = []
-            
-            # Draw trajectory
-            if smart_car_auto['trajectory']:
-                collect_traj = []
-                nav_traj = []
-                
-                for point in smart_car_auto['trajectory']:
-                    if point['mode'] in [0, 4]:
-                        collect_traj.append((point['x'], point['y']))
-                    else:
-                        nav_traj.append((point['x'], point['y']))
-                
-                if collect_traj:
-                    xs, ys = zip(*collect_traj)
-                    all_x.extend(xs)
-                    all_y.extend(ys)
-                    self.ax.plot(xs, ys, 'g--', linewidth=1.5, alpha=0.7, label='Collection')
-                
-                if nav_traj:
-                    xs, ys = zip(*nav_traj)
-                    all_x.extend(xs)
-                    all_y.extend(ys)
-                    self.ax.plot(xs, ys, 'b-', linewidth=2, alpha=0.8, label='Navigation')
-            
-            # Draw waypoints
+
+            # ©¤©¤ Trajectory lines: split by mode ©¤©¤
+            collect_x, collect_y = [], []
+            nav_x, nav_y = [], []
+            for point in smart_car_auto['trajectory']:
+                if point['mode'] in [0, 4]:
+                    collect_x.append(point['x'])
+                    collect_y.append(point['y'])
+                else:
+                    nav_x.append(point['x'])
+                    nav_y.append(point['y'])
+
+            self._collect_line.set_data(collect_x, collect_y)
+            self._nav_line.set_data(nav_x, nav_y)
+            all_x.extend(collect_x + nav_x)
+            all_y.extend(collect_y + nav_y)
+
+            # ©¤©¤ Waypoints ©¤©¤
             if smart_car_auto['waypoints']:
-                for wp in smart_car_auto['waypoints']:
-                    all_x.append(wp['x'])
-                    all_y.append(wp['y'])
-                    self.ax.scatter(wp['x'], wp['y'], c='green', s=100, marker='s',
-                                   edgecolors='darkgreen', linewidths=2, zorder=5)
-                    self.ax.annotate(f"#{wp['index']}", (wp['x'], wp['y']),
-                                    textcoords="offset points", xytext=(5, 5), fontsize=8)
-            
-            # Draw current target
+                wp_x = [wp['x'] for wp in smart_car_auto['waypoints']]
+                wp_y = [wp['y'] for wp in smart_car_auto['waypoints']]
+                self._wp_scatter.set_offsets(np.column_stack((wp_x, wp_y)))
+                all_x.extend(wp_x)
+                all_y.extend(wp_y)
+                # Rebuild annotations (cheap: only waypoint count)
+                for ann in self._wp_annotations:
+                    ann.remove()
+                self._wp_annotations.clear()
+                for i, (x, y) in enumerate(zip(wp_x, wp_y)):
+                    ann = self.ax.annotate(f"#{i+1}", (x, y),
+                                           textcoords="offset points", xytext=(5, 5), fontsize=8)
+                    self._wp_annotations.append(ann)
+            else:
+                self._wp_scatter.set_offsets(np.empty((0, 2)))
+                for ann in self._wp_annotations:
+                    ann.remove()
+                self._wp_annotations.clear()
+
+            # ©¤©¤ Target (red triangle) ©¤©¤
             if smart_car_auto['ins_mode'] in [1, 5]:
                 tx, ty = smart_car_auto['target_pos']
+                self._target_scatter.set_offsets([[tx, ty]])
                 all_x.append(tx)
                 all_y.append(ty)
-                self.ax.scatter(tx, ty, c='red', s=150, marker='^',
-                               edgecolors='darkred', linewidths=2, zorder=6, label='Target')
-            
-            # Draw current position
+            else:
+                self._target_scatter.set_offsets(np.empty((0, 2)))
+
+            # ©¤©¤ Current position (blue circle) ©¤©¤
             cx, cy = smart_car_auto['current_pos']
+            self._current_scatter.set_offsets([[cx, cy]])
             all_x.append(cx)
             all_y.append(cy)
-            self.ax.scatter(cx, cy, c='blue', s=200, marker='o',
-                           edgecolors='navy', linewidths=2, zorder=7, label='Current')
-            
-            # Draw Pure Pursuit lookahead
+
+            # ©¤©¤ Lookahead (cyan dot) ©¤©¤
             if smart_car_auto['pp_state'] and smart_car_auto['ins_mode'] == 5:
                 pp = smart_car_auto['pp_state']
+                self._lookahead_scatter.set_offsets([[pp['current_wp_x'], pp['current_wp_y']]])
                 all_x.append(pp['current_wp_x'])
                 all_y.append(pp['current_wp_y'])
-                self.ax.scatter(pp['current_wp_x'], pp['current_wp_y'],
-                               c='cyan', s=80, marker='o', alpha=0.6, zorder=4, label='Lookahead')
-            
-            # Compute data-driven limits with padding, auto-expand only
+            else:
+                self._lookahead_scatter.set_offsets(np.empty((0, 2)))
+
+            # ©¤©¤ Auto-expand axis limits ©¤©¤
             if all_x and all_y:
                 data_xmin, data_xmax = min(all_x), max(all_x)
                 data_ymin, data_ymax = min(all_y), max(all_y)
                 dx = max((data_xmax - data_xmin) * 0.1, 50)
                 dy = max((data_ymax - data_ymin) * 0.1, 50)
-                data_xmin -= dx
-                data_xmax += dx
-                data_ymin -= dy
-                data_ymax += dy
-                
-                new_xmin = min(current_xlim[0], data_xmin)
-                new_xmax = max(current_xlim[1], data_xmax)
-                new_ymin = min(current_ylim[0], data_ymin)
-                new_ymax = max(current_ylim[1], data_ymax)
-                
+
+                new_xmin = min(current_xlim[0], data_xmin - dx)
+                new_xmax = max(current_xlim[1], data_xmax + dx)
+                new_ymin = min(current_ylim[0], data_ymin - dy)
+                new_ymax = max(current_ylim[1], data_ymax + dy)
+
                 self.ax.set_xlim(new_xmin, new_xmax)
                 self.ax.set_ylim(new_ymin, new_ymax)
                 self.ax.set_aspect('equal', adjustable='box')
-            else:
-                self.ax.set_xlim(current_xlim)
-                self.ax.set_ylim(current_ylim)
-                # No data yet, keep previous view or use default
-                self.ax.set_xlim(current_xlim)
-                self.ax.set_ylim(current_ylim)
-            
-            # Add legend
-            self.ax.legend(loc='upper right', fontsize=8)
-            
-            # Refresh canvas
+
             self.canvas.draw_idle()
-            
-        except Exception as e:
+
+        except Exception:
             pass
-        
-        # Update status display
+
         self.update_status()
-        
-        # Schedule next update
         self.root.after(self.plot_update_interval, self.update_plot)
     
     def update_status(self):
         """Update status display"""
-        mode = smart_car_auto['ins_mode']
-        self.status_labels['ins_mode'].config(text=f"{mode} ({self.get_mode_string(mode)})")
-        
         cx, cy = smart_car_auto['current_pos']
         self.status_labels['pos'].config(text=f"({cx:.1f}, {cy:.1f})")
         
@@ -583,18 +525,18 @@ Current Position: Blue circle
         self.status_labels['yaw'].config(text=f"{smart_car_auto['yaw_ins']:.1f} deg")
         self.status_labels['distance'].config(text=f"{smart_car_auto['dis_ins']:.1f}")
         
-        wp_cur = smart_car_auto['wp_current']
-        wp_total = smart_car_auto['wp_count']
-        self.status_labels['wp'].config(text=f"{wp_cur}/{wp_total}")
+        wp_cnt = len(smart_car_auto['waypoints'])
+        self.status_labels['wp'].config(text=f"{wp_cnt} waypoints")
+        self.status_labels['ins_mode'].config(text=f"{smart_car_auto['ins_mode']}")
         
         # Pure Pursuit status
         if smart_car_auto['pp_state']:
             pp = smart_car_auto['pp_state']
-            self.pp_labels['lookahead'].config(text=f"{pp['lookahead']:.1f}")
-            self.pp_labels['curvature'].config(text=f"{pp['curvature']:.4f}")
-            self.pp_labels['target_yaw'].config(text=f"{pp['target_yaw']:.1f} deg")
-            self.pp_labels['dist_to_path'].config(text=f"{pp['distance_to_path']:.1f}")
-            self.pp_labels['angle_to_path'].config(text=f"{pp['angle_to_path']:.1f} deg")
+            self.pp_labels['target_yaw'].config(text=f"{pp.get('target_yaw', 0):.1f} deg")
+            self.pp_labels['lookahead'].config(text="--")
+            self.pp_labels['curvature'].config(text="--")
+            self.pp_labels['dist_to_path'].config(text="--")
+            self.pp_labels['angle_to_path'].config(text="--")
     
     def log_message(self, message, tag='info'):
         """Add log message"""
@@ -616,8 +558,6 @@ Current Position: Blue circle
         else:
             self.collect_btn.config(text="Start Collect")
             self.log_message("Stopped collecting", 'info')
-            # Auto save
-            self.save_data()
     
     def toggle_navigate(self):
         """Toggle navigation state"""
@@ -633,8 +573,6 @@ Current Position: Blue circle
         else:
             self.navigate_btn.config(text="Start Navigate")
             self.log_message("Stopped navigation", 'info')
-            # Auto save
-            self.save_data()
     
     def clear_trajectory(self):
         """Clear trajectory data"""
@@ -642,57 +580,6 @@ Current Position: Blue circle
         smart_car_auto['waypoints'].clear()
         smart_car_auto['pp_state'] = None
         self.log_message("Cleared trajectory data", 'info')
-    
-    def save_data(self):
-        """Save data to file"""
-        if not smart_car_auto['trajectory'] and not smart_car_auto['data_log']:
-            messagebox.showinfo("Info", "No data to save")
-            return
-        
-        # Create doc folder
-        doc_dir = os.path.join(os.path.dirname(__file__), '..', 'doc')
-        os.makedirs(doc_dir, exist_ok=True)
-        
-        # Generate filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"ins_auto_{timestamp}.txt"
-        filepath = os.path.join(doc_dir, filename)
-        
-        try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"Ins Auto Telemetry Data Record\n")
-                f.write(f"Record Time: {datetime.now().isoformat()}\n")
-                f.write(f"{'='*60}\n\n")
-                
-                # Trajectory data
-                f.write(f"Trajectory Points: {len(smart_car_auto['trajectory'])}\n")
-                f.write(f"Waypoints: {len(smart_car_auto['waypoints'])}\n\n")
-                
-                # Trajectory points
-                f.write("Trajectory Points (x, y, mode, timestamp):\n")
-                for point in smart_car_auto['trajectory']:
-                    f.write(f"  {point['x']:.2f}, {point['y']:.2f}, {point['mode']}, {point['timestamp']}\n")
-                
-                f.write("\n")
-                
-                # Waypoints
-                f.write("Waypoints (x, y, index, mode):\n")
-                for wp in smart_car_auto['waypoints']:
-                    f.write(f"  {wp['x']:.2f}, {wp['y']:.2f}, {wp['index']}, {wp['mode']}\n")
-                
-                f.write("\n")
-                
-                # Raw data log
-                f.write("Raw Data Log:\n")
-                for log in smart_car_auto['data_log']:
-                    f.write(f"  [{log['timestamp']}] {log['frame']}: {log['data']}\n")
-            
-            self.log_message(f"Data saved to: {filepath}", 'info')
-            messagebox.showinfo("Save Success", f"Data saved to:\n{filepath}")
-            
-        except Exception as e:
-            messagebox.showerror("Save Failed", str(e))
-            self.log_message(f"Save failed: {e}", 'error')
     
     def on_closing(self):
         """Close window"""

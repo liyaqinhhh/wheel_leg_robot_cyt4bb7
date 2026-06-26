@@ -1,0 +1,97 @@
+Ins Auto Telemetry Data Record
+Record Time: 2026-06-22T19:04:29.579694
+============================================================
+
+Trajectory Points: 32
+Waypoints: 0
+
+Trajectory Points (x, y, mode, timestamp):
+  0.00, 0.00, 4, 1782126260.2982593
+  0.08, -0.00, 4, 1782126260.3300636
+  -3.98, 0.02, 4, 1782126260.4096642
+  -9.28, 0.10, 4, 1782126260.4756932
+  -9.69, 0.12, 4, 1782126260.5773084
+  -8.83, 0.08, 4, 1782126260.6418514
+  -7.95, 0.05, 4, 1782126260.7126088
+  -7.95, 0.05, 4, 1782126260.8016436
+  -7.94, 0.04, 4, 1782126260.8764145
+  -7.82, 0.04, 4, 1782126260.9560122
+  -7.58, 0.03, 4, 1782126261.0324314
+  -7.50, 0.03, 4, 1782126261.132633
+  -7.50, 0.03, 4, 1782126261.2017093
+  -7.50, 0.03, 4, 1782126261.2717245
+  -7.49, 0.03, 4, 1782126261.3614593
+  -7.49, 0.03, 4, 1782126261.4490004
+  -7.49, 0.03, 4, 1782126261.51744
+  -7.49, 0.03, 4, 1782126261.5957825
+  -7.49, 0.03, 4, 1782126261.6766143
+  -7.49, 0.03, 4, 1782126261.7526097
+  -7.49, 0.03, 4, 1782126261.8341725
+  -7.49, 0.03, 4, 1782126261.9189482
+  -7.49, 0.03, 4, 1782126262.0010762
+  -7.49, 0.03, 4, 1782126262.0796657
+  -7.49, 0.03, 4, 1782126262.1594756
+  -7.49, 0.03, 4, 1782126262.2513914
+  -7.49, 0.03, 4, 1782126262.3177996
+  -7.44, 0.02, 4, 1782126262.3944576
+  -7.50, 0.03, 4, 1782126262.4764142
+  -7.76, 0.04, 4, 1782126262.5504148
+  -7.81, 0.04, 4, 1782126262.6383033
+  -7.76, 0.04, 4, 1782126262.7183306
+
+Waypoints (x, y, index, mode):
+
+Raw Data Log:
+  [2026-06-22T19:03:48.118253] I: {'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.162177] I: {'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.191577] I: {'realtime_x': 1.58, 'realtime_y': -0.02, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.257035] I: {'realtime_x': 10.83, 'realtime_y': -0.18, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.358903] I: {'realtime_x': 25.64, 'realtime_y': -0.45, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.421653] I: {'realtime_x': 43.21, 'realtime_y': -0.77, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.491200] I: {'realtime_x': 58.81, 'realtime_y': -0.98, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.607158] I: {'realtime_x': 67.3, 'realtime_y': -1.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.670357] I: {'realtime_x': 66.74, 'realtime_y': -1.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.730037] I: {'realtime_x': 62.12, 'realtime_y': -1.05, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.806772] I: {'realtime_x': 57.59, 'realtime_y': -1.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.915694] I: {'realtime_x': 61.97, 'realtime_y': -1.12, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.991204] I: {'realtime_x': 81.66, 'realtime_y': -1.7, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.048809] I: {'realtime_x': 120.15, 'realtime_y': -3.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.134445] I: {'realtime_x': 170.79, 'realtime_y': -5.16, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.248144] I: {'realtime_x': 227.32, 'realtime_y': -7.54, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.317146] I: {'realtime_x': 286.78, 'realtime_y': -10.14, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.375830] I: {'realtime_x': 351.78, 'realtime_y': -13.77, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.450847] I: {'realtime_x': 427.4, 'realtime_y': -19.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.574889] I: {'realtime_x': 514.75, 'realtime_y': -25.28, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.645111] I: {'realtime_x': 606.79, 'realtime_y': -32.29, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.314010] I: {'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.359876] I: {'realtime_x': 0.08, 'realtime_y': -0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.438022] I: {'realtime_x': -3.98, 'realtime_y': 0.02, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.488904] I: {'realtime_x': -9.28, 'realtime_y': 0.1, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.608417] I: {'realtime_x': -9.69, 'realtime_y': 0.12, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.663650] I: {'realtime_x': -8.83, 'realtime_y': 0.08, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.722647] I: {'realtime_x': -7.95, 'realtime_y': 0.05, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.813155] I: {'realtime_x': -7.95, 'realtime_y': 0.05, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.908146] I: {'realtime_x': -7.94, 'realtime_y': 0.04, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:20.978538] I: {'realtime_x': -7.82, 'realtime_y': 0.04, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.045350] I: {'realtime_x': -7.58, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.165306] I: {'realtime_x': -7.5, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.225025] I: {'realtime_x': -7.5, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.279227] I: {'realtime_x': -7.5, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.411562] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.478083] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.529288] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.604008] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.716891] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.785014] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.844024] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:21.978849] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.028982] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.110039] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.169573] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.280359] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.356187] I: {'realtime_x': -7.49, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.410769] I: {'realtime_x': -7.44, 'realtime_y': 0.02, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.497157] I: {'realtime_x': -7.5, 'realtime_y': 0.03, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.595157] I: {'realtime_x': -7.76, 'realtime_y': 0.04, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.670546] I: {'realtime_x': -7.81, 'realtime_y': 0.04, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:04:22.725243] I: {'realtime_x': -7.76, 'realtime_y': 0.04, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}

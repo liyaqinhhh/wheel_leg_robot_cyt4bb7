@@ -16,6 +16,7 @@ static uint16_t rx_idx = 0;
 
 // 外部变量声明
 extern float speed_MOTOR;
+extern float wheel_distance_cm; 
 extern int16_t flag_main;
 extern float erect_Gyro_Pitch[4];
 extern float erect_Angle_Pitch[4];

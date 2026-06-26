@@ -42,16 +42,16 @@
  * ================================================================== */
 
 /* 默认前瞻距离 (单位: 编码器脉冲) */
-#define PURE_PURSUIT_DEFAULT_LOOKAHEAD   160.0
+#define PURE_PURSUIT_DEFAULT_LOOKAHEAD   60.0
 
 /* 最小前瞻距离 (防止过小导致震荡) */
-#define PURE_PURSUIT_MIN_LOOKAHEAD       45.0
+#define PURE_PURSUIT_MIN_LOOKAHEAD       20.0
 
 /* 最大前瞻距离 (防止过大导致切角) */
-#define PURE_PURSUIT_MAX_LOOKAHEAD       280.0
+#define PURE_PURSUIT_MAX_LOOKAHEAD       100.0
 
 /* 轴距 (单位: 编码器脉冲，需根据实际机器人测量) */
-#define PURE_PURSUIT_WHEELBASE           35.0
+#define PURE_PURSUIT_WHEELBASE           17.7
 
 /* ==================================================================
  *  数据结构

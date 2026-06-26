@@ -24,6 +24,9 @@ InsAuto_State g_ins_auto = {0};
 /* Flash 操作缓冲区 (extern from zf_driver_flash.h) */
 extern flash_data_union flash_union_buffer[FLASH_PAGE_LENGTH];
 
+/* 平均轮速，供自适应前瞻距离使用 (extern from Interrupt.c) */
+extern volatile float speed_MOTOR;
+
 /* ==================================================================
  *  Flash 读写辅助函数
  * ================================================================== */
@@ -70,6 +73,7 @@ void ins_auto_record_init(void)
     g_ins_auto.config.lookahead_distance = INS_AUTO_LOOKAHEAD_DEFAULT;
     g_ins_auto.config.arrival_threshold = INS_AUTO_ARRIVAL_THRESHOLD;
     g_ins_auto.config.auto_record_enable = 1;
+    g_ins_auto.config.adaptive_lookahead_enable = INS_AUTO_ADAPTIVE_LD_ENABLE;
 
     /* 初始化 Pure Pursuit 模块 */
     ins_pure_pursuit_init();
@@ -100,8 +104,9 @@ void ins_auto_record_update(int speed, float yaw)
         return; /* 已满，停止录制 */
     }
 
-    /* 计算本次移动距离 */
-    double move_dist = fabs((double)speed * 0.016); /* 16ms 时间间隔 */
+    /* 计算本次移动距离 (厘米)
+     *   speed(rev/s) × 0.016s × 周长 = WHEEL_CIRCUMFERENCE_CM */
+    double move_dist = fabs((double)speed * 0.016 * WHEEL_CIRCUMFERENCE_CM);
 
     /* 累加距离 */
     g_ins_auto.last_record_distance += move_dist;
@@ -346,29 +351,132 @@ void ins_auto_record_navigation(void)
         return;
     }
 
-    /* 1. 使用 Pure Pursuit 计算目标转向角 */
+    /* 1. 计算自适应前瞻距离（速度 + 上一帧曲率融合） */
+    static float prev_curvature = 0.0f; /* 跨帧持久 */
+    float lookahead_dist = g_ins_auto.config.lookahead_distance;
+
+    if (g_ins_auto.config.adaptive_lookahead_enable)
+    {
+        float abs_speed = fabsf(speed_MOTOR);
+        float abs_curv = fabsf(prev_curvature);
+
+        /* Ld = Ld_base + k_speed * |speed| - k_curv * |curvature|
+         * 直道高速: 前瞻增大（轨迹平滑）
+         * 弯道急:   前瞻缩小（贴线精准）
+         */
+        lookahead_dist = g_ins_auto.config.lookahead_distance + INS_AUTO_ADAPTIVE_LD_SPEED_GAIN * abs_speed - INS_AUTO_ADAPTIVE_LD_CURV_GAIN * abs_curv;
+
+        /* 钳位到 [MIN, MAX] */
+        if (lookahead_dist < PURE_PURSUIT_MIN_LOOKAHEAD)
+            lookahead_dist = PURE_PURSUIT_MIN_LOOKAHEAD;
+        if (lookahead_dist > PURE_PURSUIT_MAX_LOOKAHEAD)
+            lookahead_dist = PURE_PURSUIT_MAX_LOOKAHEAD;
+    }
+
+    /* 2. 使用 Pure Pursuit 计算目标转向角 */
     PurePursuit_State pp_state = ins_pure_pursuit_update(
         g_ins_auto.waypoints,
         g_ins_auto.wp_count,
         g_ins_auto.wp_current,
         cod_realtime,
         imu660ra.eulerAngle.yaw, /* 当前偏航角 */
-        g_ins_auto.config.lookahead_distance);
+        lookahead_dist);
 
-    /* 2. 更新全局变量 yaw_ins (供 Interrupt.c 的 turn_mode==7 使用) */
+    /* 2b. 存储本帧曲率供下一帧自适应计算 */
+    if (g_ins_auto.config.adaptive_lookahead_enable)
+    {
+        prev_curvature = pp_state.curvature;
+    }
+
     yaw_ins = pp_state.target_yaw;
+    /* 2. 更新全局变量 yaw_ins (供 Interrupt.c 的 turn_mode==7 使用) */
+    /* 对目标偏航角做变化率限幅，间接限制小车转向角速度 */
+    {
+        static float yaw_ins_smoothed = 0.0f;
+        static uint8 yaw_ins_inited = 0;
+        float raw_target = pp_state.target_yaw;
 
-    /* 3. 计算到当前航点的距离 (用于到达判定) */
+        if (!yaw_ins_inited)
+        {
+            yaw_ins_smoothed = raw_target;
+            yaw_ins_inited = 1;
+        }
+
+        /* 计算最短路径误差（考虑 ±180° 包裹） */
+        float delta = raw_target - yaw_ins_smoothed;
+        if (delta > 180.0f)
+            delta -= 360.0f;
+        if (delta < -180.0f)
+            delta += 360.0f;
+
+        /* 固定速率限幅: 每帧最多变化 INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME 度 */
+        if (delta > INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME)
+            delta = INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME;
+        if (delta < -INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME)
+            delta = -INS_AUTO_YAW_RATE_MAX_DEG_PER_FRAME;
+
+        yaw_ins_smoothed += delta;
+
+        /* 归一化到 [-180°, 180°] */
+        if (yaw_ins_smoothed > 180.0f)
+            yaw_ins_smoothed -= 360.0f;
+        if (yaw_ins_smoothed < -180.0f)
+            yaw_ins_smoothed += 360.0f;
+
+        yaw_ins = yaw_ins_smoothed;
+    }
+
+    /* 3. 计算到当前航点的距离和向量 (用于到达判定) */
     Coordinates current_wp = g_ins_auto.waypoints[g_ins_auto.wp_current];
     double dx = current_wp.x - cod_realtime.x;
     double dy = current_wp.y - cod_realtime.y;
     dis_ins = sqrt(dx * dx + dy * dy);
 
-    /* 4. 检查是否到达当前航点 */
+    /* 4. 双重到达判定: 距离容差 OR 向量点乘过线检测 */
+    uint8 wp_reached = 0;
+
+    /* 条件 A: 距离容差 —— 正常进入到达圆内 */
     if (dis_ins < g_ins_auto.config.arrival_threshold && dis_ins > 0.001)
+    {
+        wp_reached = 1;
+    }
+
+    /* 条件 B: 向量点乘过线检测 —— 防急弯"漏点绕圈"
+     *
+     * 原理: 计算车身前向向量 F(cos_yaw, sin_yaw) 与
+     *       指向目标向量 T(dx, dy) 的点乘。
+     *       若 F·T < 0，说明目标点已被甩到车身后方 → 已越过 → 强制切换。
+     *
+     * 安全距离: 只在 PASS_GUARD_MAX_DIST 以内生效，防止误触发。
+     */
+#if INS_AUTO_PASS_GUARD_ENABLE
+    if (!wp_reached && dis_ins < INS_AUTO_PASS_GUARD_MAX_DIST)
+    {
+        double yaw_rad = ANGLE_TO_RAD(imu660ra.eulerAngle.yaw);
+        double forward_x = cos(yaw_rad); /* 车身前向 X 分量 */
+        double forward_y = sin(yaw_rad); /* 车身前向 Y 分量 */
+
+        /* F·T = forward_x * dx + forward_y * dy
+         * < 0 → 目标在后方 → 已越过 */
+        double dot = forward_x * dx + forward_y * dy;
+
+        if (dot < 0.0)
+        {
+            wp_reached = 1;
+        }
+    }
+#endif
+
+    if (wp_reached)
     {
         /* 到达当前航点，切换到下一个 */
         g_ins_auto.wp_current++;
+
+        /* yaw_ins > 160° 或 < -160° 则舍弃，继续跳到下一个 */
+        // while (g_ins_auto.wp_current < g_ins_auto.wp_count && (yaw_ins > 160.0 || yaw_ins < -160.0))
+        // {
+        //     g_ins_auto.wp_current++;
+        // }
 
         /* 检查是否到达终点 */
         if (g_ins_auto.wp_current >= g_ins_auto.wp_count)
@@ -402,7 +510,7 @@ void ins_auto_nav_start(void)
     g_ins_auto.is_recording = 0;
 
     /* 设置 turn_mode 为 7 (惯导转向模式) */
-    
+
     turn_mode = 7;
 }
 
@@ -415,10 +523,16 @@ void ins_auto_nav_stop(void)
     // Target_Yaw = imu660ra.eulerAngle.yaw; /* 记录当前偏航角作为目标 */
     // turn_mode = 3;                        /* 切换到偏航角度闭环模式，沿当前方向直走 */
 
+    Target_Speed = 0;
     Yao.Outp_turn = 0;
-
+    /* 不归零 Outp_Gyro_Pitch/Outp_Angle_Pitch/Outp_Speed_Pitch:
+     * 它们由 Interrupt.c 的 PID 循环持续更新, 清零反而造成短暂失控 */
+    /* 不调用 small_driver_set_duty(0,0), control_main 正常驱动电机保持平衡 */
+    g_ins_auto.nav_finished = 1;
+    // ins_mode = 3; /* 导航完成, 回到打点模式, 防止下一帧再次进入 case 5 */
+    flag_main = 2;
     /* 4. 停止录制和导航标志 */
-    flag_2 = 0;
+    // flag_2 = 0;
     g_ins_auto.is_recording = 0;
 
     /* 注意：不清零平衡控制输出，不设置 flag_stop，让小车继续平衡并沿直线走 */

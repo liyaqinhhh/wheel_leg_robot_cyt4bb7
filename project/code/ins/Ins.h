@@ -34,15 +34,18 @@
 #ifndef CODE_CENTER_INS_H_
 #define CODE_CENTER_INS_H_
 
- /* 分段惯导模块: ins_mode=2/3 的入口声明 */
+/* 分段惯导模块: ins_mode=2/3 的入口声明 */
 
 /*
  * 角度/弧度互转宏
  * 使用 double 精度 PI, 避免 float 截断误差在航位推算中累积
  */
-#define ANGLE_TO_RAD(x)     ( (x) * PI / 180.0 )   /* 度 → 弧度 */
-#define RAD_TO_ANGLE(x)     ( (x) * 180.0 / PI )   /* 弧度 → 度 */
-#define PI                  ( 3.1415926535898 )    /* double 精度圆周率 */
+#define ANGLE_TO_RAD(x) ((x) * PI / 180.0) /* 度 → 弧度 */
+#define RAD_TO_ANGLE(x) ((x) * 180.0 / PI) /* 弧度 → 度 */
+#define PI (3.1415926535898)               /* double 精度圆周率 */
+
+/* 轮周长(cm): 轮半径 3.5cm × 2π, 用于转速→线速度换算 */
+#define WHEEL_CIRCUMFERENCE_CM (2.0f * 3.14159265f * 3.5f / 60.0f)
 
 /*
  * 坐标结构体
@@ -52,9 +55,10 @@
  *     例如跑 1000 米后 float 精度降至 ±0.1m,
  *     double 的 15 位有效数字可保持 ±0.0001m 精度
  */
-typedef struct {
-    double x;   /* X 坐标 (与速度×时间×cos(偏航) 同量纲) */
-    double y;   /* Y 坐标 (与速度×时间×sin(偏航) 同量纲) */
+typedef struct
+{
+    double x; /* X 坐标 (与速度×时间×cos(偏航) 同量纲) */
+    double y; /* Y 坐标 (与速度×时间×sin(偏航) 同量纲) */
 } Coordinates;
 
 /*
@@ -69,7 +73,7 @@ typedef struct {
  *
  * 副作用: 写 IPS200 屏幕 (行 96/112) 显示 X/Y 坐标
  */
-void get_realtime_coordinate( int speed, float time, float yaw );
+void get_realtime_coordinate(int speed, float time, float yaw);
 
 /*
  * 计算从 (x1,y1) 到 (x2,y2) 的距离和方位角
@@ -80,7 +84,7 @@ void get_realtime_coordinate( int speed, float time, float yaw );
  * 此函数无副作用 (除设置 dis_ins/yaw_ins 外),
  * 可被分段惯导模块 ins_segment.c 复用。
  */
-void get_target( double x1, double y1, double x2, double y2 );
+void get_target(double x1, double y1, double x2, double y2);
 
 /*
  * 惯导主状态机 (在主循环中每帧调用)
@@ -109,16 +113,16 @@ void ins_navigation(void);
 
 /* ---- 全局变量 extern ---- */
 
-extern Coordinates cod_realtime;    /* 实时坐标: 由 get_realtime_coordinate 不断累加 */
-extern Coordinates cod_saved[30];   /* 录制暂存: ins_mode=0 按键录点时暂存, 最多30个 */
-extern Coordinates cod_target[30];  /* 导航目标: ins_mode=1 从 Flash 加载的航点 */
-extern double dis_ins;              /* 到目标点的距离 */
-extern double yaw_ins;              /* 到目标点的方位角 0~360° */
-extern volatile uint8 ins_mode;              /* 惯导模式: 0/1/2/3 */
-extern uint8 n;                     /* 航点数量 */
-extern uint8 target;                /* 当前目标航点索引 */
-extern uint8 flag_save;             /* Flash 保存状态: 0=未保存 1=已保存 */
-extern bool flag_1;  
-extern bool flag_2;             /* 首次进入 ins_mode=1 的标志: true=需从Flash加载 */
+extern Coordinates cod_realtime;   /* 实时坐标: 由 get_realtime_coordinate 不断累加 */
+extern Coordinates cod_saved[30];  /* 录制暂存: ins_mode=0 按键录点时暂存, 最多30个 */
+extern Coordinates cod_target[30]; /* 导航目标: ins_mode=1 从 Flash 加载的航点 */
+extern double dis_ins;             /* 到目标点的距离 */
+extern double yaw_ins;             /* 到目标点的方位角 0~360° */
+extern volatile uint8 ins_mode;    /* 惯导模式: 0/1/2/3 */
+extern uint8 n;                    /* 航点数量 */
+extern uint8 target;               /* 当前目标航点索引 */
+extern uint8 flag_save;            /* Flash 保存状态: 0=未保存 1=已保存 */
+extern bool flag_1;
+extern bool flag_2; /* 首次进入 ins_mode=1 的标志: true=需从Flash加载 */
 
 #endif /* CODE_CENTER_INS_H_ */

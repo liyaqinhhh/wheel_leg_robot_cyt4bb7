@@ -29,7 +29,7 @@
 
 #include "Ins.h"
 #include "AI_Pid_Tuner.h"
-#include "ins_auto_record.h" /* 自动打点模块 */
+#include "ins_auto_record.h"  /* 自动打点模块 */
 #include "ins_pure_pursuit.h" /* Pure Pursuit 算法模块 */
 
 #include "Ins.h" // 惯导系统（yaw_ins）
@@ -58,16 +58,18 @@ float Battery_voltage;
  * fuzzy_mode:         0=关闭模糊(使用固定KP), 1=开启模糊(动态KP范围)
  */
 uint8 steer_control_mode = 0;
-uint8 turn_mode = 7; /* 初始化为关闭转向模式，避免启动时 yaw_ins 未初始化导致抽动 */
+uint8 turn_mode = 3; /* 初始化为关闭转向模式，避免启动时 yaw_ins 未初始化导致抽动 */
 uint8 fuzzy_mode = 0;
 
 /* ---- 菜单与调试 ---- */
 uint8 menu_open = 1;  /* 0=关闭菜单和Flash(保证测试不会误写Flash),
                          1=打开菜单, 2=只打开读取不打开菜单 */
 uint8 flag_yawan = 1; /* 偏航辅助(yawan)使能：0=关闭, 1=开启 */
-uint8 flag_stop = 1;  /* 停止标志：1=停止(锁定舵机中位), 0=正常运行 */
+uint8 flag_stop = 0;  /* 停止标志：1=停止(锁定舵机中位), 0=正常运行 */
 uint8 ins_open = 1;   /* 惯导转向开关：0=关闭, 1=开启 */
 uint8 ins_getdata = 0;
+uint8 test_mode_turn = 0; /* 测试模式标志：0=正常, 1=测试 */
+uint8 test_mode_jump = 0; /* 跳跃测试模式：0=正常, 1=测试 */
 
 /* ---- 计数器与标志 ---- */
 uint16 a11111 = 0;     /* 单腿站立计时器（1ms中断递增） */
@@ -77,7 +79,7 @@ uint16 dis_tof_mm = 0; /* TOF距离传感器数据 */
 
 uint16 time_flag = 0;   /* 定时标志（预留） */
 uint16_t flag_open = 0; /* 开启标志（预留） */
-int16_t flag_main = 0;  /* 主状态标志 */
+int16_t flag_main = 1;  /* 主状态标志 */
 uint16_t flag_text = 0; /* 文本显示标志 */
 
 /* ---- 偏航角变量 ----
@@ -87,6 +89,112 @@ uint16_t flag_text = 0; /* 文本显示标志 */
  */
 volatile float angle_Z = 0;
 
+/* ---- 中断任务标志位（ISR 累加，主函数消费递减） ---- */
+static volatile uint16 g_isr_flag_1ms = 0;
+static volatile uint16 g_isr_flag_2ms = 0;
+static volatile uint16 g_isr_flag_4ms = 0;
+static volatile uint16 g_isr_flag_8ms = 0;
+static volatile uint16 g_isr_flag_16ms = 0;
+static volatile uint16 g_isr_flag_40ms = 0;
+
+/**
+ * @brief   中断调度标志位累加（由 pit0_ch0_isr 每 1ms 调用一次）
+ * @note    内部 static 分频计数器将 1ms 节拍分频为 2/4/8/16/40ms
+ *          每次调用各时间级标志位 +1，主函数 Run_Interrupt_Tasks() 消费
+ */
+void Interrupt_Flag_Increment(void)
+{
+    static uint8 Count_1ms = 0;
+    static uint8 Count_2ms = 0;
+    static uint8 Count_4ms = 0;
+    static uint8 Count_8ms = 0;
+    static uint8 Count_16ms = 0;
+    static uint8 Count_40ms = 0;
+
+    Count_1ms++;
+    Count_2ms++;
+    Count_4ms++;
+    Count_8ms++;
+    Count_16ms++;
+    Count_40ms++;
+
+    if (Count_1ms == 1)
+    {
+        Count_1ms = 0;
+        if (g_isr_flag_1ms < 500u)
+            g_isr_flag_1ms++;
+    }
+    if (Count_2ms == 2)
+    {
+        Count_2ms = 0;
+        if (g_isr_flag_2ms < 500u)
+            g_isr_flag_2ms++;
+    }
+    if (Count_4ms == 4)
+    {
+        Count_4ms = 0;
+        if (g_isr_flag_4ms < 500u)
+            g_isr_flag_4ms++;
+    }
+    if (Count_8ms == 8)
+    {
+        Count_8ms = 0;
+        if (g_isr_flag_8ms < 500u)
+            g_isr_flag_8ms++;
+    }
+    if (Count_16ms == 16)
+    {
+        Count_16ms = 0;
+        if (g_isr_flag_16ms < 500u)
+            g_isr_flag_16ms++;
+    }
+    if (Count_40ms == 40)
+    {
+        Count_40ms = 0;
+        if (g_isr_flag_40ms < 500u)
+            g_isr_flag_40ms++;
+    }
+}
+
+/**
+ * @brief   中断任务调度函数（主函数轮询调用）
+ * @note    检查各时间级标志位，有积压则立即执行对应任务并递减标志位
+ *          保证每次调用只执行一次任务，防止主循环某级任务堆积
+ */
+void Run_Interrupt_Tasks(void)
+{
+    while (g_isr_flag_1ms)
+    {
+        g_isr_flag_1ms--;
+        Interrupt_1ms();
+    }
+    while (g_isr_flag_2ms)
+    {
+        g_isr_flag_2ms--;
+        Interrupt_2ms();
+    }
+    while (g_isr_flag_4ms)
+    {
+        g_isr_flag_4ms--;
+        Interrupt_4ms();
+    }
+    while (g_isr_flag_8ms)
+    {
+        g_isr_flag_8ms--;
+        Interrupt_8ms();
+    }
+    while (g_isr_flag_16ms)
+    {
+        g_isr_flag_16ms--;
+        Interrupt_16ms();
+    }
+    while (g_isr_flag_40ms)
+    {
+        g_isr_flag_40ms--;
+        Interrupt_40ms();
+    }
+}
+
 void control_main(void)
 {
     small_driver_get_speed();
@@ -94,7 +202,7 @@ void control_main(void)
     if (motor_value.receive_right_speed_data < -3500 || motor_value.receive_right_speed_data > 3500 || motor_value.receive_left_speed_data < -3500 || motor_value.receive_left_speed_data > 3500 || ins_getdata)
     {
         //            if(!flag_jump_stop)
-        flag_main = 1;
+        // flag_main = 1;
         flag_stop = 1;
         Yao.Outp_Gyro_Pitch = 0;
         Yao.Outp_Angle_Pitch = 0;
@@ -104,40 +212,71 @@ void control_main(void)
         small_driver_set_duty(0, 0);
     }
 
-    if (flag_main)
+    if (flag_main == 1)
     {
-        flag_stop = 1;
+        // flag_stop = 1;
         Yao.Outp_Gyro_Pitch = 0;
         Yao.Outp_Angle_Pitch = 0;
         Yao.Outp_Speed_Pitch = 0;
         //            motor_value.receive_left_speed_data = 0;
         //            motor_value.receive_right_speed_data = 0;
         small_driver_set_duty(0, 0);
+    }
+    else if (flag_main == 2)
+    {
+        small_driver_set_duty((int16)((Yao.Outp_Gyro_Pitch)), // 右轮发送占空比
+                              (int16)((Yao.Outp_Gyro_Pitch)));
     }
     else
     {
         if (ins_open == 0 || menu_mode == 1)
         {
-            // small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch)),     // 左轮发送占空比
-            //                       (int16)(-Yao.Outp_Gyro_Pitch )); // 右轮发送占空比
-            //small_driver_set_duty(0, 0);
+            // small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch)), // 右轮发送占空比
+            //                       (int16)((Yao.Outp_Gyro_Pitch))); // 左轮发送占空比-
+            // servo_set_angle(LF, 180);
+            // servo_set_angle(RF, 180);
+            // servo_set_angle(LB, 0);
+            // servo_set_angle(RB, 0);
+            // servo_set_angle(RF, 202);  servo_set_angle(RB, 89);
+            // servo_set_angle(LF, 202);  servo_set_angle(LB, -22);
+            // small_driver_set_duty(0, 0);
 
-            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw)), // 左轮发送占空比
-                                  (int16)((Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
-            // small_driver_set_duty(500,-500);
+            /* 平衡优先: 俯仰环输出超过3000时线性衰减转向差速 */
+            // {
+            //     float pitch_used = func_abs(Yao.Outp_Gyro_Pitch);
+            //     float turn_scale = 1.0f;
+            //     if (pitch_used > 3000.0f)
+            //     {
+            //         turn_scale = 1.0f - (pitch_used - 3000.0f) / 2500.0f;
+            //         if (turn_scale < 0.05f)
+            //             turn_scale = 0.05f;
+            //     }
+            //     Yao.Outp_Gyro_Yaw = Yao.Outp_Gyro_Yaw * turn_scale;
+            // }
+
+            small_driver_set_duty((int16)(((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
+                                  (int16)(((Yao.Outp_Gyro_Pitch) + Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
+            // small_driver_set_duty(0,500);
         }
-        else
+        else /*if(ins_open == 1 && menu_mode == 1)*/
         {
 
-            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw)), // 左轮发送占空比
-                                  (int16)((Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
+            /* 平衡优先: 俯仰环输出超过3000时线性衰减转向差速 */
+            // {
+            //     float pitch_used = func_abs(Yao.Outp_Gyro_Pitch);
+            //     float turn_scale = 1.0f;
+            //     if (pitch_used > 3000.0f)
+            //     {
+            //         turn_scale = 1.0f - (pitch_used - 3000.0f) / 2500.0f;
+            //         if (turn_scale < 0.05f)
+            //             turn_scale = 0.05f;
+            //     }
+            //     Yao.Outp_Gyro_Yaw = Yao.Outp_Gyro_Yaw * turn_scale;
+            // }
+
+            small_driver_set_duty((int16)(((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
+                                  (int16)(((Yao.Outp_Gyro_Pitch) + Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
         }
-    }
-
-    if (ins_open)
-    {
-
-        ins_navigation();
     }
 }
 /**
@@ -154,16 +293,16 @@ void control_main(void)
 void Interrupt_1ms(void)
 {
     /* 1. TOF距离传感器读取 */
-    Update_TOF_Sensor();
+    // Update_TOF_Sensor();
 
     /* 2. IMU偏航角积分与归一化 */
     Update_Yaw_Integration();
 
     /* 3. 跨边界圈数检测与连续偏航角计算 */
-    Update_Angle_Z();
+    // Update_Angle_Z();
 
     /* 4. 单腿站立计时器更新 */
-    Update_Single_Leg_Timer();
+    // Update_Single_Leg_Timer();
 
     /* 以下为已注释的自动90°转向测试代码 ---- */
     // if (time_flag == 0)
@@ -230,35 +369,53 @@ float ddddd = 0;       /* 预留变量 */
  */
 void Interrupt_2ms(void)
 {
-    jump_text();
+    // small_driver_get_speed(); /* 获取轮速数据，更新 motor_value 结构体 */
+    // control_main();
+    //  jump_text();
     /* 1. 跳跃控制 */
-    Update_Jump_Control();
-
-    /* 2. 按键扫描 */
-    key_scanner();
-
-    /* 3. AI调参处理 */
-    if (flag_ai_open)
+    if (flag_jump)
     {
-        AI_Pid_Tuner_ProcessRx();
+        time_j++;
+        jump_control();
+    }
+    else
+    {
+        time_j = 0;
     }
 
+    /* 2. 按键扫描 */
+
+    // if(menu_open == 1)
+    //     menu();
+    // else
+    // menu_mode = 1;
+
+    /* 3. AI调参处理 */
+    // if (flag_ai_open)
+    // {
+    //     AI_Pid_Tuner_ProcessRx();
+    // }
+    // imu660rb_get_gyro();
+    // imu660rb_get_acc();
     /* 4. IMU数据读取与姿态解算 */
     date_handle();
 
-    /* 6. 串级PID角速度环（最内层） */
+    // /* 6. 串级PID角速度环（最内层） */
     Update_Gyro_PID_Loop();
 }
 
 /* ---- 4ms中断用全局变量 ---- */
-volatile float aa1 = 0;                                  /* 俯仰角低通滤波值（用于角度环） */
-volatile float aa2 = 0;                                  /* 转向角低通滤波值（用于转向PID） */
-volatile float dd = 0;                                   /* 偏航偏差低通滤波值 */
-float temp_erect_turn[4];                                /* 转向PID临时参数（模糊模式动态调整KP） */
-float k11 = 0;                                           /* 急加速补偿系数1 */
-float k22 = 0;                                           /* 急加速补偿系数2 */
-float kp_roll = 0.9;                                     /* 翻滚KP系数 */
-float Target_Yaw = 0;                                    /* 目标偏航角（turn_mode=3走直线模式） */
+volatile float aa1 = 0;   /* 俯仰角低通滤波值（用于角度环） */
+volatile float aa2 = 0;   /* 转向角低通滤波值（用于转向PID） */
+volatile float dd = 0;    /* 偏航偏差低通滤波值 */
+float temp_erect_turn[4]; /* 转向PID临时参数（模糊模式动态调整KP） */
+float k11 = 0;            /* 急加速补偿系数1 */
+float k22 = 0;            /* 急加速补偿系数2 */
+float kp_roll = 0.9;      /* 翻滚KP系数 */
+/******************************************************* */
+float Target_Yaw = 0;     /* 目标偏航角（turn_mode=3走直线模式） */
+float Target_Speed = 600; /* 目标速度 */
+/******************************************************* */
 float V_trans = 0;                                       /* 横向速度（预留） */
 uint8 TCount_falg_4ms = 0;                               /* 4ms计数使能标志 */
 uint16 TCount_4ms = 0;                                   /* 4ms周期计数器 */
@@ -301,13 +458,15 @@ void Interrupt_4ms(void)
     Update_Kalman_Filter();
 
     /* 2. 4ms计数器更新 */
-    Update_4ms_Counter();
+    // Update_4ms_Counter();
 
     /* 3. 俯仰角度环PID（外环） */
     Update_Angle_PID_Loop();
 
     /* 4. 转向控制 */
     Update_Steering_Control();
+
+    control_main();
 }
 
 /* ---- 8ms中断用全局变量 ---- */
@@ -328,19 +487,33 @@ float vv2 = 0;     /* 轮速差滤波值（预留） */
  */
 void Interrupt_8ms(void)
 {
+    // small_driver_get_speed();
     /* 1. 单腿站立高度切换控制 */
-    if (flag_Single)
-    {
-        Single_Control();
-    }
+    if(flag_Single)
+    Single_Control();
+    
+    // if (menu_mode == 1)
+    // {
+    Adapt_Terrain();
+    //}
 
     /* 2. 舵机平衡控制 */
-    servo_balance();
+    // servo_balance();
+    key_scanner();
+    if (ins_open)
+    {
+        ins_navigation();
+    }
+    if (key_get_state(KEY_4))
+    {
+        flag_main = 0;
+    }
 }
 
 /* ---- 16ms中断用全局变量 ---- */
 volatile float aa11 = 0;        /* 轮速差低通滤波值（用于速度环输入） */
 volatile float speed_MOTOR = 0; /* 平均轮速（用于惯导坐标更新） */
+float wheel_distance_cm = 0;    /* 轮速积分累积行驶距离（厘米）, 轮半径3.5cm */
 
 /**
  * @brief   16ms中断服务函数
@@ -369,9 +542,11 @@ extern uint8 Zebra_Count_Flag; /* 斑马线计数标志（外部定义） */
 uint16 TCount_40ms = 0;        /* 40ms周期计数器（用于斑马线超时检测） */
 
 /* ---- 遥测发送控制 ---- */
-uint8 telemetry_enable = 0;     /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
-uint8 ins_telemetry_enable = 1; /* 惯导遥测使能：0=关闭, 1=开启 */
-
+uint8 telemetry_enable = 1;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+uint8 ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
+uint8 jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
+uint8 angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
+uint8 kalman_wireless = 0;       /* 卡尔曼诊断遥测使能：0=关闭, 1=开启（发送 $K 帧） */
 /**
  * @brief   40ms中断服务函数
  *
@@ -384,30 +559,90 @@ uint8 ins_telemetry_enable = 1; /* 惯导遥测使能：0=关闭, 1=开启 */
  *   4. 惯导录点瞬间发送 $W 航点帧
  */
 uint16 Count = 0; /* 40ms周期计数器（用于遥测发送切换） */
+uint8 flag_count = 0;
 void Interrupt_40ms(void)
 {
     /* 1. 斑马线超时检测 */
-    Update_Zebra_Timeout();
+    // Update_Zebra_Timeout();
 
     /* 2. 偏航角慢漂补偿 */
-    Update_Yaw_Drift_Compensation();
+    imu660ra.eulerAngle.yaw += 0.002;
+    flag_count++;
+    flag_count %= 3;
 
     /* 3. 遥测数据发送 */
     Update_Telemetry_Send();
 
+    // if(menu_mode == 1)
+    IPS200_Show1();
+    // printf("g_ins_auto.nav_finished=%d, flag_mian=%d\r\n", g_ins_auto.nav_finished, flag_main);
+    // printf("imu660ra.eulerAngle.yaw: %.2f\n", imu660ra.eulerAngle.yaw, Target_Yaw, Yao.Outp_turn);
+    //  printf("Yaw: %.2f, Yao.Outp_Gyro_Yaw: %.2f, Target_Yaw: %.2f, Yao.Outp_turn: %.2f,imu660rb_gyro_z: %d\n",imu660ra.eulerAngle.yaw, Yao.Outp_Gyro_Yaw, Target_Yaw, Yao.Outp_turn, imu660rb_gyro_z);
+    //   printf("imu660rb_gyro_z: %.2f, imu660rb_gyro_x: %.2f,imu660rb_gyro_y: %.2f,imu660rb_acc_z: %.2f\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y, imu660rb_acc_z);
+    //   printf("g_isr_flag_2ms=%d\r\n", g_isr_flag_2ms);
+    //   if(menu_open == 1)
+    //       menu();
+    //   else
+    //       menu_mode = 1;
+
+    // printf("Yaw: %.2f\n", imu660ra.eulerAngle.yaw);
+
     /******************************* */
     // Count++;
-    // if(Count >= 50)
-    // {
-    //     Target_Yaw = 90;
-    // }
     // if(Count >= 100)
     // {
-    //     Target_Yaw = 0;
+    //     flag_jump = 1;
     //     Count = 0;
     // }
+    /******************************* */
+
+    // if (ins_open == 0)
+    // {
+    //     if (key_detect(KEY_1, KEY_SHORT_PRESS))
+    //     {
+    //         test_mode_turn = ~test_mode_turn;
+    //         Count = 0;
+    //     }
+
+    //     if (key_detect(KEY_2, KEY_SHORT_PRESS))
+    //     {
+    //         test_mode_jump = ~test_mode_jump;
+    //         Count = 0;
+    //     }
+
+    //     if (test_mode_turn)
+    //     {
+    // if(menu_mode == 1)
+    // {
+    // Count++;
+    //     if (Count >= 50)
+    //     {
+    //         Target_Yaw = 90;
+    //     }
+    //     if (Count >= 100)
+    //     {
+    //         Target_Yaw = 0;
+    //         Count = 0;
+    //     }
+    // }
+
+    // }
+
+    // if (test_mode_jump)
+    // {
+    //     Count++;
+    //     if (Count >= 100)
+    //     {
+    //         flag_jump = 1;
+    //         Count = 0;
+    //     }
+    // }
+
     /******************************** */
     // printf("falg_1: %d ,flag_2: %d ,ins_mode: %d\n", flag_1, flag_2, ins_mode);
+    /******************************** */
+    // printf("Left Speed: %d, Right Speed: %d\n", motor_value.receive_left_speed_data, motor_value.receive_right_speed_data);
+    //}
 }
 
 /* ========================================================================
@@ -416,17 +651,17 @@ void Interrupt_40ms(void)
 
 /* ---- 1ms中断API函数 ---- */
 
-/**
- * @brief   更新TOF距离传感器读数
- * @note    仅在菜单模式下读取，用于调试和避障
- */
-void Update_TOF_Sensor(void)
-{
-    if (menu_mode)
-    {
-        dis_tof_mm = tof_dl1b_get_mm();
-    }
-}
+// /**
+//  * @brief   更新TOF距离传感器读数
+//  * @note    仅在菜单模式下读取，用于调试和避障
+//  */
+// void Update_TOF_Sensor(void)
+// {
+//     if (menu_mode)
+//     {
+//         dis_tof_mm = tof_dl1b_get_mm();
+//     }
+// }
 
 /**
  * @brief   更新偏航角积分
@@ -459,7 +694,7 @@ void Update_Angle_Z(void)
         imu660ra.eulerAngle.Dirchange--;
 
     /* 计算连续累计偏航角 */
-    angle_Z = 360 * imu660ra.eulerAngle.Dirchange + imu660ra.eulerAngle.yaw;
+    angle_Z += imu660ra.data_Raw.gyro_z * 0.001;
     imu660ra.eulerAngle.last_yaw = imu660ra.eulerAngle.yaw;
 }
 
@@ -498,30 +733,13 @@ void jump_text(void)
 }
 
 /**
- * @brief   更新跳跃控制
- * @note    flag_jump=1时每周期调用 jump_control() 推进状态机
- */
-void Update_Jump_Control(void)
-{
-    if (flag_jump)
-    {
-        time_j++;
-        jump_control();
-    }
-    else
-    {
-        time_j = 0;
-    }
-}
-
-/**
  * @brief   更新角速度环PID（内环）
  * @note    包含俯仰角速度低通滤波和偏航角速度环PID
  */
 void Update_Gyro_PID_Loop(void)
 {
     /* 俯仰角速度低通滤波 */
-    y1 = 0.15f * ((float)-imu660ra_gyro_x) + 0.85f * y1;
+    y1 = 0.15f * ((float)-imu660rb_gyro_x) + 0.85f * y1;
 
     /* 俯仰角速度环PID（内环） */
     Yao.Outp_Gyro_Pitch = -limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, -Yao.Outp_Angle_Pitch), 8000.0f);
@@ -541,8 +759,8 @@ void Update_Kalman_Filter(void)
     imu963ra_kalman_filter_update(&imu);
 
     /* 角度死区处理 */
-    if (imu660ra.eulerAngle.pitch > -0.4f && imu660ra.eulerAngle.pitch < 0.4f)
-        imu660ra.eulerAngle.pitch = 0;
+    // if (imu660ra.eulerAngle.pitch > -0.4f && imu660ra.eulerAngle.pitch < 0.4f)
+    //     imu660ra.eulerAngle.pitch = 0;
 
     imu.roll -= imu660ra.offset_angle.roll;
     imu.pitch -= imu660ra.offset_angle.pitch;
@@ -566,7 +784,7 @@ void Update_4ms_Counter(void)
  */
 void Update_Angle_PID_Loop(void)
 {
-    Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, imu660ra.eulerAngle.pitch, Yao.Outp_Speed_Pitch);
+    Yao.Outp_Angle_Pitch = Cascade_angle_Pitch(&PID_all.Pid_Angle_Pitch, erect_Angle_Pitch, imu660ra.eulerAngle.pitch, 0);
     Yao.Outp_Angle_Pitch = -limit(Yao.Outp_Angle_Pitch, 12000.0f);
 }
 
@@ -606,6 +824,7 @@ void Update_Steering_Control(void)
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
     }
     else if (turn_mode == 4)
+
     {
         float raw_vision_yaw = steer_vision_target_yaw_deg + steer_vision_cone_avoid_delta_deg;
         raw_vision_yaw = steer_wrap_deg180(raw_vision_yaw);
@@ -639,7 +858,7 @@ void Update_Steering_Control(void)
                 spin3_hold_cnt = 0;
                 Yao.Outp_turn = 0;
                 turn_mode = 2;
-                Target_Yaw = imu660ra.eulerAngle.yaw;
+                Target_Yaw = angle_Z;
             }
         }
     }
@@ -692,6 +911,14 @@ void Update_Speed_PID_Loop(void)
     Yao.Encoder_Left = motor_value.receive_right_speed_data;
     Yao.Encoder_Right = -motor_value.receive_left_speed_data;
 
+    /* 轮速积分 → 累积行驶距离 (厘米)
+     *   轮周长 = WHEEL_CIRCUMFERENCE_CM
+     *   每16ms行驶距离 = 平均转速(rev/s) × 周长(cm) × 0.016s */
+    // {
+    //     float avg_rps = ((float)Yao.Encoder_Left + (float)Yao.Encoder_Right) / 2.0f;
+    //     wheel_distance_cm += avg_rps * WHEEL_CIRCUMFERENCE_CM * 0.016f;
+    // }
+
     /* 速度环PID计算 */
     Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch,
                                                 (float)(Yao.Encoder_Left + Yao.Encoder_Right) / 2,
@@ -725,24 +952,15 @@ void Update_Zebra_Timeout(void)
 }
 
 /**
- * @brief   更新偏航角慢漂补偿
- * @note    每周期增加0.0001度，补偿陀螺仪零点漂移
- */
-void Update_Yaw_Drift_Compensation(void)
-{
-    imu660ra.eulerAngle.yaw += 0.001;
-}
-
-/**
  * @brief   更新遥测数据发送
  * @note    每40ms发送 $T 姿态遥测和 $I 惯导遥测帧
- * 
+ *
  * 惯导两组模式说明:
  *   第一组 (按键打点):
  *     - ins_mode = 0: 单轨录点模式
  *     - ins_mode = 1: 单轨循迹模式
  *     - 数据源: cod_target[] 数组, n (总数), target (已寻)
- *   
+ *
  *   第二组 (自动打点):
  *     - ins_mode = 4: 自动定距打点模式
  *     - ins_mode = 5: Pure Pursuit 导航模式
@@ -756,22 +974,18 @@ void Update_Telemetry_Send(void)
     // ins_auto_debug_output();
 
     /* 惯导遥测发送 (每 40ms 发送一次) */
-    if (ins_telemetry_enable)
+    if (ins_telemetry_enable && flag_count)
     {
         /* $I 惯导遥测帧 */
-        /* 格式: $I,模式,实时X,实时Y,目标X,目标Y,目标角度,当前航点索引,总航点数,已寻点数,距离\r\n */
+        /* 格式: $I,mode,实时X,实时Y,目标X,目标Y,目标角度,距离\r\n */
         char ins_buf[128];
-        double target_x = 0.0, target_y = 0.0;
-        uint16 current_wp_idx = 0, total_wp = 0, found_wp = 0;
-        
+        float target_x = 0.0, target_y = 0.0;
+
         /* 根据模式选择数据源 */
         if (ins_mode == 0 || ins_mode == 1)
         {
             /* 第一组: 按键打点模式 (ins_mode 0/1) */
-            current_wp_idx = (uint16)target;
-            total_wp = (uint16)n;
-            found_wp = (uint16)target;
-            
+
             if (target <= n && n > 0)
             {
                 target_x = cod_target[target].x;
@@ -781,32 +995,26 @@ void Update_Telemetry_Send(void)
         else if (ins_mode == 4 || ins_mode == 5)
         {
             /* 第二组: 自动打点模式 (ins_mode 4/5) */
-            current_wp_idx = g_ins_auto.wp_current;
-            total_wp = g_ins_auto.wp_count;
-            found_wp = g_ins_auto.wp_current;
-            
+
             if (g_ins_auto.wp_current < g_ins_auto.wp_count && g_ins_auto.wp_count > 0)
             {
                 target_x = g_ins_auto.waypoints[g_ins_auto.wp_current].x;
                 target_y = g_ins_auto.waypoints[g_ins_auto.wp_current].y;
             }
         }
-        
+
         int len = sprintf(ins_buf,
-                          "$I,%d,%.2f,%.2f,%.2f,%.2f,%.1f,%d,%d,%d,%.1f\r\n",
-                          (int)ins_mode,
+                          "$I,%d,%.2f,%.2f,%.2f,%.2f,%.1f,%.1f\r\n",
+                          ins_mode,
                           cod_realtime.x,
                           cod_realtime.y,
                           target_x,
                           target_y,
                           yaw_ins,
-                          (int)current_wp_idx,
-                          (int)total_wp,
-                          (int)found_wp,
                           dis_ins);
         if (len > 0 && len < (int)sizeof(ins_buf))
         {
-            wireless_uart_send_string(ins_buf);
+            wireless_uart_send_string_nonblock(ins_buf);
         }
 
         /* $W 航点标记帧 (发送最新打点信息) */
@@ -815,14 +1023,12 @@ void Update_Telemetry_Send(void)
             /* 模式 0: 发送按键打点的最新航点 */
             char wp_buf[64];
             len = sprintf(wp_buf,
-                          "$W,%d,%.2f,%.2f,%d\r\n",
-                          (int)n,
+                          "$W,%.2f,%.2f\r\n",
                           cod_saved[n - 1].x,
-                          cod_saved[n - 1].y,
-                          (int)ins_mode);
+                          cod_saved[n - 1].y);
             if (len > 0 && len < (int)sizeof(wp_buf))
             {
-                wireless_uart_send_string(wp_buf);
+                wireless_uart_send_string_nonblock(wp_buf);
             }
         }
         else if (ins_mode == 4 && g_ins_auto.wp_count > 0)
@@ -830,14 +1036,12 @@ void Update_Telemetry_Send(void)
             /* 模式 4: 发送自动打点的最新航点 */
             char wp_buf[64];
             len = sprintf(wp_buf,
-                          "$W,%d,%.2f,%.2f,%d\r\n",
-                          (int)g_ins_auto.wp_count,
+                          "$W,%.2f,%.2f\r\n",
                           g_ins_auto.waypoints[g_ins_auto.wp_count - 1].x,
-                          g_ins_auto.waypoints[g_ins_auto.wp_count - 1].y,
-                          (int)ins_mode);
+                          g_ins_auto.waypoints[g_ins_auto.wp_count - 1].y);
             if (len > 0 && len < (int)sizeof(wp_buf))
             {
-                wireless_uart_send_string(wp_buf);
+                wireless_uart_send_string_nonblock(wp_buf);
             }
         }
 
@@ -846,42 +1050,37 @@ void Update_Telemetry_Send(void)
         {
             /* 获取 Pure Pursuit 状态 */
             PurePursuit_State pp_state = ins_pure_pursuit_get_state();
-            
+
             /* 格式: $P,前瞻距离,曲率,目标转向角,前瞻点索引,横向偏差,角度偏差,当前航点X,当前航点Y\r\n */
             char pp_buf[128];
             double current_wp_x = 0.0, current_wp_y = 0.0;
-            
+
             /* 获取当前目标航点坐标 */
             if (g_ins_auto.wp_current < g_ins_auto.wp_count)
             {
                 current_wp_x = g_ins_auto.waypoints[g_ins_auto.wp_current].x;
                 current_wp_y = g_ins_auto.waypoints[g_ins_auto.wp_current].y;
             }
-            
+
             len = sprintf(pp_buf,
-                          "$P,%.1f,%.4f,%.1f,%d,%.1f,%.1f,%.2f,%.2f\r\n",
-                          pp_state.lookahead_distance,
-                          pp_state.curvature,
+                          "$P,%.1f,%.2f,%.2f\r\n",
                           pp_state.target_yaw,
-                          (int)pp_state.target_wp_index,
-                          pp_state.distance_to_path,
-                          pp_state.angle_to_path,
                           current_wp_x,
                           current_wp_y);
             if (len > 0 && len < (int)sizeof(pp_buf))
             {
-                wireless_uart_send_string(pp_buf);
+                wireless_uart_send_string_nonblock(pp_buf);
             }
         }
     }
 
-    if (telemetry_enable)
+    if (telemetry_enable && flag_count)
     {
         /* $T 姿态遥测帧 */
         char telemetry_buf[128];
         int len = sprintf(telemetry_buf,
                           "$T,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%d,%.1f,%d,%.2f,%.1f,%.1f,%d,%d,%.2f,%.2f,%.1f\r\n",
-                          (int)TCount_40ms,
+                          (int)flag_main,
                           imu660ra.eulerAngle.pitch,
                           imu660ra.eulerAngle.roll,
                           imu660ra.eulerAngle.yaw,
@@ -890,8 +1089,8 @@ void Update_Telemetry_Send(void)
                           imu660ra.data_Raw.gyro_z,
                           (int)Yao.Outp_turn,
                           (int)Yao.Outp_Gyro_Pitch,
-                          Target_Yaw,
-                          (int)turn_mode,
+                          yaw_ins,
+                          (int)g_ins_auto.nav_finished,
                           Deviation_Value,
                           imu.pitch,
                           imu.roll,
@@ -902,8 +1101,73 @@ void Update_Telemetry_Send(void)
                           angle_Z);
         if (len > 0 && len < (int)sizeof(telemetry_buf))
         {
-            wireless_uart_send_string(telemetry_buf);
+            wireless_uart_send_string_nonblock(telemetry_buf);
+        }
+    }
+
+    if (angle_wireless)
+    {
+        char angle_buf[128];
+        int len = sprintf(angle_buf,
+                          "A: %f,%f,%d,%d\n", imu660ra.eulerAngle.pitch, imu660ra.eulerAngle.roll, flag_stop, imu660rb_gyro_x);
+        if (len > 0 && len < (int)sizeof(angle_buf))
+        {
+            wireless_uart_send_string_nonblock(angle_buf);
+        }
+    }
+    /* $J 跳跃诊断遥测帧 (每40ms发送一次)
+     * 格式: $J,flag_jump,time_j,flag_jump_1,pitch,gyro_x,gx_raw,gyro_y,gyro_z,
+     *       Outp_Gyro_Pitch,Outp_Angle_Pitch,
+     *       servoLF,servoLR,servoRF,servoRR,speed_left,speed_right,
+     *       y1_gyro_lpf,flag_stop,turn_mode
+     */
+    if (jump_telemetry_enable)
+    {
+        char jump_buf[180];
+        int len = sprintf(jump_buf,
+                          "$J,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%.1f,%.1f,%.1f,%.1f,%d,%d,%.2f,%d,%d\r\n",
+                          (int)flag_jump,
+                          (int)time_j,
+                          (int)flag_jump_1,
+                          imu660ra.eulerAngle.pitch,
+                          (float)-imu660rb_gyro_x,
+                          imu660ra.data_Raw.gyro_x,
+                          imu660ra.data_Raw.gyro_y,
+                          imu660ra.data_Raw.gyro_z,
+                          (int)Yao.Outp_Gyro_Pitch,
+                          (int)Yao.Outp_Angle_Pitch,
+                          servoLeftFront,
+                          servoLeftRear,
+                          servoRightFront,
+                          servoRightRear,
+                          (int)motor_value.receive_left_speed_data,
+                          (int)motor_value.receive_right_speed_data,
+                          (double)y1,
+                          (int)flag_stop,
+                          (int)turn_mode);
+        if (len > 0 && len < (int)sizeof(jump_buf))
+        {
+            wireless_uart_send_string_nonblock(jump_buf);
+        }
+    }
+
+    // 卡尔曼诊断遥测 $K 帧 (每40ms发送一次)
+    if (kalman_wireless)
+    {
+        char k_buf[160];
+        int len = sprintf(k_buf,
+                          "$K,%d,%d,%d,%d,%d,%d,%.3f,%.3f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\r\n",
+                          (int)imu660rb_acc_x, (int)imu660rb_acc_y, (int)imu660rb_acc_z,
+                          (int)imu660rb_gyro_x, (int)imu660rb_gyro_y, (int)imu660rb_gyro_z,
+                          (double)imu.roll, (double)imu.pitch,
+                          (double)imu.Xk[0], (double)imu.Xk[1],
+                          (double)imu.Pk[0], (double)imu.Pk[1],
+                          (double)imu.Q[0], (double)imu.R[0]);
+        if (len > 0 && len < (int)sizeof(k_buf))
+        {
+            wireless_uart_send_string_nonblock(k_buf);
         }
     }
 }
+
 /* ---- 自动打点模块外部变量 ---- */

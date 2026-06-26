@@ -155,6 +155,7 @@ void Adapt_Terrain(void);
 /* ---- 原地旋转 ---- */
 void Spin3_Start(int8 dir);
 float steer_wrap_deg180(float x);     /* 角度归一化到[-180, 180] */
+float unwrap_to_continuous(float target_deg, float current_continuous_deg); /* 目标角展开到连续坐标系 */
 
 /* ---- 串级PID：速度环（最外层） ---- */
 float Cascade_speed_Pitch(PID_INFO *pid_info, float *PID_Parm, float NowPoint, float SetPoint);

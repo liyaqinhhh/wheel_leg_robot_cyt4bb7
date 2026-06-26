@@ -5,13 +5,13 @@
 
 // 移植：UART_2 已被 GPS 模块占用，改用 UART_3
 // 移植：P33 端口在 CYT4BB7 不存在，改用 P17
-#define SMALL_DRIVER_UART (UART_2)
+#define SMALL_DRIVER_UART (UART_4)
 
 #define SMALL_DRIVER_BAUDRATE (460800)
 
-#define SMALL_DRIVER_RX (UART2_TX_P10_1) // 无刷驱动 串口接收引脚
+#define SMALL_DRIVER_RX (UART4_TX_P14_1) // 无刷驱动 串口接收引脚
 
-#define SMALL_DRIVER_TX (UART2_RX_P10_0) // 无刷驱动 串口发送引脚
+#define SMALL_DRIVER_TX (UART4_RX_P14_0) // 无刷驱动 串口发送引脚
 
 typedef struct
 {
@@ -33,11 +33,13 @@ extern small_device_value_struct motor_value;
 extern uint16_t num;
 extern uint16_t num_1;
 
-// 电机不对称校准参数
+// 电机不对称校准参数（独立左右轮）
 // 用于补偿左右电机输出差异，消除系统性偏航误差
-// 计算方法：motor_asymmetry_offset = (右电机平均值 - 左电机平均值) / 2
-// 当前值：65.25（基于遥测数据 telemetry_turn_test_20260610_225051.csv）
-extern float motor_asymmetry_offset;
+// 调参方法：pitch≈0 稳态时，看轮速差。右轮偏弱 → motor_right_offset 加大
+// 当前值基于遥测数据 telemetry_turn_test_20260614_145132.csv
+// 建议初始值：motor_right_offset = 50, motor_left_offset = 0
+extern float motor_left_offset;
+extern float motor_right_offset;
 
 void uart_control_callback(void); // 无刷驱动 串口接收回调函数
 

@@ -20,14 +20,9 @@
  * 版本信息：查看 libraries/doc 文件夹内 version 文件 版本说明
  * 开发环境：IAR 9.40.1
  * 适用平台：CYT4BB
- * 店铺链接：https://seekfree.taobao.com/
- *
- * 修改记录
- * 日期              作者                备注
- * 2024-1-4       pudding            first version
- ********************************************************************************************************************/
-
-#include "zf_common_headfile.h"
+ * 店铺链接：https://seekfree.taobao.com/*/
+ 
+ #include "zf_common_headfile.h"
 #include "menu.h"
 #include "PID.h"
 #include "Interrupt.h"
@@ -53,69 +48,69 @@
  */
 extern volatile float y1;
 
-/**
- * @brief   主函数入口
- *
- * 系统启动流程：
- *   1. 时钟初始化（250MHz）—— 必须首先执行
- *   2. 调试串口初始化 —— 用于printf输出
- *   3. 所有外设初始化（Init_All）—— 包括IMU、电机、屏幕、舵机等
- *   4. IMU角度偏移校准 —— 手动设置pitch/roll零点偏移
- *   5. 主循环：屏幕显示 + 控制输出 + 惯导导航
- *
- * 主循环任务（每次循环执行）：
- *   - IPS200_Show1(): 刷新屏幕显示（姿态角、PID参数、菜单等）
- *   - control_main(): 电机控制输出（将PID结果发送到电机驱动板）
- *   - ins_navigation(): 惯导导航（ins_open=1时执行航点跟踪）
- *
- * @return  理论上永不返回（while(true)死循环）
- */
-int main(void)
+
+   int main(void)
 {
-    /* ===== 第一阶段：系统基础初始化 ===== */
-    
-    clock_init(SYSTEM_CLOCK_250M); /* 时钟配置：250MHz主频 <务必保留，首先执行> */
-    debug_init();                  /* 调试串口初始化：用于printf调试输出 */
-
-    /* ===== 第二阶段：外设初始化 ===== */
-    
-    Init_All(); /* 所有外设初始化（从 TC264 cpu0_main.c 移植）
-                 * 包括：IMU、编码器电机、IPS屏幕、舵机、按键等
-                 */
-    // servo_init(); /* 舵机单独初始化（已在Init_All中调用，此处注释） */
-
-    /* IPS200屏幕初始化示例（已注释，保留参考） */
-    /*ips200_set_font(IPS200_6X8_FONT);                   // 设置字体大小为 6 * 8像素
-      ips200_set_color(RGB565_BLACK, RGB565_WHITE);       // 设置颜色为彩色
-      ips200_set_dir(IPS200_PORTAIT);                     // 设置为竖屏显示
-      ips200_init(IPS200_TYPE_PARALLEL8);                 // 双排并口款式*/
-
-    // uint32 i = 0;
-    // debug_init();
-    // extern int16_t flag_main;
-
   
-    
-    
-    /* ===== 第四阶段：主循环 ===== */
-    uint8_t sum;
-    while (true)
-    {
-        /* 1. 屏幕显示刷新
-         * 显示内容：姿态角、PID参数、菜单界面、电池电压等
-         */
-        IPS200_Show1();
-        
-        /* 2. 电机控制输出
-         * 将PID计算结果（Yao.Outp_Gyro_Pitch/Yaw）发送到电机驱动板
-         * 包含安全保护：速度超限或flag_main=1时停止输出
-         */
-        control_main();
-         
-          // sum +=motor_value.receive_right_speed_data;
-          // printf("sum: %d\n", sum);
-       
 
-     }
+  clock_init(SYSTEM_CLOCK_250M); /* 时钟配置：250MHz主频 <务必保留，首先执行> */
+  debug_init();                  /* 调试串口初始化：用于printf调试输出 */
+
+  /* ===== 第二阶段：外设初始化 ===== */
+
+  Init_All(); /* 所有外设初始化（从 TC264 cpu0_main.c 移植）
+              /* 包括：IMU、编码器电机、IPS屏幕、舵机、按键等
+               */
+  // servo_init(); /* 舵机单独初始化（已在Init_All中调用，此处注释） */
+
+  /* IPS200屏幕初始化示例（已注释，保留参考） */
+  /*ips200_set_font(IPS200_6X8_FONT);                   // 设置字体大小为 6 * 8像素
+    ips200_set_color(RGB565_BLACK, RGB565_WHITE);       // 设置颜色为彩色
+    ips200_set_dir(IPS200_PORTAIT);                     // 设置为竖屏显示
+    ips200_init(IPS200_TYPE_PARALLEL8);                 // 双排并口款式*/
+
+  // uint32 i = 0;
+  // debug_init();
+  // extern int16_t flag_main;
+  //gpio_init(P19_0,GPO,1,GPO_PUSH_PULL);
+  /* ===== 第四阶段：主循环 ===== */
+  //uint8_t sum;
+  // pit_ms_init(PIT_CH0, 1);
+  // imu660rb_init();
+  //servo_init();
+    // ips200_set_font(IPS200_6X8_FONT);             // 璁剧疆瀛椾綋澶у皬涓?6 * 8鍍忕�?
+    // ips200_set_color(RGB565_BLACK, RGB565_WHITE); // 璁剧疆棰滆壊涓哄僵鑹?
+    // ips200_set_dir(IPS200_PORTAIT);               // 璁剧疆涓虹珫灞忔樉绀?
+    // ips200_init(IPS200_TYPE_SPI);           // 鍙屾帓骞跺彛娆惧�?
+    // servo_init();
+    // small_driver_uart_init();
+  while (true)
+  {
+    /* 0. 中断任务调度（将原 ISR 中的定时任务迁至主函数轮询执行）
+     * 每次调用检查各时间级标志位，有积压则执行一次并递减
+     */
+    Run_Interrupt_Tasks();
+    //small_driver_set_duty(-500,500);
+    //Interrupt_40ms();
+    // imu660rb_get_gyro();
+    // imu660rb_get_acc();
+    //printf("imu660rb_gyro_z: %d, imu660rb_gyro_x: %d,imu660rb_gyro_y: %d,imu660rb_acc_z: %d\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y, imu660rb_acc_z);
+     /* AI调参示例：发送实时俯仰角速度数据到上位机 */
+    
+    //    while(1)
+    // {
+    //     if(imu660rb_init())
+    //     {
+    //        printf("\r\n imu660rb init error.");                                 // imu660rb 初始化失败
+    //     }
+    //     else
+    //     {
+    //        break;
+    //     }
+    //     //gpio_toggle_level(LED1);                                                // 翻转 LED 引脚输出电平 控制 LED 亮灭 初始化出错这个灯会闪的很慢
+    // }
+    // 此处编写用户代码 例如外设初始化代码等
+    
+  }
 }
 // **************************** 代码区域 ****************************

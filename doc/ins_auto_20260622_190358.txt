@@ -1,0 +1,33 @@
+Ins Auto Telemetry Data Record
+Record Time: 2026-06-22T19:03:58.782470
+============================================================
+
+Trajectory Points: 0
+Waypoints: 0
+
+Trajectory Points (x, y, mode, timestamp):
+
+Waypoints (x, y, index, mode):
+
+Raw Data Log:
+  [2026-06-22T19:03:48.118253] I: {'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.162177] I: {'realtime_x': 0.0, 'realtime_y': 0.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.191577] I: {'realtime_x': 1.58, 'realtime_y': -0.02, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.257035] I: {'realtime_x': 10.83, 'realtime_y': -0.18, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.358903] I: {'realtime_x': 25.64, 'realtime_y': -0.45, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.421653] I: {'realtime_x': 43.21, 'realtime_y': -0.77, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.491200] I: {'realtime_x': 58.81, 'realtime_y': -0.98, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.607158] I: {'realtime_x': 67.3, 'realtime_y': -1.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.670357] I: {'realtime_x': 66.74, 'realtime_y': -1.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.730037] I: {'realtime_x': 62.12, 'realtime_y': -1.05, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.806772] I: {'realtime_x': 57.59, 'realtime_y': -1.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.915694] I: {'realtime_x': 61.97, 'realtime_y': -1.12, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:48.991204] I: {'realtime_x': 81.66, 'realtime_y': -1.7, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.048809] I: {'realtime_x': 120.15, 'realtime_y': -3.06, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.134445] I: {'realtime_x': 170.79, 'realtime_y': -5.16, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.248144] I: {'realtime_x': 227.32, 'realtime_y': -7.54, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.317146] I: {'realtime_x': 286.78, 'realtime_y': -10.14, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.375830] I: {'realtime_x': 351.78, 'realtime_y': -13.77, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.450847] I: {'realtime_x': 427.4, 'realtime_y': -19.0, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.574889] I: {'realtime_x': 514.75, 'realtime_y': -25.28, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}
+  [2026-06-22T19:03:49.645111] I: {'realtime_x': 606.79, 'realtime_y': -32.29, 'target_x': 0.0, 'target_y': 0.0, 'yaw_ins': 0.0, 'dis_ins': 0.0}

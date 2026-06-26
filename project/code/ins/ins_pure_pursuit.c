@@ -198,6 +198,11 @@ float ins_pure_pursuit_calc_steering(
 
     /* 转换为度数，保持 [-180°, 180°] 范围，与 imu660ra.eulerAngle.yaw 一致 */
     double target_yaw = RAD_TO_ANGLE(target_yaw_rad);
+    if (target_yaw > 180)
+        target_yaw -= 360;
+    if (target_yaw < -180)
+        target_yaw += 360;
+    
 
     return (float)target_yaw;
 }
