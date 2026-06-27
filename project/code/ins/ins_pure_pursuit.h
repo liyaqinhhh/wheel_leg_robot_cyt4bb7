@@ -48,7 +48,7 @@
 #define PURE_PURSUIT_MIN_LOOKAHEAD       20.0
 
 /* 最大前瞻距离 (防止过大导致切角) */
-#define PURE_PURSUIT_MAX_LOOKAHEAD       100.0
+#define PURE_PURSUIT_MAX_LOOKAHEAD       50.0
 
 /* 轴距 (单位: 编码器脉冲，需根据实际机器人测量) */
 #define PURE_PURSUIT_WHEELBASE           17.7

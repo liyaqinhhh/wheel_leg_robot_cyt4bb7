@@ -13,6 +13,8 @@
 
 #include "kalman.h"
 #include "ekf.h"
+#include "Interrupt.h"
+#include "math.h"
 
 #define GRAVITY 9.7997
 float standardized_curvature_ave = 0;
@@ -127,17 +129,8 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
     // IMU偏心安装加速度补偿
 
     imu_offset_compensate_acc(imu);
-    // printf("CMP_ACC: ax=%.4f, ay=%.4f, az=%.4f\r\n", imu->ax, imu->ay, imu->az);
 
-    // 旋转时增大pitch测量噪声，降低卡尔曼对加速度计的信任，避免离心力导致假俯仰角
-    {
-        float yaw_rate_dps = imu->gz * 180.0f / My_PI;
-        float yaw_factor = 1.0f + 0.001f * (yaw_rate_dps * yaw_rate_dps);
-        if (yaw_factor > 100.0f)
-            yaw_factor = 100.0f;
-        imu->R[1] = imu->R[0] * yaw_factor;
-    }
-
+    /* 计算合加速度 (供后续 trust_factor 使用) */
     imu->resultant_acceleration = imu->ax * imu->ax + imu->ay * imu->ay + imu->az * imu->az;
     if (imu->resultant_acceleration > 0)
     {
@@ -147,6 +140,42 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
     {
         imu->resultant_acceleration = 0;
         return;
+    }
+
+    /* ================================================================
+     *  动态测量噪声调整 —— 防转向时加速度计失真导致假俯仰/假横滚
+     * ================================================================
+     *
+     *  问题: 转弯时离心力+加减速让加速度计不再仅测量重力,
+     *        Zk = atan(ay/az) / -atan(ax/sqrt(ay²+az²)) 产生虚假角度,
+     *        若卡尔曼增益偏高 → 姿态估计被污染 → 车体前倾/侧倾。
+     *
+     *  策略: 两个维度的信任度衰减, 乘法叠加到 R[0] R[1]:
+     *    A) 偏航速率因子: |gz| 越大 → 离心力越大 → R 增大
+     *    B) 合加速度偏离因子: |resultant - 1g| 越大 → 越不可信 → R 增大
+     * ================================================================ */
+    if(ins_open)
+     {
+        /* A: 偏航速率因子 (保留原有逻辑, 系数加大) */
+        float yaw_rate_dps = imu->gz * 180.0f / My_PI;
+        float yaw_factor = 1.0f + 0.01f * (yaw_rate_dps * yaw_rate_dps);
+        if (yaw_factor > 500.0f)
+            yaw_factor = 500.0f;
+
+        /* B: 合加速度偏离因子
+         * resultant 偏离 1.0g 越多, 加速度计测量越不可信
+         * 偏离 10% → factor≈2, 偏离 50% → factor≈26, 偏离 100% → factor≈101 */
+        float res_dev = fabsf(imu->resultant_acceleration - 1.0f);
+        float res_factor = 1.0f + 100.0f * res_dev * res_dev;
+        if (res_factor > 500.0f)
+            res_factor = 500.0f;
+
+        /* 叠加: R 同时受 yaw 和 resultant 影响, 取两者的保守值(max) */
+        float trust_factor = (yaw_factor > res_factor) ? yaw_factor : res_factor;
+
+        imu->R[0] = imu->R[0] * trust_factor; /* roll 测量噪声 */
+        imu->R[1] = imu->R[1] * trust_factor; /* pitch 测量噪声 */
+        /* R[2] 不变 —— yaw 无加速度计测量 */
     }
 
     imu->Uk[0] = imu->gx + sin(imu->Xk[0]) * tan(imu->Xk[1]) * imu->gy + cos(imu->Xk[0]) * tan(imu->Xk[1]) * imu->gz;

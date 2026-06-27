@@ -355,7 +355,7 @@ void servo_balance(void)
 // ========== 单腿高度切换控制变量 ==========
 float temp_ofst = 0;     // 俯仰角偏移备份（未使用）
 float temp_height = 0;   // 切换前的目标高度备份
-float Single_Height = 7; // 单腿站立目标高度（cm）
+float Single_Height = 6; // 单腿站立目标高度（cm）
 
 /**
  * @brief 单腿高度切换控制 - 实现高低位姿态切换
@@ -372,8 +372,8 @@ void Single_Control(void)
     static int flag = 0; // 初始化标志
 
     // ===== 状态0：低位→高位切换 =====
-    if (flag_Single_HighState == 0)
-    {
+    // if (flag_Single_HighState == 0)
+    // {
         //首次进入：备份当前高度
         if (flag == 0)
         {
@@ -393,7 +393,7 @@ void Single_Control(void)
             a11111 = 0;
             flag_Single_HighState = 1; // 标记高位就绪
         }
-    }
+    //}
     // ===== 状态2：高位→低位切换 =====
      if (flag_Single_HighState == 2)
     {

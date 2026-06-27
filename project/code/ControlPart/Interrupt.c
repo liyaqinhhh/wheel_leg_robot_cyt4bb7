@@ -224,7 +224,7 @@ void control_main(void)
     }
     else if (flag_main == 2)
     {
-        small_driver_set_duty((int16)((Yao.Outp_Gyro_Pitch)), // 右轮发送占空比
+        small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch)), // 右轮发送占空比
                               (int16)((Yao.Outp_Gyro_Pitch)));
     }
     else
@@ -254,7 +254,7 @@ void control_main(void)
             //     Yao.Outp_Gyro_Yaw = Yao.Outp_Gyro_Yaw * turn_scale;
             // }
 
-            small_driver_set_duty((int16)(((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
+            small_driver_set_duty((int16)(-((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
                                   (int16)(((Yao.Outp_Gyro_Pitch) + Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
             // small_driver_set_duty(0,500);
         }
@@ -274,7 +274,7 @@ void control_main(void)
             //     Yao.Outp_Gyro_Yaw = Yao.Outp_Gyro_Yaw * turn_scale;
             // }
 
-            small_driver_set_duty((int16)(((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
+            small_driver_set_duty((int16)(-((Yao.Outp_Gyro_Pitch) - Yao.Outp_Gyro_Yaw)),  // 左轮发送占空比
                                   (int16)(((Yao.Outp_Gyro_Pitch) + Yao.Outp_Gyro_Yaw))); // 右轮发送占空比
         }
     }
@@ -414,7 +414,7 @@ float k22 = 0;            /* 急加速补偿系数2 */
 float kp_roll = 0.9;      /* 翻滚KP系数 */
 /******************************************************* */
 float Target_Yaw = 0;     /* 目标偏航角（turn_mode=3走直线模式） */
-float Target_Speed = 600; /* 目标速度 */
+float Target_Speed = 0; /* 目标速度 */
 /******************************************************* */
 float V_trans = 0;                                       /* 横向速度（预留） */
 uint8 TCount_falg_4ms = 0;                               /* 4ms计数使能标志 */
@@ -575,6 +575,7 @@ void Interrupt_40ms(void)
 
     // if(menu_mode == 1)
     IPS200_Show1();
+    printf("servoLeftFront: %f, servoLeftRear: %f, servoRightFront: %f, servoRightRear: %f\n",servoLeftFront, servoLeftRear, servoRightFront, servoRightRear);
     // printf("g_ins_auto.nav_finished=%d, flag_mian=%d\r\n", g_ins_auto.nav_finished, flag_main);
     // printf("imu660ra.eulerAngle.yaw: %.2f\n", imu660ra.eulerAngle.yaw, Target_Yaw, Yao.Outp_turn);
     //  printf("Yaw: %.2f, Yao.Outp_Gyro_Yaw: %.2f, Target_Yaw: %.2f, Yao.Outp_turn: %.2f,imu660rb_gyro_z: %d\n",imu660ra.eulerAngle.yaw, Yao.Outp_Gyro_Yaw, Target_Yaw, Yao.Outp_turn, imu660rb_gyro_z);
