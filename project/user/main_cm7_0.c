@@ -49,7 +49,8 @@
 extern volatile float y1;
 
 
-   int main(void)
+   
+int main(void)
 {
   
 

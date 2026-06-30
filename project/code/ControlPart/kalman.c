@@ -154,7 +154,7 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
      *    A) 偏航速率因子: |gz| 越大 → 离心力越大 → R 增大
      *    B) 合加速度偏离因子: |resultant - 1g| 越大 → 越不可信 → R 增大
      * ================================================================ */
-    if(ins_open)
+    //if(ins_open)
      {
         /* A: 偏航速率因子 (保留原有逻辑, 系数加大) */
         float yaw_rate_dps = imu->gz * 180.0f / My_PI;

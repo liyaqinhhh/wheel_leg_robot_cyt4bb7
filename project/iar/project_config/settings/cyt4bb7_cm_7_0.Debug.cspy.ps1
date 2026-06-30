@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --backend -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
+& "D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --backend -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
 }
 else
 {
-& "D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --debug_file=$debugfile --backend -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
+& "D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --debug_file=$debugfile --backend -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
 }

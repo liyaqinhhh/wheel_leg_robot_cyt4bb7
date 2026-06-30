@@ -58,7 +58,7 @@ float Battery_voltage;
  * fuzzy_mode:         0=关闭模糊(使用固定KP), 1=开启模糊(动态KP范围)
  */
 uint8 steer_control_mode = 0;
-uint8 turn_mode = 3; /* 初始化为关闭转向模式，避免启动时 yaw_ins 未初始化导致抽动 */
+uint8 turn_mode = 7; /* 初始化为关闭转向模式，避免启动时 yaw_ins 未初始化导致抽动 */
 uint8 fuzzy_mode = 0;
 
 /* ---- 菜单与调试 ---- */
@@ -80,6 +80,7 @@ uint16 dis_tof_mm = 0; /* TOF距离传感器数据 */
 uint16 time_flag = 0;   /* 定时标志（预留） */
 uint16_t flag_open = 0; /* 开启标志（预留） */
 int16_t flag_main = 1;  /* 主状态标志 */
+int16_t flag_X_change = 0;
 uint16_t flag_text = 0; /* 文本显示标志 */
 
 /* ---- 偏航角变量 ----
@@ -414,7 +415,7 @@ float k22 = 0;            /* 急加速补偿系数2 */
 float kp_roll = 0.9;      /* 翻滚KP系数 */
 /******************************************************* */
 float Target_Yaw = 0;     /* 目标偏航角（turn_mode=3走直线模式） */
-float Target_Speed = 0; /* 目标速度 */
+float Target_Speed = 1000; /* 目标速度 */
 /******************************************************* */
 float V_trans = 0;                                       /* 横向速度（预留） */
 uint8 TCount_falg_4ms = 0;                               /* 4ms计数使能标志 */
@@ -489,7 +490,7 @@ void Interrupt_8ms(void)
 {
     // small_driver_get_speed();
     /* 1. 单腿站立高度切换控制 */
-    if(flag_Single)
+    if(flag_Single||flag_X_change)
     Single_Control();
     
     // if (menu_mode == 1)
@@ -498,7 +499,7 @@ void Interrupt_8ms(void)
     //}
 
     /* 2. 舵机平衡控制 */
-    // servo_balance();
+     //servo_balance();
     key_scanner();
     if (ins_open)
     {
@@ -575,7 +576,7 @@ void Interrupt_40ms(void)
 
     // if(menu_mode == 1)
     IPS200_Show1();
-    printf("servoLeftFront: %f, servoLeftRear: %f, servoRightFront: %f, servoRightRear: %f\n",servoLeftFront, servoLeftRear, servoRightFront, servoRightRear);
+    //printf("servoLeftFront: %f, servoLeftRear: %f, servoRightFront: %f, servoRightRear: %f\n",servoLeftFront, servoLeftRear, servoRightFront, servoRightRear);
     // printf("g_ins_auto.nav_finished=%d, flag_mian=%d\r\n", g_ins_auto.nav_finished, flag_main);
     // printf("imu660ra.eulerAngle.yaw: %.2f\n", imu660ra.eulerAngle.yaw, Target_Yaw, Yao.Outp_turn);
     //  printf("Yaw: %.2f, Yao.Outp_Gyro_Yaw: %.2f, Target_Yaw: %.2f, Yao.Outp_turn: %.2f,imu660rb_gyro_z: %d\n",imu660ra.eulerAngle.yaw, Yao.Outp_Gyro_Yaw, Target_Yaw, Yao.Outp_turn, imu660rb_gyro_z);

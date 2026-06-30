@@ -54,6 +54,7 @@ extern uint16_t flag_ai_open; /* AI调参模式开关 */
 
 /* ---- 系统标志 ---- */
 extern int16_t flag_main;  /* 主状态标志 */
+extern int16_t flag_X_change;
 extern uint16_t flag_text; /* 文本显示标志 */
 extern uint8 flag_count;
 

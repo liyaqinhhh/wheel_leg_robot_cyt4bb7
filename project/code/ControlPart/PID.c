@@ -91,7 +91,7 @@ volatile uint16 spin3_hold_ticks = 40;    /* 到位后需保持的控制周期�
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };
 float erect_Gyro_Pitch[4] = {0.9, 0, 0, 0};   /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
-float erect_Angle_Pitch[4] = {280, 0, 50, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
+float erect_Angle_Pitch[4] = {280, 0, 40, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
 float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* 俯仰速度环:   {KP, KP2, KD, 积分限幅} */
 
 /* ---- 翻滚角平衡参数 ----
@@ -120,8 +120,8 @@ float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合�
  */
 // 速度环，改变机械零点
 float erect_Inc_X[4] = {0.004, 0, 0, 0}; /* X位移: {KP, KI, KD, 积分限幅} */ // 2.7
-float erect_Inc_Y[3] = {1.2, 0, 0};                                          /* Y高度:  {KP, KI, KD} */
-float erect_Inc_Roll[3] = {0.20, 0, 0.1};                                    /* 翻滚:   {KP, KI, KD} */
+float erect_Inc_Y[3] = {1.0, 0, 0};                                          /* Y高度:  {KP, KI, KD} */
+float erect_Inc_Roll[3] = {0.15, 0, 0.1};                                    /* 翻滚:   {KP, KI, KD} */
 float erect_yawan[3] = {0, 0, 0};                                            /* 偏航辅助: {KP, KI, KD} */
 float erect_Km[3] = {1.1, 0.1, 0.05};                                        /* 运动学混合系数（预留） */
 
@@ -338,6 +338,7 @@ float SZR = 0;                  /* SZR转向调节输出 */
 float yawan = 0;                /* 偏航辅助输出 */
 float dif_now = 0;              /* 当前周期轮速和绝对值 */
 float dif_last = 0;             /* 上一周期轮速和绝对值 */
+float X_change = 0;
 
 void Adapt_Terrain(void)
 {
@@ -377,6 +378,16 @@ void Adapt_Terrain(void)
     //        X = 0;
     if (flag_main == 0 || flag_main == 2)
     {
+        if (flag_X_change)
+        {
+            X_change = 1.5;
+        }
+        else
+        X_change = 0;
+
+
+
+
         if (flag_jump == 0)
         {
             if (flag_jump_2 == 1)
@@ -386,8 +397,8 @@ void Adapt_Terrain(void)
             }
             else
             {
-                IKParam.XLeft = 1.75 - X - SZR;
-                IKParam.XRight = 1.75 - X + SZR;
+                IKParam.XLeft = 1.75 - X - SZR - X_change;
+                IKParam.XRight = 1.75 - X + SZR + X_change;
             }
             //            IKParam.XLeft  = 1.75-X - SZR;
             //            IKParam.XRight = 1.75-X + SZR;
@@ -428,6 +439,7 @@ void Adapt_Terrain(void)
         IKParam.YRight = Y;
     }
 
+    
     if (Single_state == 1 && flag_Single_HighState == 0) // 减速
     {
         //        TCount_falg_4ms= 1;

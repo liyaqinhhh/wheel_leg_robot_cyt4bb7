@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --backend -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
+"D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" --backend -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" "--debug_file=%~1" --backend -f "D:\Yao_Port_4bb7_01 - backups\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
+"D:\iar\common\bin\cspybat" -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.general.xcl" "--debug_file=%~1" --backend -f "D:\Yao_Port_4bb7_01 - backups - subject3\Yao_Port_4bb7_01\Seekfree_CYT4BB_Opensource_Library_\project\iar\project_config\settings\cyt4bb7_cm_7_0.Debug.driver.xcl" 
 
 @echo off 
 :end

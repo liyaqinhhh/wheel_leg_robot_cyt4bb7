@@ -60,7 +60,7 @@ void Init_All(void)
 
     // TODO: offset_angle 沿用 IMU660RA 标定值，IMU660RB 需重新标定
     imu660ra.offset_angle.pitch = 1.6; // �??5�??.1
-    imu660ra.offset_angle.roll = -2.3; //-0.75
+    imu660ra.offset_angle.roll = -3.2; //-0.75
     Yao.Target_Speed = 0;
     Yao.Target_height = 3;
 

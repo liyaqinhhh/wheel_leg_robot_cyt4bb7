@@ -45,7 +45,7 @@
 #define PI (3.1415926535898)               /* double 精度圆周率 */
 
 /* 轮周长(cm): 轮半径 3.5cm × 2π, 用于转速→线速度换算 */
-#define WHEEL_CIRCUMFERENCE_CM (2.0f * 3.14159265f * 3.5f / 60.0f)
+#define WHEEL_CIRCUMFERENCE_CM (2.0f * 3.14159265f * 3.1f / 60.0f)
 
 /*
  * 坐标结构体

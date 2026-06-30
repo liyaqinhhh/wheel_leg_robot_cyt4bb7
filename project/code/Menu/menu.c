@@ -36,8 +36,8 @@ void IPS200_Show1(void)
 {
     ips200_show_int(0, 0, motor_value.receive_left_speed_data, 5);
     ips200_show_int(60, 0, motor_value.receive_right_speed_data, 5);
-    ips200_show_float(0, 16, Yao.Outp_Gyro_Yaw, 3, 3);
-    ips200_show_float(60, 16, Yao.Outp_Gyro_Pitch, 3, 3);
+    ips200_show_float(0, 16, Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw, 3, 3);
+    ips200_show_float(60, 16, Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw, 3, 3);
     // ips200_show_float( 120 , 16 ,  Yao.Outp_Gyro_Pitch  , 3 , 3 );
 
     ips200_show_string(0, 32, "YAW:");
