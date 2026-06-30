@@ -5,94 +5,94 @@
 #define Image_Y 60
 #define Use_Num 250
 
-#define Derailment      1   // å‡ºèµ›é“çŠ¶æ€
-#define Straightaway    2   // ç›´é“çŠ¶æ€
-#define L_Turn          3   // å·¦è½¬å¼¯é“çŠ¶æ€
-#define R_Turn          4   // å³è½¬å¼¯é“çŠ¶æ€
-#define L_Circle        5   // å·¦ç¯å²›çŠ¶æ€
-#define R_Circle        6   // å³ç¯å²›çŠ¶æ€
-#define Cross           7   // åå­—è·¯å£çŠ¶æ€
-#define Zebra           8   // æ–‘é©¬çº¿çŠ¶æ€
-#define Ramp            9   // å¡é“çŠ¶æ€
-#define Three_Bif       10  // ä¸‰å²”çŠ¶æ€
-#define Barrier         11  // éšœç¢çŠ¶æ€
-#define Disconnection   12  // æ–­è·¯çŠ¶æ€
-#define T_Way           13  // T è·¯å£çŠ¶æ€
-#define L_Garage        14  // å·¦è½¦åº“çŠ¶æ€
-#define R_Garage        15  // å³è½¦åº“çŠ¶æ€
-#define Small_S         17  // å° S å¼¯çŠ¶æ€
-#define L_Oblique_Cross 18  // å·¦æ–œå…¥åå­—çŠ¶æ€
-#define R_Oblique_Cross 19  // å³æ–œå…¥åå­—çŠ¶æ€
-#define Jump_State      20  // è·³è·ƒçŠ¶æ€
-#define Single_State    21  // å•è¾¹æ¡¥çŠ¶æ€
+#define Derailment      1   // ³öÈüµÀ×´Ì¬
+#define Straightaway    2   // Ö±µÀ×´Ì¬
+#define L_Turn          3   // ×ó×ªÍäµÀ×´Ì¬
+#define R_Turn          4   // ÓÒ×ªÍäµÀ×´Ì¬
+#define L_Circle        5   // ×ó»·µº×´Ì¬
+#define R_Circle        6   // ÓÒ»·µº×´Ì¬
+#define Cross           7   // Ê®×ÖÂ·¿Ú×´Ì¬
+#define Zebra           8   // °ßÂíÏß×´Ì¬
+#define Ramp            9   // ÆÂµÀ×´Ì¬
+#define Three_Bif       10  // Èı²í×´Ì¬
+#define Barrier         11  // ÕÏ°­×´Ì¬
+#define Disconnection   12  // ¶ÏÂ·×´Ì¬
+#define T_Way           13  // T Â·¿Ú×´Ì¬
+#define L_Garage        14  // ×ó³µ¿â×´Ì¬
+#define R_Garage        15  // ÓÒ³µ¿â×´Ì¬
+#define Small_S         17  // Ğ¡ S Íä×´Ì¬
+#define L_Oblique_Cross 18  // ×óĞ±ÈëÊ®×Ö×´Ì¬
+#define R_Oblique_Cross 19  // ÓÒĞ±ÈëÊ®×Ö×´Ì¬
+#define Jump_State      20  // ÌøÔ¾×´Ì¬
+#define Single_State    21  // µ¥±ßÇÅ×´Ì¬
 
-extern uint8 Zebra_Flag;                 // æ–‘é©¬çº¿å¤„ç†å¼€å…³
-extern uint8 Ramp_Flag;                  // å¡é“å¤„ç†å¼€å…³
-extern uint8 Small_S_Flag;               // å° S å¼¯å¤„ç†å¼€å…³
+extern uint8 Zebra_Flag;                 // °ßÂíÏß´¦Àí¿ª¹Ø
+extern uint8 Ramp_Flag;                  // ÆÂµÀ´¦Àí¿ª¹Ø
+extern uint8 Small_S_Flag;               // Ğ¡ S Íä´¦Àí¿ª¹Ø
 
-extern float Deviation_Value;            // å½“å‰å›¾åƒåå·®å€¼
-extern uint8 Thres_Filiter_Flag_1;       // é˜ˆå€¼æ»¤æ³¢å¼€å…³
-extern uint8 IMU_JF_Flag;                // IMU ç§¯åˆ†/æ ¡æ­£æ ‡å¿—
-extern float Z_Yaw;                      // åèˆªè§’ç›¸å…³ä¸­é—´é‡
-extern uint8 Element_State;              // å½“å‰è¯†åˆ«å…ƒç´ çŠ¶æ€
-extern float L_Straightaway_Lope_Rate_A; // å·¦ç›´é“ A æ®µæ–œç‡
-extern float L_Straightaway_Lope_Rate_B; // å·¦ç›´é“ B æ®µæ–œç‡
-extern float L_Straightaway_Lope_Rate_C; // å·¦ç›´é“ C æ®µæ–œç‡
-extern float R_Straightaway_Lope_Rate_A; // å³ç›´é“ A æ®µæ–œç‡
-extern float R_Straightaway_Lope_Rate_B; // å³ç›´é“ B æ®µæ–œç‡
-extern float R_Straightaway_Lope_Rate_C; // å³ç›´é“ C æ®µæ–œç‡
-extern float Sensitivity;                // å›¾åƒçµæ•åº¦å‚æ•°
-extern uint8 flag_Single;                // å•è¾¹æ¡¥æµç¨‹æ ‡å¿—
-extern uint8 flag_Single_HighState;      // å•è¾¹æ¡¥é«˜å§¿æ€æ ‡å¿—
-extern uint8 Single_state;               // å•è¾¹æ¡¥çŠ¶æ€æœºçŠ¶æ€
-extern uint8 flag_jump_2;                // è·³è·ƒäºŒé˜¶æ®µæ ‡å¿—
+extern float Deviation_Value;            // µ±Ç°Í¼ÏñÆ«²îÖµ
+extern uint8 Thres_Filiter_Flag_1;       // ãĞÖµÂË²¨¿ª¹Ø
+extern uint8 IMU_JF_Flag;                // IMU »ı·Ö/Ğ£Õı±êÖ¾
+extern float Z_Yaw;                      // Æ«º½½ÇÏà¹ØÖĞ¼äÁ¿
+extern uint8 Element_State;              // µ±Ç°Ê¶±ğÔªËØ×´Ì¬
+extern float L_Straightaway_Lope_Rate_A; // ×óÖ±µÀ A ¶ÎĞ±ÂÊ
+extern float L_Straightaway_Lope_Rate_B; // ×óÖ±µÀ B ¶ÎĞ±ÂÊ
+extern float L_Straightaway_Lope_Rate_C; // ×óÖ±µÀ C ¶ÎĞ±ÂÊ
+extern float R_Straightaway_Lope_Rate_A; // ÓÒÖ±µÀ A ¶ÎĞ±ÂÊ
+extern float R_Straightaway_Lope_Rate_B; // ÓÒÖ±µÀ B ¶ÎĞ±ÂÊ
+extern float R_Straightaway_Lope_Rate_C; // ÓÒÖ±µÀ C ¶ÎĞ±ÂÊ
+extern float Sensitivity;                // Í¼ÏñÁéÃô¶È²ÎÊı
+extern uint8 flag_Single;                // µ¥±ßÇÅÁ÷³Ì±êÖ¾
+extern uint8 flag_Single_HighState;      // µ¥±ßÇÅ¸ß×ËÌ¬±êÖ¾
+extern uint8 Single_state;               // µ¥±ßÇÅ×´Ì¬»ú×´Ì¬
+extern uint8 flag_jump_2;                // ÌøÔ¾¶ş½×¶Î±êÖ¾
 
-extern uint8 buzzer_flag;                // èœ‚é¸£å™¨æ§åˆ¶æ ‡å¿—
-extern uint8 jump_line;                  // è·³è·ƒåˆ¤å®šè¡Œå·
-extern uint8 jump_line_slowdown;         // è·³è·ƒå‡é€Ÿåˆ¤å®šè¡Œå·
-extern float P_Value_L[7];               // æ¨¡ç³Šæ§åˆ¶å‚æ•°è¡¨
-extern uint8 Y_Meet;                     // Y æ–¹å‘äº¤ç‚¹ä½ç½®
-extern uint8 Element_Break_Flag;         // å¼ºåˆ¶é€€å‡ºå…ƒç´ å¤„ç†æ ‡å¿—
-extern uint8 Find_Line_Image[Image_Y][Image_X]; // å¯»çº¿ç»“æœå›¾åƒ
-extern float Stretch_Coefficient;        // å›¾åƒæ‹‰ä¼¸ç³»æ•°
-extern uint16 Max_Speed;                 // é€Ÿåº¦ä¸Šé™
-extern uint16 Min_Speed;                 // é€Ÿåº¦ä¸‹é™
-extern uint16 Ramp_State_2_Speed;        // å¡é“é˜¶æ®µ 2 ç›®æ ‡é€Ÿåº¦
+extern uint8 buzzer_flag;                // ·äÃùÆ÷¿ØÖÆ±êÖ¾
+extern uint8 jump_line;                  // ÌøÔ¾ÅĞ¶¨ĞĞºÅ
+extern uint8 jump_line_slowdown;         // ÌøÔ¾¼õËÙÅĞ¶¨ĞĞºÅ
+extern float P_Value_L[7];               // Ä£ºı¿ØÖÆ²ÎÊı±í
+extern uint8 Y_Meet;                     // Y ·½Ïò½»µãÎ»ÖÃ
+extern uint8 Element_Break_Flag;         // Ç¿ÖÆÍË³öÔªËØ´¦Àí±êÖ¾
+extern uint8 Find_Line_Image[Image_Y][Image_X]; // Ñ°Ïß½á¹ûÍ¼Ïñ
+extern float Stretch_Coefficient;        // Í¼ÏñÀ­ÉìÏµÊı
+extern uint16 Max_Speed;                 // ËÙ¶ÈÉÏÏŞ
+extern uint16 Min_Speed;                 // ËÙ¶ÈÏÂÏŞ
+extern uint16 Ramp_State_2_Speed;        // ÆÂµÀ½×¶Î 2 Ä¿±êËÙ¶È
 
-extern uint16 Bypass_Count1;             // ç»•éšœé˜¶æ®µ 1 è®¡æ•°
-extern uint16 Bypass_Count2;             // ç»•éšœé˜¶æ®µ 2 è®¡æ•°
-extern uint16 Bypass_Count3;             // ç»•éšœé˜¶æ®µ 3 è®¡æ•°
-extern uint8 Bypass_Line;                // ç»•éšœåˆ¤å®šè¡Œ
-extern float yaw_bypass;                 // ç»•éšœåèˆªè¡¥å¿é‡
-extern uint8 Error_Line;                 // é”™è¯¯åˆ¤å®šè¡Œå·
-extern uint8 Single_jg_line;             // å•è¾¹æ¡¥åˆ¤å®šè¡Œå·
-extern uint16 Image_count_Single_End;    // å•è¾¹æ¡¥ç»“æŸè®¡æ•°é˜ˆå€¼
-extern uint16 ramp_judge_dis;            // å¡é“è¯†åˆ«è·ç¦»é˜ˆå€¼
-extern uint16 ramp_end_dis;              // å¡é“ç»“æŸè·ç¦»é˜ˆå€¼
-extern uint16 ramp_up_delay;             // ä¸Šå¡å»¶æ—¶å‚æ•°
+extern uint16 Bypass_Count1;             // ÈÆÕÏ½×¶Î 1 ¼ÆÊı
+extern uint16 Bypass_Count2;             // ÈÆÕÏ½×¶Î 2 ¼ÆÊı
+extern uint16 Bypass_Count3;             // ÈÆÕÏ½×¶Î 3 ¼ÆÊı
+extern uint8 Bypass_Line;                // ÈÆÕÏÅĞ¶¨ĞĞ
+extern float yaw_bypass;                 // ÈÆÕÏÆ«º½²¹³¥Á¿
+extern uint8 Error_Line;                 // ´íÎóÅĞ¶¨ĞĞºÅ
+extern uint8 Single_jg_line;             // µ¥±ßÇÅÅĞ¶¨ĞĞºÅ
+extern uint16 Image_count_Single_End;    // µ¥±ßÇÅ½áÊø¼ÆÊıãĞÖµ
+extern uint16 ramp_judge_dis;            // ÆÂµÀÊ¶±ğ¾àÀëãĞÖµ
+extern uint16 ramp_end_dis;              // ÆÂµÀ½áÊø¾àÀëãĞÖµ
+extern uint16 ramp_up_delay;             // ÉÏÆÂÑÓÊ±²ÎÊı
 //extern uint8 L_No_Image_Border[60];
 //extern uint8 R_No_Image_Border[60];
-//å­˜æ”¾è¾¹çº¿çš„ä¸€ç»´æ•°ç»„
+//´æ·Å±ßÏßµÄÒ»Î¬Êı×é
 //extern uint8 I_R_Border[Image_Y];
 //extern uint8 I_L_Border[Image_Y];
 
-//å­˜æ”¾è¾¹çº¿ç‚¹çš„xï¼Œyåæ ‡ï¼ˆäºŒç»´æ•°ç»„ï¼‰
-//extern uint8 I_L_Line[(uint16)Use_Num][2] ;//å·¦çº¿
-//extern uint8 I_R_Line[(uint16)Use_Num][2];//å³çº¿
+//´æ·Å±ßÏßµãµÄx£¬y×ø±ê£¨¶şÎ¬Êı×é£©
+//extern uint8 I_L_Line[(uint16)Use_Num][2] ;//×óÏß
+//extern uint8 I_R_Line[(uint16)Use_Num][2];//ÓÒÏß
 //extern uint8 I_C_Line[(uint16)Use_Num];
 
-//ç»Ÿè®¡æ‰¾åˆ°çš„è¾¹çº¿ç‚¹çš„ä¸ªæ•°
-//extern uint16 I_L_Statics;//ç»Ÿè®¡å·¦è¾¹æ‰¾åˆ°ç‚¹çš„ä¸ªæ•°
-//extern uint16 I_R_Statics;//ç»Ÿè®¡å³è¾¹æ‰¾åˆ°ç‚¹çš„ä¸ªæ•°
+//Í³¼ÆÕÒµ½µÄ±ßÏßµãµÄ¸öÊı
+//extern uint16 I_L_Statics;//Í³¼Æ×ó±ßÕÒµ½µãµÄ¸öÊı
+//extern uint16 I_R_Statics;//Í³¼ÆÓÒ±ßÕÒµ½µãµÄ¸öÊı
 
 //extern uint8 I_Vague_Image[Image_Y][Image_X];
 
 //extern uint8 I_Perspective_Image[Image_Y][Image_X];
 //extern uint8 Back_I_Perspective_Image[Image_Y][Image_X];
-//æ±‚é€†é€è§†å›¾åƒ
+//ÇóÄæÍ¸ÊÓÍ¼Ïñ
 //void Get_Inverse_Perspective_Image(uint8(*source_image)[Image_X], uint8 (*target_image)[Image_X]);
 
-//æ±‚é€†é€è§†çš„åé€†é€è§†å›¾åƒ
+//ÇóÄæÍ¸ÊÓµÄ·´ÄæÍ¸ÊÓÍ¼Ïñ
 //void Get_Back_Inverse_Perspective_Image(uint8(*Source_Image)[Image_X], uint8(*target_image)[Image_X]);
 
 //void I_Process_Image(void);
@@ -102,25 +102,25 @@ extern uint16 ramp_up_delay;             // ä¸Šå¡å»¶æ—¶å‚æ•°
 //float I_Get_Turn_Point_Angle(uint8 Ax, uint8 Ay, uint8 Bx, uint8 By, uint8 Cx, uint8 Cy);
 
 /**
- * @brief  æ ¹æ®åå·®å’Œå˜åŒ–é‡è®¡ç®—å›¾åƒæ§åˆ¶è¾“å‡º
- * @param  off_line   å½“å‰ç¦»çº¿åå·®
- * @param  dif_value  åå·®å˜åŒ–é‡
- * @return è®¡ç®—åçš„æ§åˆ¶é‡
+ * @brief  ¸ù¾İÆ«²îºÍ±ä»¯Á¿¼ÆËãÍ¼Ïñ¿ØÖÆÊä³ö
+ * @param  off_line   µ±Ç°ÀëÏßÆ«²î
+ * @param  dif_value  Æ«²î±ä»¯Á¿
+ * @return ¼ÆËãºóµÄ¿ØÖÆÁ¿
  */
 float Get_P(int16 off_line, float dif_value);
 
 /**
- * @brief  æ‰§è¡Œå›¾åƒå¯»è¿¹ä¸å…ƒç´ å¤„ç†ä¸»æµç¨‹
- * @return æ— 
+ * @brief  Ö´ĞĞÍ¼ÏñÑ°¼£ÓëÔªËØ´¦ÀíÖ÷Á÷³Ì
+ * @return ÎŞ
  */
 void Tracking(void);
 
 /**
- * @brief  å°†æµ®ç‚¹æ•°é™åˆ¶åœ¨æŒ‡å®šèŒƒå›´å†…
- * @param  x  è¾“å…¥å€¼
- * @param  a  ä¸‹é™å€¼
- * @param  b  ä¸Šé™å€¼
- * @return é™å¹…åçš„ç»“æœ
+ * @brief  ½«¸¡µãÊıÏŞÖÆÔÚÖ¸¶¨·¶Î§ÄÚ
+ * @param  x  ÊäÈëÖµ
+ * @param  a  ÏÂÏŞÖµ
+ * @param  b  ÉÏÏŞÖµ
+ * @return ÏŞ·ùºóµÄ½á¹û
  */
 float Limit_Float(float x, float a, float b);
 

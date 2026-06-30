@@ -1,21 +1,21 @@
 /*********************************************************************************************************************
- * CYT4BB Ë®Ö¿Ë» GPS  -  ×´Ì¬Ä£Í·
+ * CYT4BB ÖÇÄÜ³µ GPS µ¼º½ -  ºËÐÄµ¼º½Ä£¿éÍ·ÎÄ¼þ
  *
- * Ä¼: gps_nav.h
- * Ä£: M2 ×´Ì¬
- * : ×´Ì¬Ã¶Ù¡Æ¹å¡¢ê¡¢
+ * ÎÄ¼þ: gps_nav.h
+ * Ä£¿é: M2 ºËÐÄµ¼º½
+ * ¹¦ÄÜ: ×´Ì¬»úÓë×ªÏòÊä³ö½Ó¿Ú
  *
- * ×´Ì¬×ª:
- *   IDLE â†’ CALIBRATING â†’ NAVIGATING â†’ ARRIVED â†’ COMPLETE
- *     â†‘        |              |           |
- *     â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
- *   (Ê§/Í£Ö¹)           (Ð»Ò»Êµ)
+ * ×´Ì¬»ú×ª»»:
+ *   IDLE -> CALIBRATING -> NAVIGATING -> ARRIVED -> COMPLETE
+ *     |          |             |           |
+ *     +----------+             +-----------+
+ *   (Í£Ö¹/Ê§°Ü)           (ÍÆ½øº½µã/×ßÍê)
  *
- * Æ¹Ô­:
- *   Ð´ (main while 10Hz)  buf[write_idx]
- *    (4ms ISR 250Hz)     buf[read_idx]
- *   ÉºÔ­Ó½ write_idx â†” read_idx
- *    volatile uint8 Ð´ ARM Cortex-M7 Ô­Ó£Þ¹Ð¶
+ * Ë«»º³å¼Ü¹¹:
+ *   Ð´Èë¶Ë (Ö÷Ñ­»· 10Hz) -> buf[write_idx]
+ *   ¶ÁÈ¡¶Ë (4ms ISR 250Hz) -> buf[read_idx]
+ *   ½»»»Ê±Ô­×Ó½»»» write_idx <-> read_idx
+ *   volatile uint8 Ð´ÈëÔÚ ARM Cortex-M7 ÉÏÊÇÔ­×ÓµÄ
  ********************************************************************************************************************/
 
 #ifndef GPS_NAV_H
@@ -23,55 +23,55 @@
 
 #include "zf_common_typedef.h"
 
-//====================================================×´Ì¬Ã¶====================================================
+//====================================================×´Ì¬Ã¶¾Ù====================================================
 
 typedef enum {
-    GPS_NAV_IDLE        = 0,    //  / Í£Ö¹
-    GPS_NAV_CALIBRATING = 1,    // Ð£×¼Ð£ IMU-GPS Æ«
-    GPS_NAV_NAVIGATING  = 2,    // Ð£Êµãµ¼
-    GPS_NAV_ARRIVED     = 3,    // ÑµÇ°Êµ
-    GPS_NAV_COMPLETE    = 4     // ÊµÈ«
+    GPS_NAV_IDLE        = 0,    // ¿ÕÏÐ / Í£Ö¹
+    GPS_NAV_CALIBRATING = 1,    // Ð£×¼ÖÐ£º¼ÆËã IMU-GPS Æ«ÒÆ
+    GPS_NAV_NAVIGATING  = 2,    // µ¼º½ÖÐ£º¸ú×Ùº½µã
+    GPS_NAV_ARRIVED     = 3,    // µ½´ïº½µã
+    GPS_NAV_COMPLETE    = 4     // µ¼º½Íê³É
 } gps_nav_state_enum;
 
-//====================================================Æ¹====================================================
+//====================================================Êý¾Ý½á¹¹====================================================
 
-/* Æµ×ªÝ¿ */
+/* ×ªÏòÊä³ö */
 typedef struct {
-    float target_bearing_deg;      // Ä¿ê·½Î» [0, 360)Ë²
-    float distance_to_wp_m;        // Ä¿Êµ
-    float imu_yaw_offset_deg;      // IMU-GPS Æ«
+    float target_bearing_deg;      // Ä¿±ê·½Î»½Ç [0, 360)
+    float distance_to_wp_m;        // µ½º½µã¾àÀë(m)
+    float imu_yaw_offset_deg;      // IMU-GPS Æ«ÒÆÐÞÕý(¶È)
 } gps_steer_output_t;
 
-/* Æ¹ */
+/* Ë«»º³å */
 typedef struct {
-    gps_steer_output_t buf[2];     // Ë«
-    volatile uint8 write_idx;      // Ð´ ( main while Þ¸)
-    volatile uint8 read_idx;       //  ( 4ms ISR È¡)
+    gps_steer_output_t buf[2];     // Ë«»º³åÇø
+    volatile uint8 write_idx;      // Ð´Èë¶ËË÷Òý (Ö÷Ñ­»·Ð´Èë)
+    volatile uint8 read_idx;       // ¶ÁÈ¡¶ËË÷Òý (4ms ISR ¶ÁÈ¡)
 } gps_steer_pp_t;
 
 //========================================================================================================
 
-#define GPS_NAV_LPF_ALPHA              0.3f    // Ë²Ïµ
-#define GPS_NAV_ARRIVE_ENTER_M         2.0f    // ÖµÊµÐ¶Ï½Öµ
-#define GPS_NAV_ARRIVE_LEAVE_M         3.5f    // ÖµÊµë¿ªÖµ
-#define GPS_NAV_SIGNAL_LOSS_FRAMES     50      // GPS Ç³Ö¡ (10Hz Ã— 5s = 50)
-#define GPS_NAV_FIRST_FRAME_MAGIC      999.0f  // Ë²Ö¾ (ÖµÊ¾Î´Ê¼)
+#define GPS_NAV_LPF_ALPHA              0.3f    // µÍÍ¨ÂË²¨ÏµÊý
+#define GPS_NAV_ARRIVE_ENTER_M         2.0f    // º½µãµ½´ï½øÈë¾àÀë(m)
+#define GPS_NAV_ARRIVE_LEAVE_M         3.5f    // º½µãµ½´ïÀë¿ª¾àÀë(m)
+#define GPS_NAV_SIGNAL_LOSS_FRAMES     50      // GPS ÐÅºÅ¶ªÊ§Ö¡ÊýãÐÖµ (10Hz ÏÂ 5s = 50Ö¡)
+#define GPS_NAV_FIRST_FRAME_MAGIC      999.0f  // µÍÍ¨ÂË²¨³õÊ¼Ä§·¨Öµ£¨Ê×´ÎÖ±½Ó¸³Öµ£©
 
 //========================================================================================================
 
-void    gps_nav_init(void);          // Ê¼: Êµ + Æ¹ + ×´Ì¬
-void    gps_nav_proc(void);          // : 10Hz  while 
-uint8   gps_nav_get_state(void);     // È¡Ç°×´Ì¬
-uint8   gps_nav_set_wp_index(uint8 idx);  // Ð»Ä¿Êµ
-void    gps_nav_start(void);         // Ê¼: Ð£×¼
-void    gps_nav_stop(void);          // Í£Ö¹: IDLE + turn_mode=0
+void    gps_nav_init(void);          // ¹¦ÄÜ: ³õÊ¼»¯º½µã + Ë«»º³å + ×´Ì¬»ú
+void    gps_nav_proc(void);          // ¹¦ÄÜ: 10Hz Ö÷Ñ­»·´¦Àíº¯Êý
+uint8   gps_nav_get_state(void);     // »ñÈ¡µ±Ç°µ¼º½×´Ì¬
+uint8   gps_nav_set_wp_index(uint8 idx);  // ÉèÖÃº½µãË÷Òý
+void    gps_nav_start(void);         // ¹¦ÄÜ: Æô¶¯µ¼º½
+void    gps_nav_stop(void);          // ¹¦ÄÜ: Í£Ö¹µ¼º½£¬¸´Î»µ½ IDLE + turn_mode=0
 
-//====================================================È«====================================================
+//====================================================È«¾Ö±äÁ¿====================================================
 
-extern gps_steer_pp_t  gps_steer_pp;    // Æ¹È«Êµ
-extern uint8           gps_nav_state;   // Ç°×´Ì¬ (gps_nav_state_enum)
+extern gps_steer_pp_t  gps_steer_pp;    // Ë«»º³å×ªÏòÊä³ö
+extern uint8           gps_nav_state;   // µ¼º½×´Ì¬ (gps_nav_state_enum)
 
-/* ISR Ù¶È¡: È¡ read_idx Ö¸Ä» */
+/* ISR ¶ÁÈ¡ºê: ´Ó read_idx ²à¶ÁÈ¡ */
 #define GPS_STEER_READ()  (&gps_steer_pp.buf[gps_steer_pp.read_idx])
 
 #endif /* GPS_NAV_H */

@@ -7,14 +7,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-// AIè°ƒå‚åŠŸèƒ½å¼€å…³å˜é‡å®šä¹‰
+// AIµ÷²Î¹¦ÄÜ¿ª¹Ø±äÁ¿¶¨Òå
 uint16_t flag_ai_open = 0;
 
-// ä¸²å£æ¥æ”¶ç¼“å†²åŒº
+// ´®¿Ú½ÓÊÕ»º³åÇø
 static char rx_buf[256];
 static uint16_t rx_idx = 0;
 
-// å¤–éƒ¨å˜é‡å£°æ˜
+// Íâ²¿±äÁ¿ÉùÃ÷
 extern float speed_MOTOR;
 extern int16_t flag_main;
 extern float erect_Gyro_Pitch[4];
@@ -22,11 +22,11 @@ extern float erect_Angle_Pitch[4];
 extern float erect_Speed_Pitch[4];
 extern PID_ERECT PID_all;
 
-// PIDç§¯åˆ†é¡¹å¤ä½å‡½æ•°å£°æ˜
+// PID»ı·ÖÏî¸´Î»º¯ÊıÉùÃ÷
 extern void pid_para_init(PID_INFO *pid);
 
 /**
- * @brief åˆå§‹åŒ–AIè°ƒå‚æ¨¡å—
+ * @brief ³õÊ¼»¯AIµ÷²ÎÄ£¿é
  */
 void AI_Pid_Tuner_Init(void)
 {
@@ -36,15 +36,15 @@ void AI_Pid_Tuner_Init(void)
 }
 
 /**
- * @brief å‘é€å®æ—¶æ•°æ®åˆ°PCç«¯ï¼ˆJSONæ ¼å¼ï¼‰
- * @note æ•°æ®æ ¼å¼: {"pitch":%.2f,"speed_out":%.2f,"angle_out":%.1f,"gyro_out":%.1f,"motor_speed":%.1f,"flag_main":%d}
+ * @brief ·¢ËÍÊµÊ±Êı¾İµ½PC¶Ë£¨JSON¸ñÊ½£©
+ * @note Êı¾İ¸ñÊ½: {"pitch":%.2f,"speed_out":%.2f,"angle_out":%.1f,"gyro_out":%.1f,"motor_speed":%.1f,"flag_main":%d}
  */
 void AI_Pid_Tuner_SendData(void)
 {
     char tx_buf[256];
     int len;
 
-    // æ„å»ºJSONæ ¼å¼æ•°æ®
+    // ¹¹½¨JSON¸ñÊ½Êı¾İ
     len = snprintf(tx_buf, sizeof(tx_buf),
                    "{\"pitch\":%.2f,\"speed_out\":%.2f,\"angle_out\":%.1f,\"gyro_out\":%.1f,\"motor_speed\":%.1f,\"flag_main\":%d}\n",
                    imu660ra.eulerAngle.pitch,
@@ -54,7 +54,7 @@ void AI_Pid_Tuner_SendData(void)
                    speed_MOTOR,
                    flag_main);
 
-    // é€šè¿‡æ— çº¿ä¸²å£å‘é€
+    // Í¨¹ıÎŞÏß´®¿Ú·¢ËÍ
     if (len > 0 && len < sizeof(tx_buf))
     {
         wireless_uart_send_string(tx_buf);
@@ -62,15 +62,15 @@ void AI_Pid_Tuner_SendData(void)
 }
 
 /**
- * @brief å¤„ç†æ¥æ”¶åˆ°çš„PIDå‚æ•°
- * @note æ¥æ”¶æ ¼å¼: P:kp_a,ki_a,kd_a,kp_g,ki_g,kd_g,kp_s,ki_s,kd_s,offset_roll
+ * @brief ´¦Àí½ÓÊÕµ½µÄPID²ÎÊı
+ * @note ½ÓÊÕ¸ñÊ½: P:kp_a,ki_a,kd_a,kp_g,ki_g,kd_g,kp_s,ki_s,kd_s,offset_roll
  */
 void AI_Pid_Tuner_ProcessRx(void)
 {
     uint8_t ch;
     uint32_t read_len;
 
-    // è¯»å–ä¸²å£æ•°æ®
+    // ¶ÁÈ¡´®¿ÚÊı¾İ
     while (1)
     {
         read_len = wireless_uart_read_buffer(&ch, 1);
@@ -79,73 +79,73 @@ void AI_Pid_Tuner_ProcessRx(void)
             break;
         }
 
-        // æ£€æµ‹æ¢è¡Œç¬¦ï¼Œè¡¨ç¤ºä¸€å¸§æ•°æ®ç»“æŸ
+        // ¼ì²â»»ĞĞ·û£¬±íÊ¾Ò»Ö¡Êı¾İ½áÊø
         if (ch == '\n' || ch == '\r')
         {
             if (rx_idx > 0)
             {
                 rx_buf[rx_idx] = '\0';
 
-                // è§£æå‚æ•°
+                // ½âÎö²ÎÊı
                 float kp_angle, ki_angle, kd_angle;
                 float kp_gyro, ki_gyro, kd_gyro;
                 float kp_speed, ki_speed, kd_speed;
                 float offset_roll;
 
-                // è§£ææ ¼å¼: P:kp_a,ki_a,kd_a,kp_g,ki_g,kd_g,kp_s,ki_s,kd_s,offset_roll
+                // ½âÎö¸ñÊ½: P:kp_a,ki_a,kd_a,kp_g,ki_g,kd_g,kp_s,ki_s,kd_s,offset_roll
                 if (sscanf(rx_buf, "P:%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
                            &kp_angle, &ki_angle, &kd_angle,
                            &kp_gyro, &ki_gyro, &kd_gyro,
                            &kp_speed, &ki_speed, &kd_speed,
                            &offset_roll) == 10)
                 {
-                    // æ›´æ–°è§’åº¦ç¯å‚æ•°
+                    // ¸üĞÂ½Ç¶È»·²ÎÊı
                     erect_Angle_Pitch[0] = kp_angle;
                     erect_Angle_Pitch[1] = ki_angle;
                     erect_Angle_Pitch[2] = kd_angle;
 
-                    // æ›´æ–°è§’é€Ÿåº¦ç¯å‚æ•°
+                    // ¸üĞÂ½ÇËÙ¶È»·²ÎÊı
                     erect_Gyro_Pitch[0] = kp_gyro;
                     erect_Gyro_Pitch[1] = ki_gyro;
                     erect_Gyro_Pitch[2] = kd_gyro;
 
-                    // æ›´æ–°é€Ÿåº¦ç¯å‚æ•°
+                    // ¸üĞÂËÙ¶È»·²ÎÊı
                     erect_Speed_Pitch[0] = kp_speed;
                     erect_Speed_Pitch[1] = ki_speed;
                     erect_Speed_Pitch[2] = kd_speed;
 
-                    // æ›´æ–°æœºæ¢°é›¶ç‚¹
+                    // ¸üĞÂ»úĞµÁãµã
                     imu660ra.offset_angle.roll = offset_roll;
 
-                    // å¤ä½PIDç§¯åˆ†é¡¹ï¼Œé¿å…ç§¯åˆ†ç´¯ç§¯å¯¼è‡´å†²å‡»
+                    // ¸´Î»PID»ı·ÖÏî£¬±ÜÃâ»ı·ÖÀÛ»ıµ¼ÖÂ³å»÷
                     pid_para_init(&PID_all.Pid_Angle_Pitch);
                     pid_para_init(&PID_all.Pid_Gyro_Pitch);
                     pid_para_init(&PID_all.Pid_Speed_Pitch);
 
-                    // å‘é€ç¡®è®¤ä¿¡æ¯
+                    // ·¢ËÍÈ·ÈÏĞÅÏ¢
                     wireless_uart_send_string("{\"status\":\"ok\",\"msg\":\"params updated\"}\n");
                 }
                 else
                 {
-                    // è§£æå¤±è´¥ï¼Œå‘é€é”™è¯¯ä¿¡æ¯
+                    // ½âÎöÊ§°Ü£¬·¢ËÍ´íÎóĞÅÏ¢
                     wireless_uart_send_string("{\"status\":\"error\",\"msg\":\"parse failed\"}\n");
                 }
 
-                // é‡ç½®æ¥æ”¶ç¼“å†²åŒº
+                // ÖØÖÃ½ÓÊÕ»º³åÇø
                 rx_idx = 0;
                 memset(rx_buf, 0, sizeof(rx_buf));
             }
         }
         else
         {
-            // å­˜å‚¨æ¥æ”¶åˆ°çš„å­—èŠ‚
+            // ´æ´¢½ÓÊÕµ½µÄ×Ö½Ú
             if (rx_idx < sizeof(rx_buf) - 1)
             {
                 rx_buf[rx_idx++] = ch;
             }
             else
             {
-                // ç¼“å†²åŒºæº¢å‡ºï¼Œé‡ç½®
+                // »º³åÇøÒç³ö£¬ÖØÖÃ
                 rx_idx = 0;
                 memset(rx_buf, 0, sizeof(rx_buf));
             }

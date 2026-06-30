@@ -2,26 +2,26 @@
 #include "zf_common_headfile.h"
 #include "math.h"
 
-// æœ€å°äºŒä¹˜æ³•æ‹Ÿåˆç›´çº¿
+// ×îĞ¡¶ş³Ë·¨ÄâºÏÖ±Ïß
 // y = kx + b
 void least_squares_fit(float arr[], int startline, int endline, float *k, float *b) {
-    int n = endline - startline + 1;  // æ•°æ®ç‚¹æ•°é‡
+    int n = endline - startline + 1;  // Êı¾İµãÊıÁ¿
     float sum_x = 0.0f, sum_y = 0.0f, sum_xy = 0.0f, sum_x2 = 0.0f;
 
-    // è®¡ç®—å„é¡¹ç´¯åŠ å’Œ
+    // ¼ÆËã¸÷ÏîÀÛ¼ÓºÍ
     for (int y = startline; y <= endline; y++) {
-        float x = arr[y];  // x æ˜¯ arr[y]
-        float y_val = (float)(y - startline);  // y ä» 0 å¼€å§‹
+        float x = arr[y];  // x ÊÇ arr[y]
+        float y_val = (float)(y - startline);  // y ´Ó 0 ¿ªÊ¼
         sum_x += x;
         sum_y += y_val;
         sum_xy += x * y_val;
         sum_x2 += x * x;
     }
 
-    // è®¡ç®—æ–œç‡å’Œæˆªè·
+    // ¼ÆËãĞ±ÂÊºÍ½Ø¾à
     float denominator = n * sum_x2 - sum_x * sum_x;
     if (denominator == 0.0f) {
-        // é˜²æ­¢é™¤é›¶é”™è¯¯ï¼ˆæ•°æ®ç‚¹å…±çº¿æˆ–ä¸è¶³ï¼‰
+        // ·ÀÖ¹³ıÁã´íÎó£¨Êı¾İµã¹²Ïß»ò²»×ã£©
         *k = 0.0f;
         *b = 0.0f;
         return;
@@ -32,10 +32,10 @@ void least_squares_fit(float arr[], int startline, int endline, float *k, float 
 }
 
 ////-------------------------------------------------------------------------------------------------------------------
-////  @brief      å¿«é€Ÿè®¡ç®— 1/Sqrt(x)
-////  @param      x       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°â€”â€”å¼€æ–¹
-////  @return     y       ç»“æœ
-////  @note       å¿«é€Ÿè®¡ç®— 1/Sqrt(x)  ç½•ç»•èƒ€âŠ¿qrt()å‡½æ•°è¦å¿«å››å€See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+////  @brief      ¿ìËÙ¼ÆËã 1/Sqrt(x)
+////  @param      x       ËùÒª½øĞĞÔËËãµÄÊı----¿ª·½
+////  @return     y       ½á¹û
+////  @note       ¿ìËÙ¼ÆËã 1/Sqrt(x)  º±ÈÆÕÍ^qrt()º¯ÊıÒª¿ìËÄ±¶See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
 ////-------------------------------------------------------------------------------------------------------------------
 //float invSqrt(float x)
 //{
@@ -51,8 +51,8 @@ void least_squares_fit(float arr[], int startline, int endline, float *k, float 
 
 //-------------------------------------------------------------------------------------------------------------------
 //  @brief      a faster varient of atan.  accurate to 6 decimal places for values between -1 ~ 1 but then diverges quickly
-//  @param      v       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°
-//  @return     ç»“æœ
+//  @param      v       ËùÒª½øĞĞÔËËãµÄÊı
+//  @return     ½á¹û
 //  @note       a faster varient of atan.  accurate to 6 decimal places for values between -1 ~ 1 but then diverges quickly
 //-------------------------------------------------------------------------------------------------------------------
 float fast_atan(float v)
@@ -63,12 +63,12 @@ float fast_atan(float v)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      çº¦æŸå€¼     constrain a value
+//  @brief      Ô¼ÊøÖµ     constrain a value
 //  @param      amt
-//  @param      low         æœ€ä½å€¼
-//  @param      high        æœ€é«˜å€¼
-//  @return     ç»“æœ
-//  @note       çº¦æŸå€¼     constrain a value
+//  @param      low         ×îµÍÖµ
+//  @param      high        ×î¸ßÖµ
+//  @return     ½á¹û
+//  @note       Ô¼ÊøÖµ     constrain a value
 //-------------------------------------------------------------------------------------------------------------------
 float constrain_float(float amt, float low, float high)
 {
@@ -81,12 +81,12 @@ float constrain_float(float amt, float low, float high)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      çº¦æŸå€¼     constrain a int16_t value
+//  @brief      Ô¼ÊøÖµ     constrain a int16_t value
 //  @param      amt
-//  @param      low         æœ€ä½å€¼
-//  @param      high        æœ€é«˜å€¼
-//  @return     ç»“æœ
-//  @note       çº¦æŸå€¼     constrain a int16_t value
+//  @param      low         ×îµÍÖµ
+//  @param      high        ×î¸ßÖµ
+//  @return     ½á¹û
+//  @note       Ô¼ÊøÖµ     constrain a int16_t value
 //-------------------------------------------------------------------------------------------------------------------
 int16 constrain_int16(int16 amt, int16 low, int16 high)
 {
@@ -95,12 +95,12 @@ int16 constrain_int16(int16 amt, int16 low, int16 high)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      çº¦æŸå€¼     constrain a int32_t value
+//  @brief      Ô¼ÊøÖµ     constrain a int32_t value
 //  @param      amt
-//  @param      low         æœ€ä½å€¼
-//  @param      high        æœ€é«˜å€¼
-//  @return     ç»“æœ
-//  @note       çº¦æŸå€¼     constrain a int32_t value
+//  @param      low         ×îµÍÖµ
+//  @param      high        ×î¸ßÖµ
+//  @return     ½á¹û
+//  @note       Ô¼ÊøÖµ     constrain a int32_t value
 //-------------------------------------------------------------------------------------------------------------------
 int32 constrain_int32(int32 amt, int32 low, int32 high)
 {
@@ -109,10 +109,10 @@ int32 constrain_int32(int32 amt, int32 low, int32 high)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      åº¦åˆ°å¼§åº¦çš„è½¬åŒ–     degrees -> radians
-//  @param      deg     è§’åº¦
-//  @return     ç»“æœ
-//  @note       åº¦åˆ°å¼§åº¦çš„è½¬åŒ–     degrees -> radians
+//  @brief      ¶Èµ½»¡¶ÈµÄ×ª»¯     degrees -> radians
+//  @param      deg     ½Ç¶È
+//  @return     ½á¹û
+//  @note       ¶Èµ½»¡¶ÈµÄ×ª»¯     degrees -> radians
 //-------------------------------------------------------------------------------------------------------------------
 float radians(float deg)
 {
@@ -121,10 +121,10 @@ float radians(float deg)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å¼§åº¦åˆ°åº¦çš„è½¬åŒ–     radians -> degrees
-//  @param      deg     å¼§åº¦
-//  @return     ç»“æœ
-//  @note       å¼§åº¦åˆ°åº¦çš„è½¬åŒ–     radians -> degrees
+//  @brief      »¡¶Èµ½¶ÈµÄ×ª»¯     radians -> degrees
+//  @param      deg     »¡¶È
+//  @return     ½á¹û
+//  @note       »¡¶Èµ½¶ÈµÄ×ª»¯     radians -> degrees
 //-------------------------------------------------------------------------------------------------------------------
 float degrees(float rad)
 {
@@ -133,10 +133,10 @@ float degrees(float rad)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ±‚å¹³æ–¹     square
-//  @param      v       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @return     ç»“æœ
-//  @note       æ±‚å¹³æ–¹     square
+//  @brief      ÇóÆ½·½     square
+//  @param      v       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @return     ½á¹û
+//  @note       ÇóÆ½·½     square
 //-------------------------------------------------------------------------------------------------------------------
 float sq(float v)
 {
@@ -145,11 +145,11 @@ float sq(float v)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      äºŒç»´çŸ¢é‡é•¿åº¦      vector length
-//  @param      a       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @param      b       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @return     ç»“æœ
-//  @note       äºŒç»´çŸ¢é‡é•¿åº¦      vector length
+//  @brief      ¶şÎ¬Ê¸Á¿³¤¶È      vector length
+//  @param      a       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @param      b       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @return     ½á¹û
+//  @note       ¶şÎ¬Ê¸Á¿³¤¶È      vector length
 //-------------------------------------------------------------------------------------------------------------------
 float pythagorous2(float a, float b)
 {
@@ -158,12 +158,12 @@ float pythagorous2(float a, float b)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ä¸‰ç»´çŸ¢é‡é•¿åº¦      vector length
-//  @param      a       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @param      b       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @param      c       æ‰€è¦è¿›è¡Œè¿ç®—çš„æ•°å­—
-//  @return     ç»“æœ
-//  @note       ä¸‰ç»´çŸ¢é‡é•¿åº¦      vector length
+//  @brief      ÈıÎ¬Ê¸Á¿³¤¶È      vector length
+//  @param      a       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @param      b       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @param      c       ËùÒª½øĞĞÔËËãµÄÊı×Ö
+//  @return     ½á¹û
+//  @note       ÈıÎ¬Ê¸Á¿³¤¶È      vector length
 //-------------------------------------------------------------------------------------------------------------------
 float pythagorous3(float a, float b, float c)
 {
@@ -172,10 +172,10 @@ float pythagorous3(float a, float b, float c)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦ wrap an angle in centi-degrees to -18000..18000
+//  @brief      ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È wrap an angle in centi-degrees to -18000..18000
 //  @param      error
-//  @return     ç»“æœ
-//  @note       ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦ wrap an angle in centi-degrees to -18000..18000
+//  @return     ½á¹û
+//  @note       ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È wrap an angle in centi-degrees to -18000..18000
 //-------------------------------------------------------------------------------------------------------------------
 float wrap_180_cd(float error)
 {
@@ -186,10 +186,10 @@ float wrap_180_cd(float error)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦ wrap an angle in centi-degrees to -90..90
+//  @brief      ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È wrap an angle in centi-degrees to -90..90
 //  @param      error
-//  @return     ç»“æœ
-//  @note       ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦ wrap an angle in centi-degrees to -90..90
+//  @return     ½á¹û
+//  @note       ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È wrap an angle in centi-degrees to -90..90
 //-------------------------------------------------------------------------------------------------------------------
 float wrap_90_cd(float error)
 {
@@ -200,9 +200,9 @@ float wrap_90_cd(float error)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å–æ•´å‡½æ•°
-//  @param      f       è¾“å…¥æµ®ç‚¹æ•°
-//  @return     å–æ•´[f]
+//  @brief      È¡Õûº¯Êı
+//  @param      f       ÊäÈë¸¡µãÊı
+//  @return     È¡Õû[f]
 //  @note       [1.5] = 1  [-1.5] = -2
 //-------------------------------------------------------------------------------------------------------------------
 int Round_Number( float f )
@@ -219,9 +219,9 @@ int Round_Number( float f )
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å››èˆäº”å…¥å‡½æ•°
-//  @param      f       è¾“å…¥æµ®ç‚¹æ•°
-//  @return     å–æ•´[f]
+//  @brief      ËÄÉáÎåÈëº¯Êı
+//  @param      f       ÊäÈë¸¡µãÊı
+//  @return     È¡Õû[f]
 //  @note       [1.5] = 1  [-1.5] = -2
 //-------------------------------------------------------------------------------------------------------------------
 int HalfAdjust_Number( float f )
@@ -246,11 +246,11 @@ int HalfAdjust_Number( float f )
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é™å¹…å‡½æ•°
-//  @param      value   è¾“å…¥å€¼
-//  @param      bound   é™å¹…èŒƒå›´ï¼ˆæ­£å€¼ï¼‰ï¼Œè¾“å‡ºè¢«é™åˆ¶åœ¨ [-bound, +bound]
-//  @return     é™å¹…åçš„å€¼
-//  @note       limit(value, bound) â†’ clamp to [-bound, +bound]
+//  @brief      ÏŞ·ùº¯Êı
+//  @param      value   ÊäÈëÖµ
+//  @param      bound   ÏŞ·ù·¶Î§£¨ÕıÖµ£©£¬Êä³ö±»ÏŞÖÆÔÚ [-bound, +bound]
+//  @return     ÏŞ·ùºóµÄÖµ
+//  @note       limit(value, bound) -> clamp to [-bound, +bound]
 //-------------------------------------------------------------------------------------------------------------------
 float limit(float value, float bound)
 {
@@ -263,7 +263,7 @@ float limit(float value, float bound)
 //
 //
 //
-////è‡ªå®šä¹‰powå‡½æ•°
+////×Ô¶¨Òåpowº¯Êı
 //
 //double func_pow(double x,int k)
 //
@@ -283,7 +283,7 @@ float limit(float value, float bound)
 //
 //}
 //
-////è‡ªå®šä¹‰sqrtå‡½æ•°
+////×Ô¶¨Òåsqrtº¯Êı
 //
 //double func_sqrt(double x)
 //
@@ -309,7 +309,7 @@ float limit(float value, float bound)
 //
 // }
 //
-////è‡ªå®šä¹‰coså‡½æ•°
+////×Ô¶¨Òåcosº¯Êı
 //
 //double func_cos(double x)
 //
@@ -355,7 +355,7 @@ float limit(float value, float bound)
 //
 // }
 //
-////è‡ªå®šä¹‰sinå‡½æ•°
+////×Ô¶¨Òåsinº¯Êı
 //
 //double func_sin(double x)
 //

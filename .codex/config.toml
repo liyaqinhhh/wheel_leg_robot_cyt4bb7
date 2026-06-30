@@ -1,0 +1,3 @@
+[mcp_servers.fileencoding]
+command = "python"
+args = ["D:/tools/mcp-fileencoding/src/server.py"]

@@ -1,12 +1,12 @@
 /**
  * @file    remote_control.h
- * @brief   é¥æ§å™¨æ¨¡å—å¤´æ–‡ä»¶ â€” äºŒè¿›åˆ¶å¸§åè®®è§£æ + è¶…æ—¶å®‰å…¨æ£€æµ‹
+ * @brief   Ò£¿ØÆ÷Ä£¿éÍ·ÎÄ¼ş -- ¶ş½øÖÆÖ¡Ğ­Òé½âÎö + ³¬Ê±°²È«¼ì²â
  *
- * é€šè¿‡ UART_1 æ— çº¿é€ä¼ æ¨¡å—æ¥æ”¶ PCB é¥æ§å™¨å‘é€çš„æ§åˆ¶å¸§ï¼Œ
- * è§£æåæ˜ å°„åˆ°æœºå™¨äººæ§åˆ¶å˜é‡ (é€Ÿåº¦/è½¬å‘/æ¨¡å¼/é«˜åº¦/æ€¥åœ)ã€‚
+ * Í¨¹ı UART_1 ÎŞÏßÍ¸´«Ä£¿é½ÓÊÕ PCB Ò£¿ØÆ÷·¢ËÍµÄ¿ØÖÆÖ¡£¬
+ * ½âÎöºóÓ³Éäµ½»úÆ÷ÈË¿ØÖÆ±äÁ¿ (ËÙ¶È/×ªÏò/Ä£Ê½/¸ß¶È/¼±Í£)¡£
  *
- * åè®®æ ¼å¼: [0x5A] [len] [type] [data...] [checksum]
- * å¸§å¤´ 0x5A åŒºåˆ«äºé¥æµ‹ '$'=0x24 å’Œ AIè°ƒå‚ 'P'=0x50
+ * Ğ­Òé¸ñÊ½: [0x5A] [len] [type] [data...] [checksum]
+ * Ö¡Í· 0x5A Çø±ğÓÚÒ£²â '$'=0x24 ºÍ AIµ÷²Î 'P'=0x50
  */
 
 #ifndef REMOTE_CONTROL_H_
@@ -14,77 +14,77 @@
 
 #include "zf_common_typedef.h"
 
-/* ==================== å¸§åè®®å¸¸é‡ ==================== */
+/* ==================== Ö¡Ğ­Òé³£Á¿ ==================== */
 
-#define RC_FRAME_HEADER         0x5A    /* å¸§å¤´æ ‡è¯† */
-#define RC_FRAME_MIN_LEN        4       /* æœ€å°å¸§é•¿åº¦: header+len+type+checksum */
-#define RC_FRAME_MAX_LEN        32      /* æœ€å¤§å¸§é•¿åº¦ */
-#define RC_TIMEOUT_MS           500     /* é¥æ§ä¿¡å·è¶…æ—¶é˜ˆå€¼ (ms) */
+#define RC_FRAME_HEADER         0x5A    /* Ö¡Í·±êÊ¶ */
+#define RC_FRAME_MIN_LEN        4       /* ×îĞ¡Ö¡³¤¶È: header+len+type+checksum */
+#define RC_FRAME_MAX_LEN        32      /* ×î´óÖ¡³¤¶È */
+#define RC_TIMEOUT_MS           500     /* Ò£¿ØĞÅºÅ³¬Ê±ãĞÖµ (ms) */
 
-/* å‘½ä»¤ç±»å‹å®šä¹‰ */
-#define RC_TYPE_JOYSTICK        0x01    /* æ‘‡æ†æ•°æ®, data=4Ã—int16 (8B) */
-#define RC_TYPE_MODE_SWITCH     0x02    /* æ¨¡å¼åˆ‡æ¢, data=uint8 turn_mode (1B) */
-#define RC_TYPE_HEIGHT          0x03    /* é«˜åº¦è°ƒèŠ‚, data=uint8 dir (1B) */
-#define RC_TYPE_EMERGENCY       0x04    /* æ€¥åœæ§åˆ¶, data=uint8 stop (1B) */
-#define RC_TYPE_HEARTBEAT       0x05    /* å¿ƒè·³åŒ…, æ— data (0B) */
+/* ÃüÁîÀàĞÍ¶¨Òå */
+#define RC_TYPE_JOYSTICK        0x01    /* Ò¡¸ËÊı¾İ, data=4¡Áint16 (8B) */
+#define RC_TYPE_MODE_SWITCH     0x02    /* Ä£Ê½ÇĞ»», data=uint8 turn_mode (1B) */
+#define RC_TYPE_HEIGHT          0x03    /* ¸ß¶Èµ÷½Ú, data=uint8 dir (1B) */
+#define RC_TYPE_EMERGENCY       0x04    /* ¼±Í£¿ØÖÆ, data=uint8 stop (1B) */
+#define RC_TYPE_HEARTBEAT       0x05    /* ĞÄÌø°ü, ÎŞdata (0B) */
 
-/* é«˜åº¦è°ƒèŠ‚æ–¹å‘ */
-#define RC_HEIGHT_HOLD          0       /* ä¿æŒå½“å‰é«˜åº¦ */
-#define RC_HEIGHT_UP            1       /* å¢é«˜ */
-#define RC_HEIGHT_DOWN          2       /* é™ä½ */
+/* ¸ß¶Èµ÷½Ú·½Ïò */
+#define RC_HEIGHT_HOLD          0       /* ±£³Öµ±Ç°¸ß¶È */
+#define RC_HEIGHT_UP            1       /* Ôö¸ß */
+#define RC_HEIGHT_DOWN          2       /* ½µµÍ */
 
-/* æ€¥åœæ§åˆ¶å€¼ */
-#define RC_EMERGENCY_STOP       1       /* æ€¥åœ */
-#define RC_EMERGENCY_RESUME     0       /* æ¢å¤ */
+/* ¼±Í£¿ØÖÆÖµ */
+#define RC_EMERGENCY_STOP       1       /* ¼±Í£ */
+#define RC_EMERGENCY_RESUME     0       /* »Ö¸´ */
 
-/* æœ‰æ•ˆçš„ turn_mode å€¼é›†åˆ */
-#define RC_VALID_TURN_MODES     0x0B    /* ä½æ©ç : bit0=0, bit1=2, bit2=3, bit3=6 */
+/* ÓĞĞ§µÄ turn_mode Öµ¼¯ºÏ */
+#define RC_VALID_TURN_MODES     0x0B    /* Î»ÑÚÂë: bit0=0, bit1=2, bit2=3, bit3=6 */
 
-/* ==================== è§£æå™¨çŠ¶æ€ ==================== */
+/* ==================== ½âÎöÆ÷×´Ì¬ ==================== */
 
 typedef enum {
-    RC_STATE_WAIT_HEADER = 0,   /* ç­‰å¾…å¸§å¤´ 0x5A */
-    RC_STATE_WAIT_LENGTH,       /* ç­‰å¾…é•¿åº¦å­—èŠ‚ */
-    RC_STATE_WAIT_TYPE,         /* ç­‰å¾…ç±»å‹å­—èŠ‚ */
-    RC_STATE_WAIT_DATA,         /* ç­‰å¾…æ•°æ®å­—èŠ‚ */
-    RC_STATE_WAIT_CHECKSUM      /* ç­‰å¾…æ ¡éªŒå­—èŠ‚ */
+    RC_STATE_WAIT_HEADER = 0,   /* µÈ´ıÖ¡Í· 0x5A */
+    RC_STATE_WAIT_LENGTH,       /* µÈ´ı³¤¶È×Ö½Ú */
+    RC_STATE_WAIT_TYPE,         /* µÈ´ıÀàĞÍ×Ö½Ú */
+    RC_STATE_WAIT_DATA,         /* µÈ´ıÊı¾İ×Ö½Ú */
+    RC_STATE_WAIT_CHECKSUM      /* µÈ´ıĞ£Ñé×Ö½Ú */
 } RC_ParserState;
 
-/* ==================== é¥æ§çŠ¶æ€ç»“æ„ä½“ ==================== */
+/* ==================== Ò£¿Ø×´Ì¬½á¹¹Ìå ==================== */
 
 typedef struct {
-    int16_t  joystick[4];       /* åŸå§‹æ‘‡æ†å€¼ (æ¥è‡ªé¥æ§å¸§ type=0x01) */
-    uint8_t  active;            /* é¥æ§æ¿€æ´»æ ‡å¿—: 1=åœ¨è¶…æ—¶çª—å£å†…, 0=è¶…æ—¶ */
-    uint32_t last_rx_tick;      /* æœ€åæ”¶åˆ°æœ‰æ•ˆå¸§çš„ç³»ç»Ÿtick (ms) */
-    uint8_t  emergency_stop;    /* æ€¥åœè¯·æ±‚: 1=æ€¥åœ, 0=æ­£å¸¸ */
-    uint32_t frame_count;       /* æœ‰æ•ˆå¸§è®¡æ•° (è°ƒè¯•ç”¨) */
-    uint32_t error_count;       /* æ ¡éªŒé”™è¯¯è®¡æ•° (è°ƒè¯•ç”¨) */
+    int16_t  joystick[4];       /* Ô­Ê¼Ò¡¸ËÖµ (À´×ÔÒ£¿ØÖ¡ type=0x01) */
+    uint8_t  active;            /* Ò£¿Ø¼¤»î±êÖ¾: 1=ÔÚ³¬Ê±´°¿ÚÄÚ, 0=³¬Ê± */
+    uint32_t last_rx_tick;      /* ×îºóÊÕµ½ÓĞĞ§Ö¡µÄÏµÍ³tick (ms) */
+    uint8_t  emergency_stop;    /* ¼±Í£ÇëÇó: 1=¼±Í£, 0=Õı³£ */
+    uint32_t frame_count;       /* ÓĞĞ§Ö¡¼ÆÊı (µ÷ÊÔÓÃ) */
+    uint32_t error_count;       /* Ğ£Ñé´íÎó¼ÆÊı (µ÷ÊÔÓÃ) */
 } RemoteControl_t;
 
-/* ==================== API æ¥å£ ==================== */
+/* ==================== API ½Ó¿Ú ==================== */
 
 /**
- * @brief  åˆå§‹åŒ–é¥æ§æ¨¡å—
- * @note   æ¸…é›¶çŠ¶æ€ï¼Œå¤ä½è§£æå™¨ï¼Œåº”åœ¨ wireless_uart_init() ä¹‹åè°ƒç”¨
+ * @brief  ³õÊ¼»¯Ò£¿ØÄ£¿é
+ * @note   ÇåÁã×´Ì¬£¬¸´Î»½âÎöÆ÷£¬Ó¦ÔÚ wireless_uart_init() Ö®ºóµ÷ÓÃ
  */
 void remote_control_init(void);
 
 /**
- * @brief  å¤„ç† UART_1 æ¥æ”¶æ•°æ®
- * @note   åœ¨ Interrupt_40ms() ä¸­è°ƒç”¨ï¼Œè¯»å– FIFO â†’ å¸§å¤´åˆ†å‘ â†’ è§£æ â†’ æ˜ å°„
- *         0x5A â†’ é¥æ§å¸§è§£æ, 'P' â†’ AIè°ƒå‚å¤„ç†, å…¶ä»– â†’ ä¸¢å¼ƒ
+ * @brief  ´¦Àí UART_1 ½ÓÊÕÊı¾İ
+ * @note   ÔÚ Interrupt_40ms() ÖĞµ÷ÓÃ£¬¶ÁÈ¡ FIFO ¡ú Ö¡Í··Ö·¢ ¡ú ½âÎö ¡ú Ó³Éä
+ *         0x5A ¡ú Ò£¿ØÖ¡½âÎö, 'P' ¡ú AIµ÷²Î´¦Àí, ÆäËû ¡ú ¶ªÆú
  */
 void remote_control_process(void);
 
 /**
- * @brief  æŸ¥è¯¢é¥æ§æ˜¯å¦æ¿€æ´» (åœ¨è¶…æ—¶çª—å£å†…)
- * @return 1=æ¿€æ´», 0=è¶…æ—¶/æœªè¿æ¥
+ * @brief  ²éÑ¯Ò£¿ØÊÇ·ñ¼¤»î (ÔÚ³¬Ê±´°¿ÚÄÚ)
+ * @return 1=¼¤»î, 0=³¬Ê±/Î´Á¬½Ó
  */
 uint8_t remote_control_is_active(void);
 
 /**
- * @brief  è·å–é¥æ§çŠ¶æ€æ•°æ® (è°ƒè¯•ç”¨)
- * @return æŒ‡å‘å†…éƒ¨ RemoteControl_t çš„æŒ‡é’ˆ
+ * @brief  »ñÈ¡Ò£¿Ø×´Ì¬Êı¾İ (µ÷ÊÔÓÃ)
+ * @return Ö¸ÏòÄÚ²¿ RemoteControl_t µÄÖ¸Õë
  */
 RemoteControl_t* remote_control_get_data(void);
 

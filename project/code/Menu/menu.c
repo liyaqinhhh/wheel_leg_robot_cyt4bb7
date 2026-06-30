@@ -1,7 +1,7 @@
 /*
  * menu.c
  *
- *  Created on: 2024å¹´7æœˆ5æ—¥
+ *  Created on: 2024Äê7ÔÂ5ÈÕ
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -23,13 +23,13 @@ int8 page = 0;
 int8 cursor = 0;
 int8 unit = 2;
 
-// æ‘„åƒå¤´å‚æ•°ï¼ˆèœå•è°ƒèŠ‚ç”¨ï¼‰
-uint16 Image_Gain    = 32;    // æ‘„åƒå¤´å¢ç›Šï¼Œé»˜è®¤32ï¼ˆå¯¹åº” MT9V03X_GAIN_DEFï¼‰
-uint16 Image_EpTime  = 4000;  // æ‘„åƒå¤´æ›å…‰æ—¶é—´ï¼Œé»˜è®¤4000
-uint8  Change_Control = 0;    // å†™å…¥åè§¦å‘æ‘„åƒå¤´é‡åˆå§‹åŒ–
+// ÉãÏñÍ·²ÎÊı£¨²Ëµ¥µ÷½ÚÓÃ£©
+uint16 Image_Gain    = 32;    // ÉãÏñÍ·ÔöÒæ£¬Ä¬ÈÏ32£¨¶ÔÓ¦ MT9V03X_GAIN_DEF£©
+uint16 Image_EpTime  = 4000;  // ÉãÏñÍ·ÆØ¹âÊ±¼ä£¬Ä¬ÈÏ4000
+uint8  Change_Control = 0;    // Ğ´Èëºó´¥·¢ÉãÏñÍ·ÖØ³õÊ¼»¯
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ˜¾ç¤ºå®æ—¶è°ƒè¯•ä¿¡æ¯: ç”µæœºé€Ÿåº¦ã€é™€èºä»ªè¾“å‡ºã€åèˆªè§’ã€ä¿¯ä»°è§’ã€èˆªç‚¹æ•°
+//  @brief      ÏÔÊ¾ÊµÊ±µ÷ÊÔĞÅÏ¢: µç»úËÙ¶È¡¢ÍÓÂİÒÇÊä³ö¡¢Æ«º½½Ç¡¢¸©Ñö½Ç¡¢º½µãÊı
 //  @param      void
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
@@ -66,17 +66,17 @@ void IPS200_Show1(void)
 
 }
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å°†æ‰€æœ‰ PID/æ§åˆ¶å‚æ•°å†™å…¥ Flash æˆ–ä» Flash è¯»å‡º
-//  @param      way     WRITE=å†™å…¥Flash, READ=ä»Flashè¯»å‡º
+//  @brief      ½«ËùÓĞ PID/¿ØÖÆ²ÎÊıĞ´Èë Flash »ò´Ó Flash ¶Á³ö
+//  @param      way     WRITE=Ğ´ÈëFlash, READ=´ÓFlash¶Á³ö
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void store_or_read_DATA(int way)
 {
-    if( way == WRITE ) // å†™å…¥å†…å­˜
+    if( way == WRITE ) // Ğ´ÈëÄÚ´æ
     {
 
 
-        // ç¬¬ä¸€é¡µï¼šä¿¯ä»°è§’ã€ç¿»æ»šè§’ã€gyro/angleå‰åå¹³è¡¡å‚æ•°ã€é€Ÿåº¦ã€é«˜åº¦ã€æ˜¾ç¤ºæ ‡å¿—
+        // µÚÒ»Ò³£º¸©Ñö½Ç¡¢·­¹ö½Ç¡¢gyro/angleÇ°ºóÆ½ºâ²ÎÊı¡¢ËÙ¶È¡¢¸ß¶È¡¢ÏÔÊ¾±êÖ¾
         flash_union_buffer[0].float_type = imu660ra.offset_angle.pitch;
         flash_union_buffer[1].float_type = imu660ra.offset_angle.roll;
         flash_union_buffer[2].float_type = erect_Gyro_Pitch[0];
@@ -91,7 +91,7 @@ void store_or_read_DATA(int way)
         flash_union_buffer[11].float_type = Yao.Target_height;
         flash_union_buffer[12].uint8_type = Show_Flag;
 
-        // ç¬¬äºŒé¡µï¼šyawç›¸å…³å‚æ•°ã€æ¨¡ç³Šæ¨¡å¼ã€På€¼
+        // µÚ¶şÒ³£ºyawÏà¹Ø²ÎÊı¡¢Ä£ºıÄ£Ê½¡¢PÖµ
         flash_union_buffer[13].float_type = erect_Gyro_Yaw[0];
         flash_union_buffer[14].float_type = erect_Gyro_Yaw[1];
         flash_union_buffer[15].float_type = erect_Gyro_Yaw[2];
@@ -113,7 +113,7 @@ void store_or_read_DATA(int way)
         flash_union_buffer[31].float_type = P_Value_L[5];
         flash_union_buffer[32].float_type = P_Value_L[6];
 
-        // ç¬¬ä¸‰é¡µï¼šç”µæœºPWMã€å¢é‡å‚æ•°ã€yawè§’åº¦
+        // µÚÈıÒ³£ºµç»úPWM¡¢ÔöÁ¿²ÎÊı¡¢yaw½Ç¶È
         flash_union_buffer[33].uint32_type = pwmLF;
         flash_union_buffer[34].uint32_type = pwmLB;
         flash_union_buffer[35].uint32_type = pwmRF;
@@ -131,7 +131,7 @@ void store_or_read_DATA(int way)
         flash_union_buffer[47].float_type = erect_yawan[1];
         flash_union_buffer[48].float_type = erect_yawan[2];
 
-        // ç¬¬å››é¡µï¼šæ§åˆ¶æ ‡å¿—ã€é€Ÿåº¦å‚æ•°
+        // µÚËÄÒ³£º¿ØÖÆ±êÖ¾¡¢ËÙ¶È²ÎÊı
 //         flash_union_buffer[49].uint8_type = Thres_Filiter_Flag_1;
 //         flash_union_buffer[50].uint8_type = Jump_Control_Flag;
 //         flash_union_buffer[51].uint8_type = Single_Control_Flag;
@@ -159,7 +159,7 @@ void store_or_read_DATA(int way)
 //         flash_union_buffer[73].uint16_type = Small_S_Speed;
 //         flash_union_buffer[74].uint16_type = Ramp_State_2_Speed;
 
-//         // ç¬¬äº”é¡µï¼šè·³è·ƒçº¿ã€æ§åˆ¶å‚æ•°ã€bypasså‚æ•°
+//         // µÚÎåÒ³£ºÌøÔ¾Ïß¡¢¿ØÖÆ²ÎÊı¡¢bypass²ÎÊı
 //         flash_union_buffer[75].uint8_type = jump_line;
 //         flash_union_buffer[76].uint8_type = jump_line_slowdown;
 //         flash_union_buffer[77].uint8_type = T1;
@@ -185,12 +185,12 @@ void store_or_read_DATA(int way)
         flash_write_page_from_buffer(0, 1, 93);
         flash_buffer_clear();
     }
-    if( way == READ ) // è¯»å‡º
+    if( way == READ ) // ¶Á³ö
     {
         flash_buffer_clear();
         flash_read_page_to_buffer(0, 1, 93);
 
-        // ç¬¬ä¸€é¡µï¼šä¿¯ä»°è§’ã€ç¿»æ»šè§’ã€gyro/angleå‰åå¹³è¡¡å‚æ•°ã€é€Ÿåº¦ã€é«˜åº¦ã€æ˜¾ç¤ºæ ‡å¿—
+        // µÚÒ»Ò³£º¸©Ñö½Ç¡¢·­¹ö½Ç¡¢gyro/angleÇ°ºóÆ½ºâ²ÎÊı¡¢ËÙ¶È¡¢¸ß¶È¡¢ÏÔÊ¾±êÖ¾
         imu660ra.offset_angle.pitch = flash_union_buffer[0].float_type;
         imu660ra.offset_angle.roll = flash_union_buffer[1].float_type;
         erect_Gyro_Pitch[0] = flash_union_buffer[2].float_type;
@@ -205,7 +205,7 @@ void store_or_read_DATA(int way)
         Yao.Target_height = flash_union_buffer[11].float_type;
         Show_Flag = flash_union_buffer[12].uint8_type;
 
-        // ç¬¬äºŒé¡µï¼šyawç›¸å…³å‚æ•°ã€æ¨¡ç³Šæ¨¡å¼ã€På€¼
+        // µÚ¶şÒ³£ºyawÏà¹Ø²ÎÊı¡¢Ä£ºıÄ£Ê½¡¢PÖµ
         erect_Gyro_Yaw[0] = flash_union_buffer[13].float_type;
         erect_Gyro_Yaw[1] = flash_union_buffer[14].float_type;
         erect_Gyro_Yaw[2] = flash_union_buffer[15].float_type;
@@ -227,7 +227,7 @@ void store_or_read_DATA(int way)
         P_Value_L[5] = flash_union_buffer[31].float_type;
         P_Value_L[6] = flash_union_buffer[32].float_type;
 
-        // ç¬¬ä¸‰é¡µï¼šç”µæœºPWMã€å¢é‡å‚æ•°ã€yawè§’åº¦
+        // µÚÈıÒ³£ºµç»úPWM¡¢ÔöÁ¿²ÎÊı¡¢yaw½Ç¶È
         pwmLF = flash_union_buffer[33].uint32_type;
         pwmLB = flash_union_buffer[34].uint32_type;
         pwmRF = flash_union_buffer[35].uint32_type;
@@ -245,7 +245,7 @@ void store_or_read_DATA(int way)
         erect_yawan[1] = flash_union_buffer[47].float_type;
         erect_yawan[2] = flash_union_buffer[48].float_type;
 
-        //ç¬¬å››é¡µï¼šæ§åˆ¶æ ‡å¿—ã€é€Ÿåº¦å‚æ•°
+        //µÚËÄÒ³£º¿ØÖÆ±êÖ¾¡¢ËÙ¶È²ÎÊı
 //         Thres_Filiter_Flag_1 = flash_union_buffer[49].uint8_type;
 //         Jump_Control_Flag = flash_union_buffer[50].uint8_type;
 //         Single_Control_Flag = flash_union_buffer[51].uint8_type;
@@ -273,7 +273,7 @@ void store_or_read_DATA(int way)
 //         Small_S_Speed = flash_union_buffer[73].uint16_type;
 //         Ramp_State_2_Speed = flash_union_buffer[74].uint16_type;
 
-//         // ç¬¬äº”é¡µï¼šè·³è·ƒçº¿ã€æ§åˆ¶å‚æ•°ã€bypasså‚æ•°
+//         // µÚÎåÒ³£ºÌøÔ¾Ïß¡¢¿ØÖÆ²ÎÊı¡¢bypass²ÎÊı
 //         jump_line = flash_union_buffer[75].uint8_type;
 //         jump_line_slowdown = flash_union_buffer[76].uint8_type;
 //         T1 = flash_union_buffer[77].uint8_type;
@@ -303,7 +303,7 @@ float data_change = 1;
 uint8 key  = 0;
 uint8 key1 = 0;
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      åˆ‡æ¢å‚æ•°è°ƒèŠ‚æ­¥è¿›å•ä½ (ä»100åˆ°0.00001å…±8æ¡£)
+//  @brief      ÇĞ»»²ÎÊıµ÷½Ú²½½øµ¥Î» (´Ó100µ½0.00001¹²8µµ)
 //  @param      void
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
@@ -343,8 +343,8 @@ void switch_unit()
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é€šè¿‡æŒ‰é”®è°ƒèŠ‚ float ç±»å‹å˜é‡å€¼ (KEY_1åŠ /KEY_3å‡, KEY_2é•¿æŒ‰åˆ‡æ¢å•ä½)
-//  @param      data    æŒ‡å‘å¾…è°ƒèŠ‚çš„ float å˜é‡
+//  @brief      Í¨¹ı°´¼üµ÷½Ú float ÀàĞÍ±äÁ¿Öµ (KEY_1¼Ó/KEY_3¼õ, KEY_2³¤°´ÇĞ»»µ¥Î»)
+//  @param      data    Ö¸Ïò´ıµ÷½ÚµÄ float ±äÁ¿
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void data_operate(float *data)
@@ -366,8 +366,8 @@ void data_operate(float *data)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é€šè¿‡æŒ‰é”®è°ƒèŠ‚ uint8 ç±»å‹å˜é‡å€¼ (KEY_1åŠ /KEY_3å‡, KEY_2é•¿æŒ‰åˆ‡æ¢å•ä½)
-//  @param      data    æŒ‡å‘å¾…è°ƒèŠ‚çš„ uint8 å˜é‡
+//  @brief      Í¨¹ı°´¼üµ÷½Ú uint8 ÀàĞÍ±äÁ¿Öµ (KEY_1¼Ó/KEY_3¼õ, KEY_2³¤°´ÇĞ»»µ¥Î»)
+//  @param      data    Ö¸Ïò´ıµ÷½ÚµÄ uint8 ±äÁ¿
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void data_operate_uint8(uint8 *data)
@@ -391,8 +391,8 @@ void data_operate_uint8(uint8 *data)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é€šè¿‡æŒ‰é”®è°ƒèŠ‚ uint16 ç±»å‹å˜é‡å€¼ (KEY_1åŠ /KEY_3å‡, KEY_2é•¿æŒ‰åˆ‡æ¢å•ä½)
-//  @param      data    æŒ‡å‘å¾…è°ƒèŠ‚çš„ uint16 å˜é‡
+//  @brief      Í¨¹ı°´¼üµ÷½Ú uint16 ÀàĞÍ±äÁ¿Öµ (KEY_1¼Ó/KEY_3¼õ, KEY_2³¤°´ÇĞ»»µ¥Î»)
+//  @param      data    Ö¸Ïò´ıµ÷½ÚµÄ uint16 ±äÁ¿
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void data_operate_uint16(uint16 *data)
@@ -414,8 +414,8 @@ void data_operate_uint16(uint16 *data)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é€šè¿‡æŒ‰é”®è°ƒèŠ‚ uint32 ç±»å‹å˜é‡å€¼ (KEY_1åŠ /KEY_3å‡, KEY_2é•¿æŒ‰åˆ‡æ¢å•ä½)
-//  @param      data    æŒ‡å‘å¾…è°ƒèŠ‚çš„ uint32 å˜é‡
+//  @brief      Í¨¹ı°´¼üµ÷½Ú uint32 ÀàĞÍ±äÁ¿Öµ (KEY_1¼Ó/KEY_3¼õ, KEY_2³¤°´ÇĞ»»µ¥Î»)
+//  @param      data    Ö¸Ïò´ıµ÷½ÚµÄ uint32 ±äÁ¿
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void data_operate_uint32(uint32 *data)
@@ -437,8 +437,8 @@ void data_operate_uint32(uint32 *data)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      é€šè¿‡æŒ‰é”®è°ƒèŠ‚ int ç±»å‹å˜é‡å€¼ (KEY_1åŠ /KEY_3å‡, KEY_2é•¿æŒ‰åˆ‡æ¢å•ä½)
-//  @param      data    æŒ‡å‘å¾…è°ƒèŠ‚çš„ int å˜é‡
+//  @brief      Í¨¹ı°´¼üµ÷½Ú int ÀàĞÍ±äÁ¿Öµ (KEY_1¼Ó/KEY_3¼õ, KEY_2³¤°´ÇĞ»»µ¥Î»)
+//  @param      data    Ö¸Ïò´ıµ÷½ÚµÄ int ±äÁ¿
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void data_operate_int(int *data)
@@ -460,13 +460,13 @@ void data_operate_int(int *data)
 }
 uint8 flag_track = 0;
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      èœå•ä¸»å‡½æ•°: å¤šé¡µå‚æ•°æ˜¾ç¤ºä¸æŒ‰é”®è°ƒèŠ‚, KEY_4ä¿å­˜å¹¶é€€å‡º/è¿›å…¥è¿è¡Œæ¨¡å¼
+//  @brief      ²Ëµ¥Ö÷º¯Êı: ¶àÒ³²ÎÊıÏÔÊ¾Óë°´¼üµ÷½Ú, KEY_4±£´æ²¢ÍË³ö/½øÈëÔËĞĞÄ£Ê½
 //  @param      void
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
 void menu(void)
 {
-    if( menu_mode == 0 )            // menu_mode == 0,è¿›å…¥èœå•
+    if( menu_mode == 0 )            // menu_mode == 0,½øÈë²Ëµ¥
     {
         flag_track = 0;
         if(page > 4)
@@ -475,14 +475,14 @@ void menu(void)
             page = 4;
         switch(page)
         {
-            case 0 :                // ç¬¬ä¸€é¢ï¼Œå¹³è¡¡ç›¸å…³
+            case 0 :                // µÚÒ»Ãæ£¬Æ½ºâÏà¹Ø
                 ips200_show_string( 20, 0*8, "page: 111111111" );
-                //é›¶ç‚¹
+                //Áãµã
                 ips200_show_string( 20, 1*8, "pitch:" );
                 ips200_show_float( 100, 1*8, imu660ra.offset_angle.pitch, 3, 6 );
                 ips200_show_string( 20, 2*8, "roll :" );
                 ips200_show_float( 100, 2*8, imu660ra.offset_angle.roll, 3, 6 );
-                //ä¸²çº§PID
+                //´®¼¶PID
                 ips200_show_string( 20, 3*8, "pit-Gyro-P :" );
                 ips200_show_float( 100, 3*8, erect_Gyro_Pitch[0], 3, 5 );
                 ips200_show_string( 20, 4*8, "pit-Gyro-I :" );
@@ -507,7 +507,7 @@ void menu(void)
                 ips200_show_uint(  100 , 13*8, Show_Flag, 3 );
 
 
-                // å…‰æ ‡æ˜¾ç¤º
+                // ¹â±êÏÔÊ¾
                 if(!key)
                 {
                     if(key_detect(KEY_3, KEY_SHORT_PRESS))
@@ -531,12 +531,12 @@ void menu(void)
                 else
                     ips200_show_string( 0, (cursor*8), "---" );
 
-                // æ ¹æ®å…‰æ ‡ä½ç½®é€‰æ‹©å¯¹åº”å˜é‡æ“ä½œ
+                // ¸ù¾İ¹â±êÎ»ÖÃÑ¡Ôñ¶ÔÓ¦±äÁ¿²Ù×÷
                 if(key)
                 {
                     switch(cursor)
                     {
-                        case 0:     // æœ€ä¸Šä¸€è¡Œç”¨æ¥ç¿»é¢
+                        case 0:     // ×îÉÏÒ»ĞĞÓÃÀ´·­Ãæ
                             if(key_detect(KEY_3, KEY_SHORT_PRESS)){
                                 ips200_clear();
                                 page++;}
@@ -546,11 +546,11 @@ void menu(void)
                             if(key_detect(KEY_2, KEY_SHORT_PRESS))
                                 key = 0;break;
 
-                        case 1:     // ä¿¯ä»°è§’
+                        case 1:     // ¸©Ñö½Ç
                             data_operate(&imu660ra.offset_angle.pitch);break;
-                        case 2:     // ç¿»æ»šè§’
+                        case 2:     // ·­¹ö½Ç
                             data_operate(&imu660ra.offset_angle.roll);break;
-                        case 3:     // gyroå‰åå¹³è¡¡å‚æ•°
+                        case 3:     // gyroÇ°ºóÆ½ºâ²ÎÊı
                             data_operate(&erect_Gyro_Pitch[0]);break;
                         case 4:
                             data_operate(&erect_Gyro_Pitch[1]);break;
@@ -558,7 +558,7 @@ void menu(void)
                             data_operate(&erect_Gyro_Pitch[2]);break;
                         case 6:
                             data_operate(&erect_Gyro_Pitch[3]);break;
-                        case 7:     // angleå‰åå¹³è¡¡å‚æ•°
+                        case 7:     // angleÇ°ºóÆ½ºâ²ÎÊı
                             data_operate(&erect_Angle_Pitch[0]);break;
                         case 8:
                             data_operate(&erect_Angle_Pitch[1]);break;
@@ -566,7 +566,7 @@ void menu(void)
                             data_operate(&erect_Angle_Pitch[2]);break;
                         case 10:
                             data_operate(&erect_Angle_Pitch[3]);break;
-                        case 11:     // speedå‰åå¹³è¡¡å‚æ•°
+                        case 11:     // speedÇ°ºóÆ½ºâ²ÎÊı
                             data_operate_int(&Yao.Target_Speed);break;
                         case 12:
                             data_operate(&Yao.Target_height);break;
@@ -575,7 +575,7 @@ void menu(void)
                         default:break;
                     }// page1-cursor end
                 }break;// page1 end
-                case 1:              //ç¬¬äºŒé¢ï¼Œè½¬å‘å‚æ•°
+                case 1:              //µÚ¶şÃæ£¬×ªÏò²ÎÊı
                     ips200_show_string( 20, 0*8, "page: 222222222" );
                     ips200_show_string( 20, 1*8, "yaw-gyro-P:" );
                     ips200_show_float( 100, 1*8, erect_Gyro_Yaw[0], 3, 6 );
@@ -646,7 +646,7 @@ void menu(void)
                     {
                         switch(cursor)
                         {
-                            case 0:     // ç¿»é¢
+                            case 0:     // ·­Ãæ
                                 if(key_detect(KEY_3, KEY_SHORT_PRESS)){
                                     ips200_clear();
                                     page++;}
@@ -699,7 +699,7 @@ void menu(void)
                             default:break;
                         }// page2-cursor end
                     }break;// page2 end
-                        case 2:              //ç¬¬ä¸‰é¢,èˆµæœº
+                        case 2:              //µÚÈıÃæ,¶æ»ú
                             ips200_show_string( 20, 0*8, "page: 333333333" );
                             ips200_show_string( 20, 1*8,"pwmLF:" );
                             ips200_show_uint(  100, 1*8, pwmLF, 5 );
@@ -764,7 +764,7 @@ void menu(void)
                             {
                                 switch(cursor)
                                 {
-                                    case 0:     // ç¿»é¢
+                                    case 0:     // ·­Ãæ
                                         if(key_detect(KEY_3, KEY_SHORT_PRESS)){
                                             ips200_clear();
                                             page++;}
@@ -774,11 +774,11 @@ void menu(void)
                                         if(key_detect(KEY_2, KEY_SHORT_PRESS))
                                             key = 0;break;
 
-                                    case 1:     // ä¿¯ä»°è§’
+                                    case 1:     // ¸©Ñö½Ç
                                         data_operate_uint32(&pwmLF);break;
-                                    case 2:     // ç¿»æ»šè§’
+                                    case 2:     // ·­¹ö½Ç
                                         data_operate_uint32(&pwmLB);break;
-                                    case 3:     // gyroå‰åå¹³è¡¡å‚æ•°
+                                    case 3:     // gyroÇ°ºóÆ½ºâ²ÎÊı
                                         data_operate_uint32(&pwmRF);break;
                                     case 4:
                                         data_operate_uint32(&pwmRB);break;
@@ -786,7 +786,7 @@ void menu(void)
                                         data_operate(&erect_Inc_X[0]);break;
                                     case 6:
                                         data_operate(&erect_Inc_X[1]);break;
-                                    case 7:     // angleå‰åå¹³è¡¡å‚æ•°
+                                    case 7:     // angleÇ°ºóÆ½ºâ²ÎÊı
                                         data_operate(&erect_Inc_X[2]);break;
                                     case 8:
                                         data_operate(&erect_Inc_Y[0]);break;
@@ -794,7 +794,7 @@ void menu(void)
                                         data_operate(&erect_Inc_Y[1]);break;
                                     case 10:
                                         data_operate(&erect_Inc_Y[2]);break;
-                                    case 11:     // angleå‰åå¹³è¡¡å‚æ•°
+                                    case 11:     // angleÇ°ºóÆ½ºâ²ÎÊı
                                         data_operate(&erect_Inc_Roll[0]);break;
                                     case 12:
                                         data_operate(&erect_Inc_Roll[1]);break;
@@ -809,7 +809,7 @@ void menu(void)
                                     default:break;
                                 }// page3-cursor end
                             }break;// page3 end
-                        case 3:     //ç¬¬å››é¢ å›¾åƒå‚æ•°
+                        case 3:     //µÚËÄÃæ Í¼Ïñ²ÎÊı
                             ips200_show_string( 20, 0*8, "page: 444444444" );
                             ips200_show_string( 20, 1*8, "Thres_Filiter:" );
                             ips200_show_uint(  100, 1*8,  Thres_Filiter_Flag_1, 3);
@@ -897,12 +897,12 @@ void menu(void)
                             else
                                 ips200_show_string( 0, (cursor*8), "---" );
 
-                            // æ ¹æ®å…‰æ ‡ä½ç½®é€‰æ‹©å¯¹åº”å˜é‡æ“ä½œ
+                            // ¸ù¾İ¹â±êÎ»ÖÃÑ¡Ôñ¶ÔÓ¦±äÁ¿²Ù×÷
                             if(key)
                             {
                                 switch(cursor)
                                 {
-                                    case 0:     // æœ€ä¸Šä¸€è¡Œç”¨æ¥ç¿»é¢
+                                    case 0:     // ×îÉÏÒ»ĞĞÓÃÀ´·­Ãæ
                                         if(key_detect(KEY_3, KEY_SHORT_PRESS)){
                                             ips200_clear();
                                             page++;}
@@ -975,7 +975,7 @@ void menu(void)
                                     default:break;
                                 }// page4-cursor end
                             }break;
-                        case 4:     //ç¬¬äº”é¢ è·³è·ƒä¸å•è¾¹æ¡¥
+                        case 4:     //µÚÎåÃæ ÌøÔ¾Óëµ¥±ßÇÅ
                             ips200_show_string( 20, 0*8, "page: 555555555" );
                             ips200_show_string( 20, 1*8,"Jump_Line:" );
                             ips200_show_uint(  100, 1*8, jump_line, 3 );
@@ -1033,12 +1033,12 @@ void menu(void)
                             else
                                 ips200_show_string( 0, (cursor*8), "---" );
 
-                            // æ ¹æ®å…‰æ ‡ä½ç½®é€‰æ‹©å¯¹åº”å˜é‡æ“ä½œ
+                            // ¸ù¾İ¹â±êÎ»ÖÃÑ¡Ôñ¶ÔÓ¦±äÁ¿²Ù×÷
                             if(key)
                             {
                                 switch(cursor)
                                 {
-                                    case 0:     // æœ€ä¸Šä¸€è¡Œç”¨æ¥ç¿»é¢
+                                    case 0:     // ×îÉÏÒ»ĞĞÓÃÀ´·­Ãæ
                                         if(key_detect(KEY_3, KEY_SHORT_PRESS)){
                                             ips200_clear();
                                             page++;}
@@ -1088,9 +1088,9 @@ void menu(void)
         }// page allend
         if(key_detect(KEY_4, KEY_SHORT_PRESS))
         {
-            // å­˜å…¥æ•°æ®
+            // ´æÈëÊı¾İ
             store_or_read_DATA(WRITE);
-            // è¯»å‡º
+            // ¶Á³ö
             store_or_read_DATA(READ);
             if(Change_Control)
                 mt9v03x_init();
@@ -1101,12 +1101,12 @@ void menu(void)
 
     }//menu_mode == 0 end
     if( menu_mode == 1 )
-    {   // é€€å‡ºèœå•è¿›å…¥æ­£å¸¸å¯»è¿¹æ¨¡å¼
-        // èœå•å¾ˆæ¶ˆè€—ç®—åŠ›ï¼Œå› ä¸ºæœ‰å¤§é‡çš„å±å¹•æ˜¾ç¤ºä¸switchè¯­å¥
-        // ä¸è¦å¼€ç€èœå•è·‘è½¦ã€‚
+    {   // ÍË³ö²Ëµ¥½øÈëÕı³£Ñ°¼£Ä£Ê½
+        // ²Ëµ¥ºÜÏûºÄËãÁ¦£¬ÒòÎªÓĞ´óÁ¿µÄÆÁÄ»ÏÔÊ¾ÓëswitchÓï¾ä
+        // ²»Òª¿ª×Å²Ëµ¥ÅÜ³µ¡£
 
-//        /********************************************é€šç”¨æ•°æ®æ˜¾ç¤º********************************************/
-//        //eulerè§’,è§’é€Ÿåº¦
+//        /********************************************Í¨ÓÃÊı¾İÏÔÊ¾********************************************/
+//        //euler½Ç,½ÇËÙ¶È
 //        ips200_show_string(0 , 0*8 , "roll:");
 //        ips200_show_float( 0 , 1*8 , imu660ra.eulerAngle.roll  , 3 , 3 );
 //        ips200_show_float( 0 , 2*8 , imu660ra.data_Raw.gyro_x , 3 , 3 );
@@ -1122,19 +1122,19 @@ void menu(void)
 ////        ips200_show_int( 0, 13*8, motor_value.receive_right_speed_data, 5 );
 //
 //        ips200_show_float( 0 , 38*8 , Battery_voltage , 4 , 3 );
-//        /********************************************é€šç”¨æ•°æ®æ˜¾ç¤º********************************************/
+//        /********************************************Í¨ÓÃÊı¾İÏÔÊ¾********************************************/
 //        if(key_detect(KEY_2, KEY_SHORT_PRESS))
-//        {   // é€€å‡ºæ‰€æœ‰å…ƒç´ 
+//        {   // ÍË³öËùÓĞÔªËØ
 //            Element_Break_Flag = 1;
 //            ips200_clear();
 //        }
         if(key_detect(KEY_3, KEY_SHORT_PRESS))
-        {   // å€’åœ°ä¿æŠ¤åé‡æ–°å‘è½¦
+        {   // µ¹µØ±£»¤ºóÖØĞÂ·¢³µ
             flag_stop = !flag_stop;
             ips200_clear();
         }
         if(key_detect(KEY_4, KEY_SHORT_PRESS))
-        {   // éœ€è¦è°ƒå‚ï¼Œå›åˆ°èœå•é¡µé¢
+        {   // ĞèÒªµ÷²Î£¬»Øµ½²Ëµ¥Ò³Ãæ
             menu_mode = 0;
             ips200_clear();
         }
@@ -1143,12 +1143,12 @@ void menu(void)
 
 }
 //----------------------------------------------------------------
-//  @brief      ä½¿ç”¨é€é£åº“è‡ªå°è£…çš„æŒ‰é”®æ£€æµ‹ï¼Œè‡ªæ¸…é›¶ã€‚
-//  @param      key_n     ç›®æ ‡æŒ‰é”®ï¼Œå®šä¹‰åœ¨.h
-//  @param      state     ç›®æ ‡çŠ¶æ€ï¼Œå®šä¹‰åœ¨.h
-//  @return     int       0ä¸ºæœªæ£€æµ‹åˆ°ï¼Œ1ä¸ºæ£€æµ‹åˆ°ç›®æ ‡çŠ¶æ€
+//  @brief      Ê¹ÓÃÖğ·É¿â×Ô·â×°µÄ°´¼ü¼ì²â£¬×ÔÇåÁã¡£
+//  @param      key_n     Ä¿±ê°´¼ü£¬¶¨ÒåÔÚ.h
+//  @param      state     Ä¿±ê×´Ì¬£¬¶¨ÒåÔÚ.h
+//  @return     int       0ÎªÎ´¼ì²âµ½£¬1Îª¼ì²âµ½Ä¿±ê×´Ì¬
 //  @note       write by laterain, 2025.2.19
-//              KEY_LONG_PRESSå’ŒKEY_ONCE_LONG_PRESSä¸èƒ½åŒæ—¶æ£€æµ‹
+//              KEY_LONG_PRESSºÍKEY_ONCE_LONG_PRESS²»ÄÜÍ¬Ê±¼ì²â
 //----------------------------------------------------------------
 int key_detect(key_index_enum key_n, key_state_enum state)
 {

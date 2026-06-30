@@ -1,7 +1,7 @@
 /*
  * Init.c
  *
- *  Created on: 2024ï¿½??2ï¿½??ï¿½??
+ *  Created on: 2024Äê2ÔÂ
  *      Author: 21912
  */
 #include "zf_common_headfile.h"
@@ -21,26 +21,27 @@ void Init_All(void)
     clock_init(SYSTEM_CLOCK_250M);
     debug_init();
 
-    // é–«å‚šç¶‹é¨å‹«æ¬¢éƒè·ºæ‚—é¦ã„¨ç¹˜ç›å±½åµæ¿®å¬ªå¯²
+    // µÈ´ıÏµÍ³µçÔ´ÎÈ¶¨
     system_delay_ms(100);
 
-    //    gpio_init(P33_10, GPO, 0, GPO_PUSH_PULL);            // é“šå‚ç¦é£?
+    //    gpio_init(P33_10, GPO, 0, GPO_PUSH_PULL);            // ·äÃùÆ÷
+    gpio_init(P19_3, GPO, GPIO_HIGH, GPO_PUSH_PULL);      // P19_3 À­¸ß
     pwm_init(TCPWM_CH28_P10_0, 3000, 0);
-    key_init(10);         // é¸å¤ï¿½?
-    wireless_uart_init(); // éƒçŠµåšæ¶“æ’å½›
-                          //   lora3a22_init();//é¥æ§åˆå§‹åŒ–
+    key_init(10);         // °´¼ü³õÊ¼»¯
+    wireless_uart_init(); // ÎŞÏß´®¿Ú³õÊ¼»¯
+    lora3a22_init();//Ò£¿Ø³õÊ¼»¯
     dl1b_init();
-    imu660ra_init();                      // é—„â‚¬é“»è½°ï¿½?
+    imu660ra_init();                      // IMU³õÊ¼»¯
                                           //  gyroOffset_init();
-    adc_init(ADC0_CH06_P06_6, ADC_12BIT); // é¢å«ï¿½?
-    //                                       // mt9v03x_init();                       // é¬å©šæ‡æ¤‹?
-                                          //    uart_init (WIRELESS_UART_INDEX, WIRELESS_UART_BUAD_RATE, WIRELESS_UART_RX_PIN, WIRELESS_UART_TX_PIN);   // é’æ¿†îé–æ ¦è¦†ï¿½??
+    adc_init(ADC0_CH06_P06_6, ADC_12BIT); // ADC³õÊ¼»¯
+    //                                       // mt9v03x_init();                       // ÉãÏñÍ·³õÊ¼»¯
+                                          //    uart_init (WIRELESS_UART_INDEX, WIRELESS_UART_BUAD_RATE, WIRELESS_UART_RX_PIN, WIRELESS_UART_TX_PIN);   // ÎŞÏß´®¿Ú³õÊ¼»¯
 
     // IPS
-    ips200_set_font(IPS200_6X8_FONT);             // ç’å‰§ç–†ç€›æ¤¾ç¶‹æ¾¶Ñƒçš¬æ¶“?6 * 8éå¿•ï¿½?
-    ips200_set_color(RGB565_BLACK, RGB565_WHITE); // ç’å‰§ç–†æ£°æ»†å£Šæ¶“å“„åƒµé‘¹?
-    ips200_set_dir(IPS200_PORTAIT);               // ç’å‰§ç–†æ¶“è™¹ç«çå¿”æ¨‰ç»€?
-    ips200_init(IPS200_TYPE_PARALLEL8);           // é™å±¾å¸“éªè·ºå½›å¨†æƒ§ï¿½?
+    ips200_set_font(IPS200_6X8_FONT);             // ÉèÖÃ×ÖÌå´óĞ¡ 6 * 8
+    ips200_set_color(RGB565_BLACK, RGB565_WHITE); // ÉèÖÃÎª²ÊÉ«
+    ips200_set_dir(IPS200_PORTAIT);               // ÉèÖÃÎªÊúÆÁ
+    ips200_init(IPS200_TYPE_SPI);           // IPS²¢¿Ú³õÊ¼»¯
 
     flash_init();
     // Init_Nag();
@@ -51,13 +52,13 @@ void Init_All(void)
     //    wifi_spi_init("team", "12345qwert",WIFI_SPI_STATION);
     //    detector_init(DETECTOR_WIFI_SPI);
 
-    // ç€¹æ°­æ¤‚é£?
-    pit_ms_init(PIT_CH0, 1); // ç’å‰§ç–†é›ã„¦æ¹¡æ¶“î…Ÿï¿½?1ms
+    // ¶¨Ê±Æ÷³õÊ¼»¯
+    pit_ms_init(PIT_CH0, 1); // ÉèÖÃ¶¨Ê±Æ÷ÖÜÆÚ 1ms
 
-    // é™å‚›æšŸé’æ¿†îï¿½??
+    // PID²ÎÊıÓë×ËÌ¬Æ«ÒÆ³õÊ¼»¯
 
-    imu660ra.offset_angle.pitch = 19.39; // ï¿½??5ï¿½??.1
-    imu660ra.offset_angle.roll = 6.39;   //
+    imu660ra.offset_angle.pitch = 19.39; // ¸©Ñö½ÇÁãÆ«Ğ£×¼Öµ
+    imu660ra.offset_angle.roll = 6.39;   // ºá¹ö½ÇÁãÆ«Ğ£×¼Öµ
     Yao.Target_Speed = 0;
     Yao.Target_height = 3;
 
@@ -69,14 +70,14 @@ void Init_All(void)
     pid_para_init(&PID_all.Pid_Gyro_Yaw);
     pid_para_init(&PID_all.Pid_Angle_Yaw);
 
-    // // é‘¿æ»ƒï¿½?
-    if (menu_open && !flash_check(0, 1))        // Flash page 1 éç©ºç™½æ‰åŠ è½½
+    // // ²Ëµ¥
+    if (menu_open && !flash_check(0, 1))        // Flash page 1 ÊÇ¿Õ°×Ò³²ÅÄÜĞ´Èë
     store_or_read_DATA(READ);
-    
-     system_delay_ms(100);
-    //    mt9v03x_init();                                     // é¬å©šæ‡æ¤‹?
 
-    // é‘¸å«æº€PWMé’æ¿†îé–?
+     system_delay_ms(100);
+    //    mt9v03x_init();                                     // ÉãÏñÍ·³õÊ¼»¯
+
+    // ¶æ»úPWM³õÊ¼»¯
     servo_init();
     EKF_Init();
 
@@ -87,20 +88,20 @@ void Init_All(void)
     //     store_or_read_DATA(READ);
     // }
 
-    // å¯åŠ¨å¼€æœºè§’åº¦æ ¡å‡†
+    // Ô¤Áô×ËÌ¬½Ç¶ÈĞ£×¼
     // calibrate_state = 1;
     // calibrate_count = 0;
     // calibrate_sum = 0;
     // calibrate_offset = 0;
-    // é–«å‚šç¶‹é¨å‹«æ¬¢éƒè·ºæ‚—é¦ã„¨ç¹˜ç›å±½åµæ¿®å¬ªå¯²
+    // µÈ´ıÏµÍ³µçÔ´ÎÈ¶¨
     // system_delay_ms(100);
 
-    // mt9v03x_init();                                     // é¬å©šæ‡æ¤‹?
+    // mt9v03x_init();                                     // ÉãÏñÍ·³õÊ¼»¯
 
-    // æ¶“â‚¬é’å›§å™¯æ¾¶å›§æ°¨ï¿½??éƒçŠ²åŸ›æ¤¹åå§©é’æ¿†îé–?
+    // ³õÊ¼»¯GPSµ¼º½Ä£¿éÇı¶¯
     // Initialize GNSS driver for GPS navigation.
     gnss_init(TAU1201);
-    gps_nav_init();  // åˆå§‹åŒ–GPSå¯¼èˆªæ¨¡å—ï¼ˆèˆªç‚¹+æ ¡å‡†+çŠ¶æ€æœºï¼‰
+    gps_nav_init();  // ³õÊ¼»¯GPSµ¼º½Ä£¿é£¨º½µã+Ğ£×¼+×´Ì¬»ú£©
 
     // Initialize steering fusion placeholders and debug outputs.
     // Subject-1 background default:
@@ -108,7 +109,7 @@ void Init_All(void)
     // - pure vision localization + cone avoidance
     // steer_turn_init();
 
-    // å…¨éƒ¨ GPIO å¼•è„šæ¨æŒ½è¾“å‡ºæ‹‰é«˜
+    // È«²¿ GPIO ³õÊ¼»¯£¨µ÷ÊÔÓÃ£¬ÒÑ×¢ÊÍ£©
     //  {
     //      const gpio_pin_enum all_pins[] = {
     //          P00_0, P00_1, P00_2, P00_3,
@@ -143,66 +144,66 @@ void Init_All(void)
 
     // small_driver_uart_init();
 
-    // INS æƒ¯å¯¼åˆå§‹åŒ–
+    // INS ¹ßµ¼³õÊ¼»¯
     // ins_core_init();
     // ins_track_init();
-    // ins_api_load_imu_bias();  // ä» Flash åŠ è½½é™€èºä»ªé›¶å
+    // ins_api_load_imu_bias();  // ´Ó Flash ¼ÓÔØÍÓÂİÒÇÁãÆ«
 
     // cpu_wait_event_ready();
 }
 
-#define WINDOW_SIZE 30 // å©Šæˆå§©ç»æ¥€å½›æ¾¶Ñƒçš¬é”›å±¼ç¬Œï¿½??0å¨†â€³æ½éŠé—´ç«´é‘·?
-#define OFFSET_MM 10   // é‹å¿•Ğ©é–²å¿¥ç´æ¶“åº¡å¸«é‘èŠ¥æšŸæ¶“â‚¬é‘·?
+#define WINDOW_SIZE 30 // »¬¶¯´°¿Ú´óĞ¡£¬ÓÃÓÚ30´Î¾ùÖµÂË²¨
+#define OFFSET_MM 10   // TOF¾àÀëÆ«ÒÆĞŞÕıÁ¿(mm)
 
-// é—ˆæ¬â‚¬ä½¸å½‰é–²å¿¥ç´æ·‡æ¿†ç“¨å©Šæˆå§©ç»æ¥€å½›éç‰ˆåµéœå²€å‚¨å¯®?
-static uint16_t tof_window[WINDOW_SIZE] = {0}; // ç»æ¥€å½›éæ‰®ç²é”›å±½åµæ¿®å¬ªå¯²ï¿½??
-static uint8_t tof_index = 0;                  // è¤°æ’³å¢ ç»±ãˆ ç´©
-static uint32_t tof_sum = 0;                   // ç»æ¥€å½›éå‘®æšŸé¹î†¾æ®‘é¬è¯²æ‹°
-static uint8_t tof_initialized = 0;            // é’æ¿†îé–æ ¨çˆ£ï¿½??
+// »¬¶¯´°¿Ú¾ùÖµÂË²¨Æ÷×´Ì¬±äÁ¿
+static uint16_t tof_window[WINDOW_SIZE] = {0}; // »¬¶¯´°¿ÚÊı¾İ»º³åÇø
+static uint8_t tof_index = 0;                  // ´°¿ÚË÷Òı
+static uint32_t tof_sum = 0;                   // ´°¿ÚÄÚÊı¾İÀÛ¼ÓºÍ
+static uint8_t tof_initialized = 0;            // ³õÊ¼»¯Íê³É±êÖ¾
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      TOFç’ºæ¿ˆî‡é‘¾å³°å½‡é”›å Ÿç²¦é”ã„§ç¥é™ï½†æŠ¤å¨‰î®ç´š
-//  @param      ï¿½??
-//  @return     å©Šã‚†å°éšåº£æ®‘ç’ºæ¿ˆî‡é”›å å´Ÿæµ£å¶ç´°mmï¿½??
-//  @note       æµ£è·¨æ•¤å©Šæˆå§©ç»æ¥€å½›å©Šã‚†å°é”›å²€ç¥é™ï½…ã‡ï¿½??0é”›å±½å™ºé˜?0mmé‹å¿•Ğ©
+//  @brief      TOF²â¾à´«¸ĞÆ÷»¬¶¯´°¿Ú¾ùÖµÂË²¨
+//  @param      ÎŞ
+//  @return     ÂË²¨ºóµÄ¾àÀëÖµ(mm)
+//  @note       Ê¹ÓÃ»¬¶¯´°¿Ú¾ùÖµÂË²¨£¬×î´ó30´Î²ÉÑù¡¢Æ«ÒÆ10mmĞŞÕı
 //-------------------------------------------------------------------------------------------------------------------
 uint16_t tof_dl1b_get_mm(void)
 {
-    // é‘¾å³°å½‡é‚æ‹Œçª›ç»‚ç»˜æšŸé¹?
+    // ¶ÁÈ¡TOF²â¾à¾àÀë
     dl1b_get_distance();
     uint16_t new_distance = dl1b_distance_mm;
 
-    // æ¿¡å‚›ç‰ç»æ¥€å½›éˆî„åµæ¿®å¬ªå¯²é”›å±½ï½éå‘­åµæ¿®å¬«æšŸï¿½??
+    // Ê×´Îµ÷ÓÃÊ±Ìî³äÕû¸ö´°¿Ú
     if (!tof_initialized)
     {
         for (uint8_t i = 0; i < WINDOW_SIZE; i++)
         {
-            tof_window[i] = new_distance; // é€ï¿½ï¿½î›»å¨†â„ƒç¥´é–²å¿“â‚¬ç…ï½é?
+            tof_window[i] = new_distance; // Ê×´Î²ÉÑùÖµÌî³ä´°¿Ú
             tof_sum += new_distance;
         }
         tof_initialized = 1;
     }
     else
     {
-        // é‡å­˜æŸŠå©Šæˆå§©ç»æ¥€ï¿½?
-        tof_sum -= tof_window[tof_index];     // ç»‰å©šæ«éˆâ‚¬éƒÑ„æšŸé¹?
-        tof_window[tof_index] = new_distance; // å¨£è¯²å§é‚ç‰ˆæšŸï¿½??
-        tof_sum += new_distance;              // é‡å­˜æŸŠé¬è¯²æ‹°
+        // »¬¶¯´°¿Ú¸üĞÂ
+        tof_sum -= tof_window[tof_index];     // ÒÆ³ı×î¾ÉµÄÊı¾İ
+        tof_window[tof_index] = new_distance; // Ìí¼ÓĞÂµÄÊı¾İ
+        tof_sum += new_distance;              // ¸üĞÂÀÛ¼ÓºÍ
     }
 
-    // é‡å­˜æŸŠç»±ãˆ ç´©é”›å æƒŠéœîˆ™å¨‡é€ï¿½ï¿½ç¥é™ï½ç´š
+    // ¸üĞÂ´°¿ÚË÷Òı£¨»·ĞÎ»º³å£©
     tof_index = (tof_index + 1) % WINDOW_SIZE;
 
-    // ç’ï¼„ç•»éªå†²æ½éŠç…è‹Ÿé‘å¿“å¹“é‹å¿•Ğ©
+    // ¼ÆËã¾ùÖµ²¢¼õÈ¥Æ«ÒÆ
     uint16_t avg_distance = tof_sum / WINDOW_SIZE;
     return (avg_distance >= OFFSET_MM) ? (avg_distance - OFFSET_MM) : 0;
 }
 
 ////-------------------------------------------------------------------------------------------------------------------
 ////  @brief      tof __lw__
-////  @param      ï¿½??
-////  @return     ï¿½??
-////  @note       éºãƒ¦æ•¹éç‰ˆåµé”çŠ±ï¿½?10å¨†â€³æ½éŠå…¼æŠ¤å¨‰?é—æ›šç¶…é”›æ­®m
+////  @param      ÎŞ
+////  @return     ÎŞ
+////  @note       ¼òµ¥¾ùÖµÂË²¨£¬10´Î²ÉÑùÂË²¨ºó·µ»Ømm
 ////-------------------------------------------------------------------------------------------------------------------
 // uint16 tof_dl1b(void)
 //{

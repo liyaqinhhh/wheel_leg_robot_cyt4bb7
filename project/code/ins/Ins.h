@@ -1,122 +1,122 @@
 /*
  * Ins.h
  *
- *  Created on: 2024å¹´6æœˆ6æ—¥
+ *  Created on: 2024Äê6ÔÂ6ÈÕ
  *      Author: LateRain
  *
- *  æƒ¯å¯¼æ¨¡å— â€”â€” å•è½¨èˆªç‚¹è®°å½•ä¸å¾ªè¿¹ + åˆ†æ®µæƒ¯å¯¼è½¬å‘
+ *  ¹ßµ¼Ä£¿é ---- µ¥¹ìº½µã¼ÇÂ¼ÓëÑ­¼£ + ·Ö¶Î¹ßµ¼×ª·¢
  *  =====================================================
  *
- *  æ¨¡å—èŒè´£:
- *    1. åæ ‡ç³»å®šä¹‰: Coordinates ç»“æ„ä½“ (double ç²¾åº¦ XY åæ ‡)
- *    2. å®æ—¶åæ ‡æ›´æ–°: get_realtime_coordinate() èˆªä½æ¨ç®—
- *    3. ç›®æ ‡è®¡ç®—: get_target() è®¡ç®—è·ç¦» dis_ins å’Œæ–¹ä½è§’ yaw_ins
- *    4. å•è½¨æƒ¯å¯¼: ins_navigation() çŠ¶æ€æœº (ins_mode=0 å½•ç‚¹, ins_mode=1 å¾ªè¿¹)
- *    5. åˆ†æ®µæƒ¯å¯¼è½¬å‘: ins_mode=2/3 â†’ ins_segment.c
+ *  Ä£¿éÖ°Ôğ:
+ *    1. ×ø±êÏµ¶¨Òå: Coordinates ½á¹¹Ìå (double ¾«¶È XY ×ø±ê)
+ *    2. ÊµÊ±×ø±ê¸üĞÂ: get_realtime_coordinate() º½Î»ÍÆËã
+ *    3. Ä¿±ê¼ÆËã: get_target() ¼ÆËã¾àÀë dis_ins ºÍ·½Î»½Ç yaw_ins
+ *    4. µ¥¹ì¹ßµ¼: ins_navigation() ×´Ì¬»ú (ins_mode=0 Â¼µã, ins_mode=1 Ñ­¼£)
+ *    5. ·Ö¶Î¹ßµ¼×ª·¢: ins_mode=2/3 ¡ú ins_segment.c
  *
- *  è°ƒç”¨é“¾è·¯:
- *    Interrupt.c 16msä¸­æ–­ â†’ get_realtime_coordinate(speed, 0.016, yaw)
- *    main_cm7_0.c ä¸»å¾ªç¯   â†’ ins_navigation() [æ¯å¸§]
- *    Interrupt.c 4msä¸­æ–­  â†’ turn_mode==7 â†’ è¯»å– yaw_ins åš PID é—­ç¯è½¬å‘
+ *  µ÷ÓÃÁ´Â·:
+ *    Interrupt.c 16msÖĞ¶Ï ¡ú get_realtime_coordinate(speed, 0.016, yaw)
+ *    main_cm7_0.c Ö÷Ñ­»·   ¡ú ins_navigation() [Ã¿Ö¡]
+ *    Interrupt.c 4msÖĞ¶Ï  ¡ú turn_mode==7 ¡ú ¶ÁÈ¡ yaw_ins ×ö PID ±Õ»·×ªÏò
  *
- *  å…¨å±€å˜é‡:
- *    cod_realtime      å®æ—¶åæ ‡ (ç”± get_realtime_coordinate ç´¯åŠ æ›´æ–°)
- *    cod_saved[30]     å½•åˆ¶æš‚å­˜ (ins_mode=0 æŒ‰é”®å½•ç‚¹)
- *    cod_target[30]    å¯¼èˆªç›®æ ‡ (ins_mode=1 Flash åŠ è½½åçš„èˆªç‚¹)
- *    dis_ins           åˆ°ç›®æ ‡ç‚¹çš„è·ç¦» (ç”± get_target è®¡ç®—)
- *    yaw_ins           åˆ°ç›®æ ‡ç‚¹çš„æ–¹ä½è§’ 0~360Â° (ç”± get_target è®¡ç®—)
- *    ins_mode          æƒ¯å¯¼æ¨¡å¼: 0=å½•ç‚¹ 1=å¾ªè¿¹ 2=åˆ†æ®µç¼–è¾‘ 3=åˆ†æ®µå¯¼èˆª
- *    n                 èˆªç‚¹æ•°é‡ (å½•åˆ¶/åŠ è½½)
- *    target            å½“å‰ç›®æ ‡èˆªç‚¹ç´¢å¼• (ins_mode=1)
- *    flag_save         Flash ä¿å­˜çŠ¶æ€æ ‡è®°
+ *  È«¾Ö±äÁ¿:
+ *    cod_realtime      ÊµÊ±×ø±ê (ÓÉ get_realtime_coordinate ÀÛ¼Ó¸üĞÂ)
+ *    cod_saved[30]     Â¼ÖÆÔİ´æ (ins_mode=0 °´¼üÂ¼µã)
+ *    cod_target[30]    µ¼º½Ä¿±ê (ins_mode=1 Flash ¼ÓÔØºóµÄº½µã)
+ *    dis_ins           µ½Ä¿±êµãµÄ¾àÀë (ÓÉ get_target ¼ÆËã)
+ *    yaw_ins           µ½Ä¿±êµãµÄ·½Î»½Ç 0~360¡ã (ÓÉ get_target ¼ÆËã)
+ *    ins_mode          ¹ßµ¼Ä£Ê½: 0=Â¼µã 1=Ñ­¼£ 2=·Ö¶Î±à¼­ 3=·Ö¶Îµ¼º½
+ *    n                 º½µãÊıÁ¿ (Â¼ÖÆ/¼ÓÔØ)
+ *    target            µ±Ç°Ä¿±êº½µãË÷Òı (ins_mode=1)
+ *    flag_save         Flash ±£´æ×´Ì¬±ê¼Ç
  */
 
 #ifndef CODE_CENTER_INS_H_
 #define CODE_CENTER_INS_H_
 
-#include "ins_segment.h"  /* åˆ†æ®µæƒ¯å¯¼æ¨¡å—: ins_mode=2/3 çš„å…¥å£å£°æ˜ */
+#include "ins_segment.h"  /* ·Ö¶Î¹ßµ¼Ä£¿é: ins_mode=2/3 µÄÈë¿ÚÉùÃ÷ */
 
 /*
- * è§’åº¦/å¼§åº¦äº’è½¬å®
- * ä½¿ç”¨ double ç²¾åº¦ PI, é¿å… float æˆªæ–­è¯¯å·®åœ¨èˆªä½æ¨ç®—ä¸­ç´¯ç§¯
+ * ½Ç¶È/»¡¶È»¥×ªºê
+ * Ê¹ÓÃ double ¾«¶È PI, ±ÜÃâ float ½Ø¶ÏÎó²îÔÚº½Î»ÍÆËãÖĞÀÛ»ı
  */
-#define ANGLE_TO_RAD(x)     ( (x) * PI / 180.0 )   /* åº¦ â†’ å¼§åº¦ */
-#define RAD_TO_ANGLE(x)     ( (x) * 180.0 / PI )   /* å¼§åº¦ â†’ åº¦ */
-#define PI                  ( 3.1415926535898 )    /* double ç²¾åº¦åœ†å‘¨ç‡ */
+#define ANGLE_TO_RAD(x)     ( (x) * PI / 180.0 )   /* ¶È ¡ú »¡¶È */
+#define RAD_TO_ANGLE(x)     ( (x) * 180.0 / PI )   /* »¡¶È ¡ú ¶È */
+#define PI                  ( 3.1415926535898 )    /* double ¾«¶ÈÔ²ÖÜÂÊ */
 
 /*
- * åæ ‡ç»“æ„ä½“
- * ä½¿ç”¨ double (64ä½ IEEE 754) è€Œé float (32ä½):
- *   - CYT4BB7 Cortex-M7 æœ‰ç¡¬ä»¶ FPU, double è¿ç®—å¼€é”€å¯æ¥å—
- *   - èˆªä½æ¨ç®—éœ€é•¿æ—¶é—´ç´¯åŠ , float çš„ 7 ä½æœ‰æ•ˆæ•°å­—ä¸å¤Ÿ,
- *     ä¾‹å¦‚è·‘ 1000 ç±³å float ç²¾åº¦é™è‡³ Â±0.1m,
- *     double çš„ 15 ä½æœ‰æ•ˆæ•°å­—å¯ä¿æŒ Â±0.0001m ç²¾åº¦
+ * ×ø±ê½á¹¹Ìå
+ * Ê¹ÓÃ double (64Î» IEEE 754) ¶ø·Ç float (32Î»):
+ *   - CYT4BB7 Cortex-M7 ÓĞÓ²¼ş FPU, double ÔËËã¿ªÏú¿É½ÓÊÜ
+ *   - º½Î»ÍÆËãĞè³¤Ê±¼äÀÛ¼Ó, float µÄ 7 Î»ÓĞĞ§Êı×Ö²»¹»,
+ *     ÀıÈçÅÜ 1000 Ã×ºó float ¾«¶È½µÖÁ ¡À0.1m,
+ *     double µÄ 15 Î»ÓĞĞ§Êı×Ö¿É±£³Ö ¡À0.0001m ¾«¶È
  */
 typedef struct {
-    double x;   /* X åæ ‡ (ä¸é€Ÿåº¦Ã—æ—¶é—´Ã—cos(åèˆª) åŒé‡çº²) */
-    double y;   /* Y åæ ‡ (ä¸é€Ÿåº¦Ã—æ—¶é—´Ã—sin(åèˆª) åŒé‡çº²) */
+    double x;   /* X ×ø±ê (ÓëËÙ¶È¡ÁÊ±¼ä¡Ácos(Æ«º½) Í¬Á¿¸Ù) */
+    double y;   /* Y ×ø±ê (ÓëËÙ¶È¡ÁÊ±¼ä¡Ásin(Æ«º½) Í¬Á¿¸Ù) */
 } Coordinates;
 
 /*
- * å®æ—¶åæ ‡æ›´æ–° (æ¯ 16ms ç”±ä¸­æ–­è°ƒç”¨)
- *   speed: ç¬æ—¶é€Ÿåº¦ (ç”µæœºç¼–ç å™¨å•ä½)
- *   time:  æ—¶é—´é—´éš” (ç§’, å½“å‰ä¸º 0.016 = 16ms)
- *   yaw:   å½“å‰åèˆªè§’ (åº¦, 0~359Â°, æ¥è‡ª imu660ra.eulerAngle.yaw)
+ * ÊµÊ±×ø±ê¸üĞÂ (Ã¿ 16ms ÓÉÖĞ¶Ïµ÷ÓÃ)
+ *   speed: Ë²Ê±ËÙ¶È (µç»ú±àÂëÆ÷µ¥Î»)
+ *   time:  Ê±¼ä¼ä¸ô (Ãë, µ±Ç°Îª 0.016 = 16ms)
+ *   yaw:   µ±Ç°Æ«º½½Ç (¶È, 0~359¡ã, À´×Ô imu660ra.eulerAngle.yaw)
  *
- * å…¬å¼: dx = speed Ã— time Ã— cos(yaw_rad)
- *       dy = speed Ã— time Ã— sin(yaw_rad)
- * ç´¯åŠ åˆ° cod_realtime.x / cod_realtime.y
+ * ¹«Ê½: dx = speed ¡Á time ¡Á cos(yaw_rad)
+ *       dy = speed ¡Á time ¡Á sin(yaw_rad)
+ * ÀÛ¼Óµ½ cod_realtime.x / cod_realtime.y
  *
- * å‰¯ä½œç”¨: å†™ IPS200 å±å¹• (è¡Œ 96/112) æ˜¾ç¤º X/Y åæ ‡
+ * ¸±×÷ÓÃ: Ğ´ IPS200 ÆÁÄ» (ĞĞ 96/112) ÏÔÊ¾ X/Y ×ø±ê
  */
 void get_realtime_coordinate( int speed, float time, float yaw );
 
 /*
- * è®¡ç®—ä» (x1,y1) åˆ° (x2,y2) çš„è·ç¦»å’Œæ–¹ä½è§’
- * è¾“å‡ºè®¾ç½®å…¨å±€å˜é‡:
- *   dis_ins = sqrt((x2-x1)^2 + (y2-y1)^2)   è·ç¦»
- *   yaw_ins = atan2(dy, dx) â†’ è§’åº¦ 0~360Â°  æ–¹ä½è§’
+ * ¼ÆËã´Ó (x1,y1) µ½ (x2,y2) µÄ¾àÀëºÍ·½Î»½Ç
+ * Êä³öÉèÖÃÈ«¾Ö±äÁ¿:
+ *   dis_ins = sqrt((x2-x1)^2 + (y2-y1)^2)   ¾àÀë
+ *   yaw_ins = atan2(dy, dx) ¡ú ½Ç¶È 0~360¡ã  ·½Î»½Ç
  *
- * æ­¤å‡½æ•°æ— å‰¯ä½œç”¨ (é™¤è®¾ç½® dis_ins/yaw_ins å¤–),
- * å¯è¢«åˆ†æ®µæƒ¯å¯¼æ¨¡å— ins_segment.c å¤ç”¨ã€‚
+ * ´Ëº¯ÊıÎŞ¸±×÷ÓÃ (³ıÉèÖÃ dis_ins/yaw_ins Íâ),
+ * ¿É±»·Ö¶Î¹ßµ¼Ä£¿é ins_segment.c ¸´ÓÃ¡£
  */
 void get_target( double x1, double y1, double x2, double y2 );
 
 /*
- * æƒ¯å¯¼ä¸»çŠ¶æ€æœº (åœ¨ä¸»å¾ªç¯ä¸­æ¯å¸§è°ƒç”¨)
+ * ¹ßµ¼Ö÷×´Ì¬»ú (ÔÚÖ÷Ñ­»·ÖĞÃ¿Ö¡µ÷ÓÃ)
  *
  * ins_mode=0 (INS_MODE_RECORD):
- *   å•è½¨å½•ç‚¹æ¨¡å¼ã€‚æŒ‰é”®æ“ä½œ:
- *     KEY_3 çŸ­æŒ‰ â†’ è®°å½• cod_realtime åˆ° cod_saved[n], n++
- *     KEY_2 çŸ­æŒ‰ â†’ ä¿å­˜èˆªç‚¹åˆ° Flash (é¡µ2=åæ ‡, é¡µ12=n)
- *     KEY_1 çŸ­æŒ‰ â†’ è¿›å…¥å¯¼èˆªæ¨¡å¼ ins_mode=1
+ *   µ¥¹ìÂ¼µãÄ£Ê½¡£°´¼ü²Ù×÷:
+ *     KEY_3 ¶Ì°´ ¡ú ¼ÇÂ¼ cod_realtime µ½ cod_saved[n], n++
+ *     KEY_2 ¶Ì°´ ¡ú ±£´æº½µãµ½ Flash (Ò³2=×ø±ê, Ò³12=n)
+ *     KEY_1 ¶Ì°´ ¡ú ½øÈëµ¼º½Ä£Ê½ ins_mode=1
  *
  * ins_mode=1 (INS_MODE_NAV_SINGLE):
- *   å•è½¨å¾ªè¿¹æ¨¡å¼ã€‚é¦–æ¬¡è¿›å…¥ä» Flash åŠ è½½èˆªç‚¹åˆ° cod_target[]ã€‚
- *   æ¯å¸§è°ƒç”¨ get_target() è®¡ç®— dis_ins/yaw_insã€‚
- *   åˆ°è¾¾åˆ¤å®š: dis_ins < 20 ä¸” dis_ins != 0
- *   åˆ°è¾¾å target++ æŒ‡å‘ä¸‹ä¸€èˆªç‚¹ã€‚
- *   target == 0 è¡¨ç¤ºå›åˆ°èµ·ç‚¹(åº“ä½) â†’ åœè½¦é€€å‡ºã€‚
- *   target == n æ—¶å›ç»•åˆ° target = 0 (å¾ªç¯è‡³åŸç‚¹)ã€‚
+ *   µ¥¹ìÑ­¼£Ä£Ê½¡£Ê×´Î½øÈë´Ó Flash ¼ÓÔØº½µãµ½ cod_target[]¡£
+ *   Ã¿Ö¡µ÷ÓÃ get_target() ¼ÆËã dis_ins/yaw_ins¡£
+ *   µ½´ïÅĞ¶¨: dis_ins < 20 ÇÒ dis_ins != 0
+ *   µ½´ïºó target++ Ö¸ÏòÏÂÒ»º½µã¡£
+ *   target == 0 ±íÊ¾»Øµ½Æğµã(¿âÎ») ¡ú Í£³µÍË³ö¡£
+ *   target == n Ê±»ØÈÆµ½ target = 0 (Ñ­»·ÖÁÔ­µã)¡£
  *
  * ins_mode=2 (INS_MODE_SEG_EDIT):
- *   åˆ†æ®µç¼–è¾‘æ¨¡å¼ â†’ è½¬å‘åˆ° ins_seg_edit_mode() (ins_segment.c)
+ *   ·Ö¶Î±à¼­Ä£Ê½ ¡ú ×ª·¢µ½ ins_seg_edit_mode() (ins_segment.c)
  *
  * ins_mode=3 (INS_MODE_SEG_RUN):
- *   åˆ†æ®µå¯¼èˆªæ¨¡å¼ â†’ è½¬å‘åˆ° ins_seg_run_mode() (ins_segment.c)
+ *   ·Ö¶Îµ¼º½Ä£Ê½ ¡ú ×ª·¢µ½ ins_seg_run_mode() (ins_segment.c)
  */
 void ins_navigation(void);
 
-/* ---- å…¨å±€å˜é‡ extern ---- */
+/* ---- È«¾Ö±äÁ¿ extern ---- */
 
-extern Coordinates cod_realtime;    /* å®æ—¶åæ ‡: ç”± get_realtime_coordinate ä¸æ–­ç´¯åŠ  */
-extern Coordinates cod_saved[30];   /* å½•åˆ¶æš‚å­˜: ins_mode=0 æŒ‰é”®å½•ç‚¹æ—¶æš‚å­˜, æœ€å¤š30ä¸ª */
-extern Coordinates cod_target[30];  /* å¯¼èˆªç›®æ ‡: ins_mode=1 ä» Flash åŠ è½½çš„èˆªç‚¹ */
-extern double dis_ins;              /* åˆ°ç›®æ ‡ç‚¹çš„è·ç¦» */
-extern double yaw_ins;              /* åˆ°ç›®æ ‡ç‚¹çš„æ–¹ä½è§’ 0~360Â° */
-extern uint8 ins_mode;              /* æƒ¯å¯¼æ¨¡å¼: 0/1/2/3 */
-extern uint8 n;                     /* èˆªç‚¹æ•°é‡ */
-extern uint8 target;                /* å½“å‰ç›®æ ‡èˆªç‚¹ç´¢å¼• */
-extern uint8 flag_save;             /* Flash ä¿å­˜çŠ¶æ€: 0=æœªä¿å­˜ 1=å·²ä¿å­˜ */
+extern Coordinates cod_realtime;    /* ÊµÊ±×ø±ê: ÓÉ get_realtime_coordinate ²»¶ÏÀÛ¼Ó */
+extern Coordinates cod_saved[30];   /* Â¼ÖÆÔİ´æ: ins_mode=0 °´¼üÂ¼µãÊ±Ôİ´æ, ×î¶à30¸ö */
+extern Coordinates cod_target[30];  /* µ¼º½Ä¿±ê: ins_mode=1 ´Ó Flash ¼ÓÔØµÄº½µã */
+extern double dis_ins;              /* µ½Ä¿±êµãµÄ¾àÀë */
+extern double yaw_ins;              /* µ½Ä¿±êµãµÄ·½Î»½Ç 0~360¡ã */
+extern uint8 ins_mode;              /* ¹ßµ¼Ä£Ê½: 0/1/2/3 */
+extern uint8 n;                     /* º½µãÊıÁ¿ */
+extern uint8 target;                /* µ±Ç°Ä¿±êº½µãË÷Òı */
+extern uint8 flag_save;             /* Flash ±£´æ×´Ì¬: 0=Î´±£´æ 1=ÒÑ±£´æ */
 
 #endif /* CODE_CENTER_INS_H_ */

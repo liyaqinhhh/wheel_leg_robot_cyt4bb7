@@ -40,9 +40,9 @@ SERIAL_PORT = "COM3"    # 修改为实际串口
 SERIAL_BAUD = 115200
 
 # ==================== 摇杆参数 ====================
-JOYSTICK_CENTER   = 1500
-JOYSTICK_MIN      = 500
-JOYSTICK_MAX      = 2500
+JOYSTICK_CENTER   = 0
+JOYSTICK_MIN      = -1000
+JOYSTICK_MAX      = 1000
 JOYSTICK_STEP     = 100
 JOYSTICK_DEADZONE = 50
 

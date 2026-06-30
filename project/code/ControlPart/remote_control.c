@@ -1,18 +1,18 @@
 /**
  * @file    remote_control.c
- * @brief   é¥æ§å™¨æ¨¡å— â€” äºŒè¿›åˆ¶å¸§åè®®è§£æ + è¶…æ—¶å®‰å…¨æ£€æµ‹
+ * @brief   Ò£¿ØÆ÷Ä£¿é -- ¶ş½øÖÆÖ¡Ğ­Òé½âÎö + ³¬Ê±°²È«¼ì²â
  *
- * é€šè¿‡ UART_1 æ— çº¿é€ä¼ æ¨¡å—æ¥æ”¶ PCB é¥æ§å™¨å‘é€çš„æ§åˆ¶å¸§ï¼Œ
- * è§£æåæ˜ å°„åˆ°æœºå™¨äººæ§åˆ¶å˜é‡ (é€Ÿåº¦/è½¬å‘/æ¨¡å¼/é«˜åº¦/æ€¥åœ)ã€‚
+ * Í¨¹ı UART_1 ÎŞÏßÍ¸´«Ä£¿é½ÓÊÕ PCB Ò£¿ØÆ÷·¢ËÍµÄ¿ØÖÆÖ¡£¬
+ * ½âÎöºóÓ³Éäµ½»úÆ÷ÈË¿ØÖÆ±äÁ¿ (ËÙ¶È/×ªÏò/Ä£Ê½/¸ß¶È/¼±Í£)¡£
  *
- * åè®®æ ¼å¼: [0x5A] [len] [type] [data...] [checksum]
+ * Ğ­Òé¸ñÊ½: [0x5A] [len] [type] [data...] [checksum]
  *   len    = 1(type) + len(data) + 1(checksum)
  *   checksum = len XOR type XOR data[0] XOR ... XOR data[n-1]
  *
- * å¸§å¤´è¯†åˆ«åˆ†å‘:
- *   0x5A â†’ é¥æ§å¸§ (æœ¬æ¨¡å—è§£æ)
- *   'P'  â†’ AIè°ƒå‚å¸§ (è½¬å‘ç»™ AI_Pid_Tuner_ProcessRx)
- *   å…¶ä»– â†’ ä¸¢å¼ƒ
+ * Ö¡Í·Ê¶±ğ·Ö·¢:
+ *   0x5A ¡ú Ò£¿ØÖ¡ (±¾Ä£¿é½âÎö)
+ *   'P'  ¡ú AIµ÷²ÎÖ¡ (×ª·¢¸ø AI_Pid_Tuner_ProcessRx)
+ *   ÆäËû ¡ú ¶ªÆú
  */
 
 #include "zf_common_headfile.h"
@@ -23,22 +23,22 @@
 #include "zf_device_wireless_uart.h"
 #include "AI_Pid_Tuner.h"
 
-/* ==================== å†…éƒ¨çŠ¶æ€ ==================== */
+/* ==================== ÄÚ²¿×´Ì¬ ==================== */
 
-static RemoteControl_t rc_data;            /* é¥æ§çŠ¶æ€æ•°æ® */
-static RC_ParserState  rc_state;           /* è§£æå™¨çŠ¶æ€ */
-static uint8_t         rc_rx_byte;         /* å½“å‰æ¥æ”¶å­—èŠ‚ */
-static uint8_t         rc_frame_len;       /* å½“å‰å¸§é•¿åº¦å­—æ®µ */
-static uint8_t         rc_frame_type;      /* å½“å‰å¸§ç±»å‹å­—æ®µ */
-static uint8_t         rc_data_buf[RC_FRAME_MAX_LEN]; /* æ•°æ®ç¼“å†²åŒº */
-static uint8_t         rc_data_idx;        /* æ•°æ®ç¼“å†²åŒºå†™å…¥ç´¢å¼• */
-static uint8_t         rc_checksum_calc;   /* è®¡ç®—ä¸­çš„æ ¡éªŒå€¼ */
+static RemoteControl_t rc_data;            /* Ò£¿Ø×´Ì¬Êı¾İ */
+static RC_ParserState  rc_state;           /* ½âÎöÆ÷×´Ì¬ */
+static uint8_t         rc_rx_byte;         /* µ±Ç°½ÓÊÕ×Ö½Ú */
+static uint8_t         rc_frame_len;       /* µ±Ç°Ö¡³¤¶È×Ö¶Î */
+static uint8_t         rc_frame_type;      /* µ±Ç°Ö¡ÀàĞÍ×Ö¶Î */
+static uint8_t         rc_data_buf[RC_FRAME_MAX_LEN]; /* Êı¾İ»º³åÇø */
+static uint8_t         rc_data_idx;        /* Êı¾İ»º³åÇøĞ´ÈëË÷Òı */
+static uint8_t         rc_checksum_calc;   /* ¼ÆËãÖĞµÄĞ£ÑéÖµ */
 
-/* è¶…æ—¶è®¡æ•°å™¨ (ä»¥40msä¸ºå•ä½, 500ms/40ms â‰ˆ 13) */
+/* ³¬Ê±¼ÆÊıÆ÷ (ÒÔ40msÎªµ¥Î», 500ms/40ms ¡Ö 13) */
 #define RC_TIMEOUT_COUNTS   13
 static uint8_t rc_timeout_counter = 0;
 
-/* ==================== å†…éƒ¨å‡½æ•°å£°æ˜ ==================== */
+/* ==================== ÄÚ²¿º¯ÊıÉùÃ÷ ==================== */
 
 static void rc_parser_reset(void);
 static void rc_parser_feed(uint8_t byte);
@@ -50,17 +50,17 @@ static void rc_handle_emergency(const uint8_t *data);
 static void rc_handle_heartbeat(void);
 static uint8_t rc_is_valid_turn_mode(uint8_t mode);
 
-/* ==================== API å®ç° ==================== */
+/* ==================== API ÊµÏÖ ==================== */
 
 /**
- * @brief  åˆå§‹åŒ–é¥æ§æ¨¡å—
- * @note   æ¸…é›¶çŠ¶æ€ï¼Œå¤ä½è§£æå™¨ï¼Œåº”åœ¨ wireless_uart_init() ä¹‹åè°ƒç”¨
+ * @brief  ³õÊ¼»¯Ò£¿ØÄ£¿é
+ * @note   ÇåÁã×´Ì¬£¬¸´Î»½âÎöÆ÷£¬Ó¦ÔÚ wireless_uart_init() Ö®ºóµ÷ÓÃ
  */
 void remote_control_init(void)
 {
     uint8_t i;
 
-    /* æ¸…é›¶é¥æ§çŠ¶æ€ */
+    /* ÇåÁãÒ£¿Ø×´Ì¬ */
     for (i = 0; i < 4; i++)
         rc_data.joystick[i] = 0;
     rc_data.active         = 0;
@@ -69,31 +69,31 @@ void remote_control_init(void)
     rc_data.frame_count    = 0;
     rc_data.error_count    = 0;
 
-    /* å¤ä½è§£æå™¨ */
+    /* ¸´Î»½âÎöÆ÷ */
     rc_parser_reset();
 
-    /* å¤ä½è¶…æ—¶è®¡æ•°å™¨ */
+    /* ¸´Î»³¬Ê±¼ÆÊıÆ÷ */
     rc_timeout_counter = 0;
 }
 
 /**
- * @brief  å¤„ç† UART_1 æ¥æ”¶æ•°æ®
- * @note   åœ¨ Interrupt_40ms() ä¸­è°ƒç”¨
- *         è¯»å– FIFO â†’ å¸§å¤´è¯†åˆ«åˆ†å‘ â†’ è§£æ â†’ æ˜ å°„
- *         0x5A â†’ é¥æ§å¸§è§£æ, 'P' â†’ AIè°ƒå‚å¤„ç†, å…¶ä»– â†’ ä¸¢å¼ƒ
+ * @brief  ´¦Àí UART_1 ½ÓÊÕÊı¾İ
+ * @note   ÔÚ Interrupt_40ms() ÖĞµ÷ÓÃ
+ *         ¶ÁÈ¡ FIFO ¡ú Ö¡Í·Ê¶±ğ·Ö·¢ ¡ú ½âÎö ¡ú Ó³Éä
+ *         0x5A ¡ú Ò£¿ØÖ¡½âÎö, 'P' ¡ú AIµ÷²Î´¦Àí, ÆäËû ¡ú ¶ªÆú
  */
 void remote_control_process(void)
 {
     uint8_t ch;
     uint32_t read_len;
 
-    /* ---- è¶…æ—¶æ£€æµ‹ ---- */
+    /* ---- ³¬Ê±¼ì²â ---- */
     if (rc_data.active)
     {
         rc_timeout_counter++;
         if (rc_timeout_counter >= RC_TIMEOUT_COUNTS)
         {
-            /* è¶…æ—¶: æ¸…é›¶æ§åˆ¶é‡, è§¦å‘å®‰å…¨åœè½¦ */
+            /* ³¬Ê±: ÇåÁã¿ØÖÆÁ¿, ´¥·¢°²È«Í£³µ */
             rc_data.active = 0;
             Yao.Target_Speed = 0;
             Deviation_Value  = 0;
@@ -102,39 +102,39 @@ void remote_control_process(void)
         }
     }
 
-    /* ---- é€å­—èŠ‚è¯»å– FIFO ---- */
+    /* ---- Öğ×Ö½Ú¶ÁÈ¡ FIFO ---- */
     while (1)
     {
         read_len = wireless_uart_read_buffer(&ch, 1);
         if (read_len == 0)
             break;
 
-        /* ---- å¸§å¤´è¯†åˆ«åˆ†å‘ ---- */
+        /* ---- Ö¡Í·Ê¶±ğ·Ö·¢ ---- */
         if (rc_state == RC_STATE_WAIT_HEADER)
         {
             if (ch == RC_FRAME_HEADER)
             {
-                /* 0x5A â†’ é¥æ§å¸§ï¼Œè¿›å…¥çŠ¶æ€æœºè§£æ */
+                /* 0x5A ¡ú Ò£¿ØÖ¡£¬½øÈë×´Ì¬»ú½âÎö */
                 rc_parser_feed(ch);
             }
             else if (ch == 'P')
             {
-                /* 'P' â†’ AIè°ƒå‚å¸§ï¼Œè½¬å‘ç»™AIè°ƒå‚æ¨¡å— */
+                /* 'P' ¡ú AIµ÷²ÎÖ¡£¬×ª·¢¸øAIµ÷²ÎÄ£¿é */
                 AI_Pid_Tuner_ProcessRx();
             }
-            /* å…¶ä»–å­—èŠ‚ â†’ ä¸¢å¼ƒ */
+            /* ÆäËû×Ö½Ú ¡ú ¶ªÆú */
         }
         else
         {
-            /* è§£æå™¨æ­£åœ¨å¤„ç†é¥æ§å¸§ï¼Œç»§ç»­å–‚å…¥ */
+            /* ½âÎöÆ÷ÕıÔÚ´¦ÀíÒ£¿ØÖ¡£¬¼ÌĞøÎ¹Èë */
             rc_parser_feed(ch);
         }
     }
 }
 
 /**
- * @brief  æŸ¥è¯¢é¥æ§æ˜¯å¦æ¿€æ´» (åœ¨è¶…æ—¶çª—å£å†…)
- * @return 1=æ¿€æ´», 0=è¶…æ—¶/æœªè¿æ¥
+ * @brief  ²éÑ¯Ò£¿ØÊÇ·ñ¼¤»î (ÔÚ³¬Ê±´°¿ÚÄÚ)
+ * @return 1=¼¤»î, 0=³¬Ê±/Î´Á¬½Ó
  */
 uint8_t remote_control_is_active(void)
 {
@@ -142,18 +142,18 @@ uint8_t remote_control_is_active(void)
 }
 
 /**
- * @brief  è·å–é¥æ§çŠ¶æ€æ•°æ® (è°ƒè¯•ç”¨)
- * @return æŒ‡å‘å†…éƒ¨ RemoteControl_t çš„æŒ‡é’ˆ
+ * @brief  »ñÈ¡Ò£¿Ø×´Ì¬Êı¾İ (µ÷ÊÔÓÃ)
+ * @return Ö¸ÏòÄÚ²¿ RemoteControl_t µÄÖ¸Õë
  */
 RemoteControl_t* remote_control_get_data(void)
 {
     return &rc_data;
 }
 
-/* ==================== è§£æå™¨å®ç° ==================== */
+/* ==================== ½âÎöÆ÷ÊµÏÖ ==================== */
 
 /**
- * @brief  å¤ä½è§£æå™¨çŠ¶æ€
+ * @brief  ¸´Î»½âÎöÆ÷×´Ì¬
  */
 static void rc_parser_reset(void)
 {
@@ -165,8 +165,8 @@ static void rc_parser_reset(void)
 }
 
 /**
- * @brief  å‘è§£æå™¨å–‚å…¥ä¸€ä¸ªå­—èŠ‚
- * @param  byte æ¥æ”¶åˆ°çš„å­—èŠ‚
+ * @brief  Ïò½âÎöÆ÷Î¹ÈëÒ»¸ö×Ö½Ú
+ * @param  byte ½ÓÊÕµ½µÄ×Ö½Ú
  */
 static void rc_parser_feed(uint8_t byte)
 {
@@ -175,17 +175,17 @@ static void rc_parser_feed(uint8_t byte)
     case RC_STATE_WAIT_HEADER:
         if (byte == RC_FRAME_HEADER)
         {
-            rc_checksum_calc = 0;  /* æ ¡éªŒä»lenå¼€å§‹è®¡ç®—ï¼Œheaderä¸å‚ä¸ */
+            rc_checksum_calc = 0;  /* Ğ£Ñé´Ólen¿ªÊ¼¼ÆËã£¬header²»²ÎÓë */
             rc_state = RC_STATE_WAIT_LENGTH;
         }
         break;
 
     case RC_STATE_WAIT_LENGTH:
         rc_frame_len = byte;
-        rc_checksum_calc = byte;  /* len å‚ä¸æ ¡éªŒ */
+        rc_checksum_calc = byte;  /* len ²ÎÓëĞ£Ñé */
         if (rc_frame_len < RC_FRAME_MIN_LEN - 1 || rc_frame_len > RC_FRAME_MAX_LEN)
         {
-            /* é•¿åº¦å¼‚å¸¸ï¼Œå¤ä½ */
+            /* ³¤¶ÈÒì³££¬¸´Î» */
             rc_data.error_count++;
             rc_parser_reset();
         }
@@ -197,13 +197,13 @@ static void rc_parser_feed(uint8_t byte)
 
     case RC_STATE_WAIT_TYPE:
         rc_frame_type = byte;
-        rc_checksum_calc ^= byte;  /* type å‚ä¸æ ¡éªŒ */
-        /* è®¡ç®—æ•°æ®é•¿åº¦ = len - 1(type) - 1(checksum) */
+        rc_checksum_calc ^= byte;  /* type ²ÎÓëĞ£Ñé */
+        /* ¼ÆËãÊı¾İ³¤¶È = len - 1(type) - 1(checksum) */
         {
             uint8_t data_len = rc_frame_len - 2;
             if (data_len == 0)
             {
-                /* æ— æ•°æ®å¸§ (å¦‚å¿ƒè·³)ï¼Œç›´æ¥ç­‰å¾…æ ¡éªŒ */
+                /* ÎŞÊı¾İÖ¡ (ÈçĞÄÌø)£¬Ö±½ÓµÈ´ıĞ£Ñé */
                 rc_state = RC_STATE_WAIT_CHECKSUM;
             }
             else
@@ -216,10 +216,10 @@ static void rc_parser_feed(uint8_t byte)
 
     case RC_STATE_WAIT_DATA:
         rc_data_buf[rc_data_idx++] = byte;
-        rc_checksum_calc ^= byte;  /* data å‚ä¸æ ¡éªŒ */
+        rc_checksum_calc ^= byte;  /* data ²ÎÓëĞ£Ñé */
         if (rc_data_idx >= (rc_frame_len - 2))
         {
-            /* æ•°æ®æ¥æ”¶å®Œæ¯•ï¼Œç­‰å¾…æ ¡éªŒ */
+            /* Êı¾İ½ÓÊÕÍê±Ï£¬µÈ´ıĞ£Ñé */
             rc_state = RC_STATE_WAIT_CHECKSUM;
         }
         break;
@@ -227,12 +227,12 @@ static void rc_parser_feed(uint8_t byte)
     case RC_STATE_WAIT_CHECKSUM:
         if (byte == (rc_checksum_calc & 0xFF))
         {
-            /* æ ¡éªŒé€šè¿‡ï¼Œå¤„ç†å¸§ */
+            /* Ğ£ÑéÍ¨¹ı£¬´¦ÀíÖ¡ */
             rc_process_frame();
         }
         else
         {
-            /* æ ¡éªŒå¤±è´¥ */
+            /* Ğ£ÑéÊ§°Ü */
             rc_data.error_count++;
         }
         rc_parser_reset();
@@ -245,16 +245,16 @@ static void rc_parser_feed(uint8_t byte)
 }
 
 /**
- * @brief  å¤„ç†å·²è§£æçš„å®Œæ•´å¸§
+ * @brief  ´¦ÀíÒÑ½âÎöµÄÍêÕûÖ¡
  */
 static void rc_process_frame(void)
 {
-    /* åˆ·æ–°è¶…æ—¶è®¡æ•°å™¨ */
+    /* Ë¢ĞÂ³¬Ê±¼ÆÊıÆ÷ */
     rc_timeout_counter = 0;
     rc_data.active = 1;
     rc_data.frame_count++;
 
-    /* æŒ‰ç±»å‹åˆ†å‘ */
+    /* °´ÀàĞÍ·Ö·¢ */
     switch (rc_frame_type)
     {
     case RC_TYPE_JOYSTICK:
@@ -278,41 +278,41 @@ static void rc_process_frame(void)
         break;
 
     default:
-        /* æœªçŸ¥ç±»å‹ï¼Œå¿½ç•¥ */
+        /* Î´ÖªÀàĞÍ£¬ºöÂÔ */
         rc_data.error_count++;
         break;
     }
 }
 
-/* ==================== å¸§å¤„ç†å‡½æ•° ==================== */
+/* ==================== Ö¡´¦Àíº¯Êı ==================== */
 
 /**
- * @brief  å¤„ç†æ‘‡æ†å¸§ (type=0x01, data=4Ã—int16=8B)
- * @param  data æŒ‡å‘8å­—èŠ‚çš„æ‘‡æ†æ•°æ®
+ * @brief  ´¦ÀíÒ¡¸ËÖ¡ (type=0x01, data=4¡Áint16=8B)
+ * @param  data Ö¸Ïò8×Ö½ÚµÄÒ¡¸ËÊı¾İ
  *
- * æ˜ å°„é€»è¾‘ (ä¸åŸ yaokong_data_deal ä¸€è‡´):
- *   joystick[0] â†’ å‰åé€Ÿåº¦ (æ­»åŒºÂ±200, æ»¡å€¼1000)
- *   joystick[1] â†’ å·¦å³è½¬å‘ (æ­»åŒºÂ±100, é™å¹…Â±1.0)
+ * Ó³ÉäÂß¼­ (ÓëÔ­ yaokong_data_deal Ò»ÖÂ):
+ *   joystick[0] ¡ú Ç°ºóËÙ¶È (ËÀÇø¡À200, ÂúÖµ1000)
+ *   joystick[1] ¡ú ×óÓÒ×ªÏò (ËÀÇø¡À100, ÏŞ·ù¡À1.0)
  */
 static void rc_handle_joystick(const uint8_t *data)
 {
     int16_t j0, j1;
 
-    /* è§£æ4ä¸ªint16æ‘‡æ†å€¼ */
-    j0 = (int16_t)((uint16_t)data[1] << 8 | data[0]);  /* joystick[0] å‰å */
-    j1 = (int16_t)((uint16_t)data[3] << 8 | data[2]);  /* joystick[1] å·¦å³ */
-    /* joystick[2]=data[5:4], joystick[3]=data[7:6] é¢„ç•™ï¼Œæš‚ä¸ä½¿ç”¨ */
+    /* ½âÎö4¸öint16Ò¡¸ËÖµ */
+    j0 = (int16_t)((uint16_t)data[1] << 8 | data[0]);  /* joystick[0] Ç°ºó */
+    j1 = (int16_t)((uint16_t)data[3] << 8 | data[2]);  /* joystick[1] ×óÓÒ */
+    /* joystick[2]=data[5:4], joystick[3]=data[7:6] Ô¤Áô£¬Ôİ²»Ê¹ÓÃ */
 
     rc_data.joystick[0] = j0;
     rc_data.joystick[1] = j1;
 
-    /* è°ƒç”¨è§£è€¦åçš„æ‘‡æ†æ˜ å°„å‡½æ•° */
+    /* µ÷ÓÃ½âñîºóµÄÒ¡¸ËÓ³Éäº¯Êı */
     yaokong_map_joystick(j0, j1);
 }
 
 /**
- * @brief  å¤„ç†æ¨¡å¼åˆ‡æ¢å¸§ (type=0x02, data=1B turn_mode)
- * @param  data æŒ‡å‘1å­—èŠ‚çš„æ¨¡å¼æ•°æ®
+ * @brief  ´¦ÀíÄ£Ê½ÇĞ»»Ö¡ (type=0x02, data=1B turn_mode)
+ * @param  data Ö¸Ïò1×Ö½ÚµÄÄ£Ê½Êı¾İ
  */
 static void rc_handle_mode_switch(const uint8_t *data)
 {
@@ -324,8 +324,8 @@ static void rc_handle_mode_switch(const uint8_t *data)
 }
 
 /**
- * @brief  å¤„ç†é«˜åº¦è°ƒèŠ‚å¸§ (type=0x03, data=1B direction)
- * @param  data æŒ‡å‘1å­—èŠ‚çš„æ–¹å‘æ•°æ®
+ * @brief  ´¦Àí¸ß¶Èµ÷½ÚÖ¡ (type=0x03, data=1B direction)
+ * @param  data Ö¸Ïò1×Ö½ÚµÄ·½ÏòÊı¾İ
  */
 static void rc_handle_height(const uint8_t *data)
 {
@@ -344,8 +344,8 @@ static void rc_handle_height(const uint8_t *data)
 }
 
 /**
- * @brief  å¤„ç†æ€¥åœå¸§ (type=0x04, data=1B stop)
- * @param  data æŒ‡å‘1å­—èŠ‚çš„æ€¥åœæ•°æ®
+ * @brief  ´¦Àí¼±Í£Ö¡ (type=0x04, data=1B stop)
+ * @param  data Ö¸Ïò1×Ö½ÚµÄ¼±Í£Êı¾İ
  */
 static void rc_handle_emergency(const uint8_t *data)
 {
@@ -364,28 +364,28 @@ static void rc_handle_emergency(const uint8_t *data)
 }
 
 /**
- * @brief  å¤„ç†å¿ƒè·³å¸§ (type=0x05, æ— data)
+ * @brief  ´¦ÀíĞÄÌøÖ¡ (type=0x05, ÎŞdata)
  */
 static void rc_handle_heartbeat(void)
 {
-    /* å¿ƒè·³å¸§ä»…åˆ·æ–°è¶…æ—¶è®¡æ—¶å™¨ï¼Œå·²åœ¨ rc_process_frame() ä¸­å®Œæˆ */
+    /* ĞÄÌøÖ¡½öË¢ĞÂ³¬Ê±¼ÆÊ±Æ÷£¬ÒÑÔÚ rc_process_frame() ÖĞÍê³É */
 }
 
 /**
- * @brief  æ ¡éªŒ turn_mode æ˜¯å¦æœ‰æ•ˆ
- * @param  mode å¾…æ ¡éªŒçš„æ¨¡å¼å€¼
- * @return 1=æœ‰æ•ˆ, 0=æ— æ•ˆ
+ * @brief  Ğ£Ñé turn_mode ÊÇ·ñÓĞĞ§
+ * @param  mode ´ıĞ£ÑéµÄÄ£Ê½Öµ
+ * @return 1=ÓĞĞ§, 0=ÎŞĞ§
  *
- * æœ‰æ•ˆå€¼: 0(å…³é—­), 2(ä¸²çº§), 3(åèˆªé—­ç¯), 6(åŸåœ°æ—‹è½¬)
+ * ÓĞĞ§Öµ: 0(¹Ø±Õ), 2(´®¼¶), 3(Æ«º½±Õ»·), 6(Ô­µØĞı×ª)
  */
 static uint8_t rc_is_valid_turn_mode(uint8_t mode)
 {
     switch (mode)
     {
-    case 0:  /* å…³é—­ */
-    case 2:  /* ä¸²çº§è½¬å‘ */
-    case 3:  /* åèˆªè§’åº¦é—­ç¯èµ°ç›´çº¿ */
-    case 6:  /* åŸåœ°æ—‹è½¬ */
+    case 0:  /* ¹Ø±Õ */
+    case 2:  /* ´®¼¶×ªÏò */
+    case 3:  /* Æ«º½½Ç¶È±Õ»·×ßÖ±Ïß */
+    case 6:  /* Ô­µØĞı×ª */
         return 1;
     default:
         return 0;

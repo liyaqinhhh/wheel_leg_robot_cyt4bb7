@@ -1,7 +1,7 @@
 /*
  * kalman.h
  *
- *  Created on: 2025å¹´6æœˆ26æ—¥
+ *  Created on: 2025Äê6ÔÂ26ÈÕ
  *      Author: Administrator
  */
 
@@ -12,144 +12,144 @@
 
 #define My_PI   3.141592653f
 #define My_PI_2 1.570796327f
-#define MAX_SPEED 20.0f             //æœ€å¤§åˆæ³•é€Ÿåº¦
-#define SLIP_THRESHOLD 0.2f         //æ»‘ç§»ç‡æ‰“æ»‘åˆ¤æ–­é˜ˆå€¼
-#define CURVE_THRESHOLD_YAW 0.3f    //è½¬å‘åèˆªè§’é€Ÿåº¦é˜ˆå€¼ rad/s
-#define CURVE_THRESHOLD_ACC 1.0f    //è½¬å‘æ¨ªå‘åŠ é€Ÿåº¦é˜ˆå€¼ m/s^2
-#define SPEED_REVERSE_THRESH 0.1f   //é€Ÿåº¦åè½¬è®¤å®šé˜ˆå€¼
-#define ACC_THRESH  5.0f            //æœ€å¤§åˆæ³•åŠ é€Ÿåº¦ m/s^2
-#define MAX_READ_VALUE 10.0f        //æœ€å¤§è¯»å–åˆæ³•å€¼
+#define MAX_SPEED 20.0f             //×î´óºÏ·¨ËÙ¶È
+#define SLIP_THRESHOLD 0.2f         //»¬ÒÆÂÊ´ò»¬ÅĞ¶ÏãĞÖµ
+#define CURVE_THRESHOLD_YAW 0.3f    //×ªÏòÆ«º½½ÇËÙ¶ÈãĞÖµ rad/s
+#define CURVE_THRESHOLD_ACC 1.0f    //×ªÏòºáÏò¼ÓËÙ¶ÈãĞÖµ m/s^2
+#define SPEED_REVERSE_THRESH 0.1f   //ËÙ¶È·´×ªÈÏ¶¨ãĞÖµ
+#define ACC_THRESH  5.0f            //×î´óºÏ·¨¼ÓËÙ¶È m/s^2
+#define MAX_READ_VALUE 10.0f        //×î´ó¶ÁÈ¡ºÏ·¨Öµ
 
 /**
- * @brief å…­è½´ IMU å§¿æ€å¡å°”æ›¼æ»¤æ³¢çŠ¶æ€ç»“æ„ä½“
+ * @brief ÁùÖá IMU ×ËÌ¬¿¨¶ûÂüÂË²¨×´Ì¬½á¹¹Ìå
  */
 typedef struct
 {
-    float roll;                     /**< æ¨ªæ»šè§’ï¼Œå•ä½ä¸ºåº¦ */
-    float pitch;                    /**< ä¿¯ä»°è§’ï¼Œå•ä½ä¸ºåº¦ */
-    float yaw;                      /**< åèˆªè§’ï¼Œå•ä½ä¸ºåº¦ */
+    float roll;                     /**< ºá¹ö½Ç£¬µ¥Î»Îª¶È */
+    float pitch;                    /**< ¸©Ñö½Ç£¬µ¥Î»Îª¶È */
+    float yaw;                      /**< Æ«º½½Ç£¬µ¥Î»Îª¶È */
 
-    float gx;                       /**< X è½´è§’é€Ÿåº¦ï¼Œå•ä½ä¸º rad/s */
-    float gy;                       /**< Y è½´è§’é€Ÿåº¦ï¼Œå•ä½ä¸º rad/s */
-    float gz;                       /**< Z è½´è§’é€Ÿåº¦ï¼Œå•ä½ä¸º rad/s */
-    float ax;                       /**< X è½´åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º g */
-    float ay;                       /**< Y è½´åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º g */
-    float az;                       /**< Z è½´åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º g */
-    float mx;                       /**< X è½´ç£åŠ›è®¡é‡æµ‹å€¼ */
-    float my;                       /**< Y è½´ç£åŠ›è®¡é‡æµ‹å€¼ */
-    float mz;                       /**< Z è½´ç£åŠ›è®¡é‡æµ‹å€¼ */
+    float gx;                       /**< X Öá½ÇËÙ¶È£¬µ¥Î»Îª rad/s */
+    float gy;                       /**< Y Öá½ÇËÙ¶È£¬µ¥Î»Îª rad/s */
+    float gz;                       /**< Z Öá½ÇËÙ¶È£¬µ¥Î»Îª rad/s */
+    float ax;                       /**< X Öá¼ÓËÙ¶È£¬µ¥Î»Îª g */
+    float ay;                       /**< Y Öá¼ÓËÙ¶È£¬µ¥Î»Îª g */
+    float az;                       /**< Z Öá¼ÓËÙ¶È£¬µ¥Î»Îª g */
+    float mx;                       /**< X Öá´ÅÁ¦¼ÆÁ¿²âÖµ */
+    float my;                       /**< Y Öá´ÅÁ¦¼ÆÁ¿²âÖµ */
+    float mz;                       /**< Z Öá´ÅÁ¦¼ÆÁ¿²âÖµ */
 
-    float Xk_[3];                   /**< å…ˆéªŒçŠ¶æ€ä¼°è®¡ï¼Œä¾æ¬¡ä¸º roll/pitch/yaw */
-    float Xk[3];                    /**< åéªŒçŠ¶æ€ä¼°è®¡ï¼Œä¾æ¬¡ä¸º roll/pitch/yaw */
-    float Uk[3];                    /**< ç³»ç»Ÿè¾“å…¥ï¼Œç”±è§’é€Ÿåº¦è§£ç®—å¾—åˆ° */
-    float Zk[3];                    /**< æµ‹é‡çŠ¶æ€ï¼Œç”±ä¼ æ„Ÿå™¨è§‚æµ‹è®¡ç®—å¾—åˆ° */
-    float Pk[3];                    /**< åéªŒä¼°è®¡è¯¯å·®åæ–¹å·® */
-    float Pk_[3];                   /**< å…ˆéªŒä¼°è®¡è¯¯å·®åæ–¹å·® */
-    float K[3];                     /**< å¡å°”æ›¼å¢ç›Š */
-    float Q[3];                     /**< ç³»ç»Ÿå™ªå£°åæ–¹å·® */
-    float R[3];                     /**< æµ‹é‡å™ªå£°åæ–¹å·® */
+    float Xk_[3];                   /**< ÏÈÑé×´Ì¬¹À¼Æ£¬ÒÀ´ÎÎª roll/pitch/yaw */
+    float Xk[3];                    /**< ºóÑé×´Ì¬¹À¼Æ£¬ÒÀ´ÎÎª roll/pitch/yaw */
+    float Uk[3];                    /**< ÏµÍ³ÊäÈë£¬ÓÉ½ÇËÙ¶È½âËãµÃµ½ */
+    float Zk[3];                    /**< ²âÁ¿×´Ì¬£¬ÓÉ´«¸ĞÆ÷¹Û²â¼ÆËãµÃµ½ */
+    float Pk[3];                    /**< ºóÑé¹À¼ÆÎó²îĞ­·½²î */
+    float Pk_[3];                   /**< ÏÈÑé¹À¼ÆÎó²îĞ­·½²î */
+    float K[3];                     /**< ¿¨¶ûÂüÔöÒæ */
+    float Q[3];                     /**< ÏµÍ³ÔëÉùĞ­·½²î */
+    float R[3];                     /**< ²âÁ¿ÔëÉùĞ­·½²î */
 
-    float ax_linear;                /**< å»é™¤é‡åŠ›åçš„ X è½´çº¿æ€§åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º m/s^2 */
-    float ay_linear;                /**< å»é™¤é‡åŠ›åçš„ Y è½´çº¿æ€§åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º m/s^2 */
-    float az_linear;                /**< å»é™¤é‡åŠ›åçš„ Z è½´çº¿æ€§åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º m/s^2 */
+    float ax_linear;                /**< È¥³ıÖØÁ¦ºóµÄ X ÖáÏßĞÔ¼ÓËÙ¶È£¬µ¥Î»Îª m/s^2 */
+    float ay_linear;                /**< È¥³ıÖØÁ¦ºóµÄ Y ÖáÏßĞÔ¼ÓËÙ¶È£¬µ¥Î»Îª m/s^2 */
+    float az_linear;                /**< È¥³ıÖØÁ¦ºóµÄ Z ÖáÏßĞÔ¼ÓËÙ¶È£¬µ¥Î»Îª m/s^2 */
 
-    float T;                        /**< ç¦»æ•£é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s */
-    float resultant_acceleration;   /**< åˆåŠ é€Ÿåº¦æ¨¡é•¿ï¼Œå•ä½ä¸º g */
+    float T;                        /**< ÀëÉ¢²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s */
+    float resultant_acceleration;   /**< ºÏ¼ÓËÙ¶ÈÄ£³¤£¬µ¥Î»Îª g */
 
-    float imu_offset_fwd;           /**< IMU ç›¸å¯¹æ—‹è½¬ä¸­å¿ƒçš„å‰å‘åç§»ï¼Œåæ–¹ä¸ºè´Ÿï¼Œå•ä½ä¸º m */
-    float imu_offset_left;          /**< IMU ç›¸å¯¹æ—‹è½¬ä¸­å¿ƒçš„å·¦å‘åç§»ï¼Œå³æ–¹ä¸ºè´Ÿï¼Œå•ä½ä¸º m */
-    float yaw_accel;                /**< åèˆªè§’åŠ é€Ÿåº¦ï¼Œå•ä½ä¸º rad/s^2 */
-    float yaw_rate_prev;            /**< ä¸Šä¸€æ¬¡è®°å½•çš„åèˆªè§’é€Ÿåº¦ï¼Œå•ä½ä¸º rad/s */
+    float imu_offset_fwd;           /**< IMU Ïà¶ÔĞı×ªÖĞĞÄµÄÇ°ÏòÆ«ÒÆ£¬ºó·½Îª¸º£¬µ¥Î»Îª m */
+    float imu_offset_left;          /**< IMU Ïà¶ÔĞı×ªÖĞĞÄµÄ×óÏòÆ«ÒÆ£¬ÓÒ·½Îª¸º£¬µ¥Î»Îª m */
+    float yaw_accel;                /**< Æ«º½½Ç¼ÓËÙ¶È£¬µ¥Î»Îª rad/s^2 */
+    float yaw_rate_prev;            /**< ÉÏÒ»´Î¼ÇÂ¼µÄÆ«º½½ÇËÙ¶È£¬µ¥Î»Îª rad/s */
 }imu963ra_struct;
 extern imu963ra_struct imu;
 
 /**
- * @brief åˆå§‹åŒ–å…­è½´ IMU å§¿æ€å¡å°”æ›¼æ»¤æ³¢å™¨å‚æ•°å’ŒçŠ¶æ€
- * @param imu å¾…åˆå§‹åŒ–çš„æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param q ç³»ç»Ÿå™ªå£°åæ–¹å·®åˆå€¼
- * @param r æµ‹é‡å™ªå£°åæ–¹å·®åˆå€¼
- * @param T ç¦»æ•£é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯ÁùÖá IMU ×ËÌ¬¿¨¶ûÂüÂË²¨Æ÷²ÎÊıºÍ×´Ì¬
+ * @param imu ´ı³õÊ¼»¯µÄÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param q ÏµÍ³ÔëÉùĞ­·½²î³õÖµ
+ * @param r ²âÁ¿ÔëÉùĞ­·½²î³õÖµ
+ * @param T ÀëÉ¢²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float T);
 
 /**
- * @brief æ‰§è¡Œä¸€æ¬¡å…­è½´ IMU å§¿æ€å¡å°”æ›¼æ»¤æ³¢æ›´æ–°
- * @param imu å§¿æ€æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief Ö´ĞĞÒ»´ÎÁùÖá IMU ×ËÌ¬¿¨¶ûÂüÂË²¨¸üĞÂ
+ * @param imu ×ËÌ¬ÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_kalman_filter_update(imu963ra_struct * imu);
 
 /**
- * @brief è¡¥å¿ IMU åå¿ƒå®‰è£…å¼•å…¥çš„å‘å¿ƒåŠ é€Ÿåº¦è¯¯å·®
- * @param imu IMU æ»¤æ³¢çŠ¶æ€ç»“æ„ä½“æŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief ²¹³¥ IMU Æ«ĞÄ°²×°ÒıÈëµÄÏòĞÄ¼ÓËÙ¶ÈÎó²î
+ * @param imu IMU ÂË²¨×´Ì¬½á¹¹ÌåÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu_offset_compensate_acc(imu963ra_struct *imu);
 
 /**
- * @brief è½®é€Ÿä¸çº¿åŠ é€Ÿåº¦èåˆçš„é€Ÿåº¦å¡å°”æ›¼æ»¤æ³¢å™¨ç»“æ„ä½“
+ * @brief ÂÖËÙÓëÏß¼ÓËÙ¶ÈÈÚºÏµÄËÙ¶È¿¨¶ûÂüÂË²¨Æ÷½á¹¹Ìå
  */
 typedef struct {
-    float Xk_[2];               /**< å…ˆéªŒçŠ¶æ€ä¼°è®¡ï¼š[ä½ç§», é€Ÿåº¦] */
-    float Xk[2];                /**< åéªŒçŠ¶æ€ä¼°è®¡ï¼š[ä½ç§», é€Ÿåº¦] */
-    float Pk_[2][2];            /**< å…ˆéªŒè¯¯å·®åæ–¹å·®çŸ©é˜µ */
-    float Pk[2][2];             /**< åéªŒè¯¯å·®åæ–¹å·®çŸ©é˜µ */
-    float K[2];                 /**< å¡å°”æ›¼å¢ç›Š */
-    float Q[2][2];              /**< è¿‡ç¨‹å™ªå£°åæ–¹å·®çŸ©é˜µ */
-    float R;                    /**< æµ‹é‡å™ªå£°æ–¹å·® */
-    float T;                    /**< é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s */
+    float Xk_[2];               /**< ÏÈÑé×´Ì¬¹À¼Æ£º[Î»ÒÆ, ËÙ¶È] */
+    float Xk[2];                /**< ºóÑé×´Ì¬¹À¼Æ£º[Î»ÒÆ, ËÙ¶È] */
+    float Pk_[2][2];            /**< ÏÈÑéÎó²îĞ­·½²î¾ØÕó */
+    float Pk[2][2];             /**< ºóÑéÎó²îĞ­·½²î¾ØÕó */
+    float K[2];                 /**< ¿¨¶ûÂüÔöÒæ */
+    float Q[2][2];              /**< ¹ı³ÌÔëÉùĞ­·½²î¾ØÕó */
+    float R;                    /**< ²âÁ¿ÔëÉù·½²î */
+    float T;                    /**< ²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s */
 
-    float original_R;           /**< æ ‡å‡†æµ‹é‡å™ªå£°æ–¹å·®ï¼Œç”¨äºåŠ¨æ€æ¢å¤ */
-    float original_Q[2][2];     /**< æ ‡å‡†è¿‡ç¨‹å™ªå£°æ–¹å·®çŸ©é˜µï¼Œç”¨äºåŠ¨æ€æ¢å¤ */
-    float direction_factor;     /**< é€Ÿåº¦æ–¹å‘ä¸€è‡´æ€§ä¿®æ­£å› å­ */
-    float slip_factor;          /**< åŠ¨æ€æ»‘ç§»ç³»æ•°ï¼ŒèŒƒå›´çº¦ä¸º [0, 1] */
-    float slip_ratio;           /**< å½“å‰ä¼°è®¡çš„æ»‘ç§»ç‡ */
-    int is_slip;                /**< æ‰“æ»‘æ ‡å¿—ä½ */
+    float original_R;           /**< ±ê×¼²âÁ¿ÔëÉù·½²î£¬ÓÃÓÚ¶¯Ì¬»Ö¸´ */
+    float original_Q[2][2];     /**< ±ê×¼¹ı³ÌÔëÉù·½²î¾ØÕó£¬ÓÃÓÚ¶¯Ì¬»Ö¸´ */
+    float direction_factor;     /**< ËÙ¶È·½ÏòÒ»ÖÂĞÔĞŞÕıÒò×Ó */
+    float slip_factor;          /**< ¶¯Ì¬»¬ÒÆÏµÊı£¬·¶Î§Ô¼Îª [0, 1] */
+    float slip_ratio;           /**< µ±Ç°¹À¼ÆµÄ»¬ÒÆÂÊ */
+    int is_slip;                /**< ´ò»¬±êÖ¾Î» */
 
-    float est_displacement;     /**< ç´¯è®¡ä¼°è®¡ä½ç§» */
-    float est_velocity;         /**< å½“å‰ä¼°è®¡é€Ÿåº¦ */
+    float est_displacement;     /**< ÀÛ¼Æ¹À¼ÆÎ»ÒÆ */
+    float est_velocity;         /**< µ±Ç°¹À¼ÆËÙ¶È */
 } KF_Velocity;
 extern KF_Velocity vel_kf;
 extern float standardized_curvature_ave;
 
 /**
- * @brief åˆå§‹åŒ–é€Ÿåº¦å¡å°”æ›¼æ»¤æ³¢å™¨å‚æ•°ä¸çŠ¶æ€
- * @param kf å¾…åˆå§‹åŒ–çš„é€Ÿåº¦æ»¤æ³¢å™¨æŒ‡é’ˆ
- * @param q_pos ä½ç§»çŠ¶æ€è¿‡ç¨‹å™ªå£°
- * @param q_vel é€Ÿåº¦çŠ¶æ€è¿‡ç¨‹å™ªå£°
- * @param r è½®é€Ÿæµ‹é‡å™ªå£°
- * @param T ç¦»æ•£é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯ËÙ¶È¿¨¶ûÂüÂË²¨Æ÷²ÎÊıÓë×´Ì¬
+ * @param kf ´ı³õÊ¼»¯µÄËÙ¶ÈÂË²¨Æ÷Ö¸Õë
+ * @param q_pos Î»ÒÆ×´Ì¬¹ı³ÌÔëÉù
+ * @param q_vel ËÙ¶È×´Ì¬¹ı³ÌÔëÉù
+ * @param r ÂÖËÙ²âÁ¿ÔëÉù
+ * @param T ÀëÉ¢²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_menc15a_kalman_filter_init(KF_Velocity* kf, float q_pos, float q_vel, float r, float T);
 
 /**
- * @brief ä½¿ç”¨è½®é€Ÿå’Œçº¿åŠ é€Ÿåº¦æ‰§è¡Œä¸€æ¬¡é€Ÿåº¦å¡å°”æ›¼æ›´æ–°
- * @param kf é€Ÿåº¦æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param measured_speed ç£ç¼–ç å™¨æµ‹å¾—çš„é€Ÿåº¦
- * @param linear_accel å»é‡åŠ›åçš„çº¿æ€§åŠ é€Ÿåº¦
- * @return void æ— è¿”å›å€¼
+ * @brief Ê¹ÓÃÂÖËÙºÍÏß¼ÓËÙ¶ÈÖ´ĞĞÒ»´ÎËÙ¶È¿¨¶ûÂü¸üĞÂ
+ * @param kf ËÙ¶ÈÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param measured_speed ´Å±àÂëÆ÷²âµÃµÄËÙ¶È
+ * @param linear_accel È¥ÖØÁ¦ºóµÄÏßĞÔ¼ÓËÙ¶È
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed, float linear_accel);
 
 /**
- * @brief æ ¹æ®è½¬å¼¯å’Œé€Ÿåº¦åå·®åŠ¨æ€è°ƒæ•´æ‰“æ»‘å·¥å†µä¸‹çš„æ»¤æ³¢å‚æ•°
- * @param kf é€Ÿåº¦æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param measured_speed å½“å‰è½®é€Ÿæµ‹é‡å€¼
- * @param yaw_rate å½“å‰åèˆªè§’é€Ÿåº¦
- * @param lat_accel å½“å‰æ¨ªå‘çº¿åŠ é€Ÿåº¦
- * @return void æ— è¿”å›å€¼
+ * @brief ¸ù¾İ×ªÍäºÍËÙ¶ÈÆ«²î¶¯Ì¬µ÷Õû´ò»¬¹¤¿öÏÂµÄÂË²¨²ÎÊı
+ * @param kf ËÙ¶ÈÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param measured_speed µ±Ç°ÂÖËÙ²âÁ¿Öµ
+ * @param yaw_rate µ±Ç°Æ«º½½ÇËÙ¶È
+ * @param lat_accel µ±Ç°ºáÏòÏß¼ÓËÙ¶È
+ * @return void ÎŞ·µ»ØÖµ
  */
 void handle_slip_condition(KF_Velocity* kf, float measured_speed, float yaw_rate, float lat_accel);
 
 /**
- * @brief æ ¡éªŒ IMU åŠ é€Ÿåº¦ä¸é€Ÿåº¦å˜åŒ–æ¨¡å‹æ˜¯å¦ä¸€è‡´
- * @param imu_accel IMU æµ‹å¾—çš„åŠ é€Ÿåº¦
- * @param speed_est å½“å‰ä¼°è®¡é€Ÿåº¦
- * @param measured_speed å½“å‰è½®é€Ÿæµ‹é‡å€¼
- * @param dt1 é‡‡æ ·å‘¨æœŸ
- * @return int 1 è¡¨ç¤ºåŠ é€Ÿåº¦ä¸€è‡´ï¼Œ0 è¡¨ç¤ºä¸ä¸€è‡´
+ * @brief Ğ£Ñé IMU ¼ÓËÙ¶ÈÓëËÙ¶È±ä»¯Ä£ĞÍÊÇ·ñÒ»ÖÂ
+ * @param imu_accel IMU ²âµÃµÄ¼ÓËÙ¶È
+ * @param speed_est µ±Ç°¹À¼ÆËÙ¶È
+ * @param measured_speed µ±Ç°ÂÖËÙ²âÁ¿Öµ
+ * @param dt1 ²ÉÑùÖÜÆÚ
+ * @return int 1 ±íÊ¾¼ÓËÙ¶ÈÒ»ÖÂ£¬0 ±íÊ¾²»Ò»ÖÂ
  */
 int validate_acceleration(float imu_accel, float speed_est, float measured_speed, float dt1);
 

@@ -39,7 +39,7 @@ Release*/
 *.exe
 *.dll
 *.cache
-*.md
+
 
 
 
@@ -53,6 +53,9 @@ Release*/
 Thumbs.db
 desktop.ini
 
+# IAR 自动备份文件
+Backup*
+
 # 备份文件
 *.bak
 *.old
@@ -63,15 +66,25 @@ desktop.ini
 # *.rar
 # *.7z
 
-# IDE 配置（可选保留）
-# .idea/
-# .vscode/
-
-project/iar
-project/iar/project_config/
-
 # VS Code 工作区配置
 .vscode/
+
+# Claude Code 本地配置
+.claude/settings.local.json
+
+# CCW 工具本地索引
+.ccw/
+
+# 本地调参产物
+ai_pid_tuning_history.json
+best_pid_params.json
+
+# IAR 调试器/工作区个人配置（含本地绝对路径，每台机器自动生成）
+project/iar/project_config/settings/
+project/iar/settings/
+
+# IAR 个人调试布局（含窗口位置等个人偏好，可自动重建）
+*.ewx
 
 # 修复/验证脚本（不需要上传）
 fix_garbled.py

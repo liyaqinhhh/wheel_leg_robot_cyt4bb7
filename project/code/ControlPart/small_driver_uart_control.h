@@ -3,47 +3,47 @@
 
 #include "zf_common_headfile.h"
 
-// ç§»æ¤ï¼šUART_2 å·²è¢« GPS æ¨¡å—å ç”¨ï¼Œæ”¹ç”¨ UART_3
-// ç§»æ¤ï¼šP33 ç«¯å£åœ¨ CYT4BB7 ä¸å­˜åœ¨ï¼Œæ”¹ç”¨ P17
-#define SMALL_DRIVER_UART (UART_2)          // æ— åˆ·é©±åŠ¨é€šä¿¡ä½¿ç”¨çš„ä¸²å£é€šé“
+// ÒÆÖ²£ºUART_2 ÒÑ±» GPS Ä£¿éÕ¼ÓÃ£¬¸ÄÓÃ UART_3
+// ÒÆÖ²£ºP33 ¶Ë¿ÚÔÚ CYT4BB7 ²»´æÔÚ£¬¸ÄÓÃ P17
+#define SMALL_DRIVER_UART (UART_2)          // ÎŞË¢Çı¶¯Í¨ĞÅÊ¹ÓÃµÄ´®¿ÚÍ¨µÀ
 
-#define SMALL_DRIVER_BAUDRATE (460800)      // æ— åˆ·é©±åŠ¨ä¸²å£æ³¢ç‰¹ç‡
+#define SMALL_DRIVER_BAUDRATE (460800)      // ÎŞË¢Çı¶¯´®¿Ú²¨ÌØÂÊ
 
-#define SMALL_DRIVER_RX (UART2_TX_P10_1) // æ— åˆ·é©±åŠ¨ ä¸²å£æ¥æ”¶å¼•è„š
+#define SMALL_DRIVER_RX (UART2_TX_P10_1) // ÎŞË¢Çı¶¯ ´®¿Ú½ÓÊÕÒı½Å
 
-#define SMALL_DRIVER_TX (UART2_RX_P10_0) // æ— åˆ·é©±åŠ¨ ä¸²å£å‘é€å¼•è„š
+#define SMALL_DRIVER_TX (UART2_RX_P10_0) // ÎŞË¢Çı¶¯ ´®¿Ú·¢ËÍÒı½Å
 
-// @brief  æ— åˆ·é©±åŠ¨é€šä¿¡æ•°æ®ç»“æ„ä½“ï¼ˆåŒ…å«æ”¶å‘ç¼“å†²åŒºã€æ ¡éªŒä½å’Œç”µæœºé€Ÿåº¦æ•°æ®ï¼‰
+// @brief  ÎŞË¢Çı¶¯Í¨ĞÅÊı¾İ½á¹¹Ìå£¨°üº¬ÊÕ·¢»º³åÇø¡¢Ğ£ÑéÎ»ºÍµç»úËÙ¶ÈÊı¾İ£©
 typedef struct
 {
-    uint8 send_data_buffer[7]; // å‘é€ç¼“å†²æ•°ç»„
+    uint8 send_data_buffer[7]; // ·¢ËÍ»º³åÊı×é
 
-    uint8 receive_data_buffer[7]; // æ¥æ”¶ç¼“å†²æ•°ç»„
+    uint8 receive_data_buffer[7]; // ½ÓÊÕ»º³åÊı×é
 
-    uint8 receive_data_count; // æ¥æ”¶è®¡æ•°
+    uint8 receive_data_count; // ½ÓÊÕ¼ÆÊı
 
-    uint8 sum_check_data; // æ ¡éªŒä½
+    uint8 sum_check_data; // Ğ£ÑéÎ»
 
-    int16 receive_left_speed_data; // æ¥æ”¶åˆ°çš„å·¦ä¾§ç”µæœºé€Ÿåº¦æ•°æ®
+    int16 receive_left_speed_data; // ½ÓÊÕµ½µÄ×ó²àµç»úËÙ¶ÈÊı¾İ
 
-    int16 receive_right_speed_data; // æ¥æ”¶åˆ°çš„å³ä¾§ç”µæœºé€Ÿåº¦æ•°æ®
+    int16 receive_right_speed_data; // ½ÓÊÕµ½µÄÓÒ²àµç»úËÙ¶ÈÊı¾İ
 
 } small_device_value_struct;
 
-extern small_device_value_struct motor_value;  // æ— åˆ·é©±åŠ¨å…¨å±€æ•°æ®å®ä¾‹
-extern uint16_t num;                           // é€šç”¨è®¡æ•°å˜é‡1
-extern uint16_t num_1;                         // é€šç”¨è®¡æ•°å˜é‡2
+extern small_device_value_struct motor_value;  // ÎŞË¢Çı¶¯È«¾ÖÊı¾İÊµÀı
+extern uint16_t num;                           // Í¨ÓÃ¼ÆÊı±äÁ¿1
+extern uint16_t num_1;                         // Í¨ÓÃ¼ÆÊı±äÁ¿2
 
-// @brief  æ— åˆ·é©±åŠ¨ ä¸²å£æ¥æ”¶å›è°ƒå‡½æ•°
-void uart_control_callback(void); // æ— åˆ·é©±åŠ¨ ä¸²å£æ¥æ”¶å›è°ƒå‡½æ•°
+// @brief  ÎŞË¢Çı¶¯ ´®¿Ú½ÓÊÕ»Øµ÷º¯Êı
+void uart_control_callback(void); // ÎŞË¢Çı¶¯ ´®¿Ú½ÓÊÕ»Øµ÷º¯Êı
 
-// @brief  æ— åˆ·é©±åŠ¨ è®¾ç½®ç”µæœºå ç©ºæ¯”
-void small_driver_set_duty(int16 left_duty, int16 right_duty); // æ— åˆ·é©±åŠ¨ è®¾ç½®ç”µæœºå ç©ºæ¯”
+// @brief  ÎŞË¢Çı¶¯ ÉèÖÃµç»úÕ¼¿Õ±È
+void small_driver_set_duty(int16 left_duty, int16 right_duty); // ÎŞË¢Çı¶¯ ÉèÖÃµç»úÕ¼¿Õ±È
 
-// @brief  æ— åˆ·é©±åŠ¨ è·å–é€Ÿåº¦ä¿¡æ¯
-void small_driver_get_speed(void); // æ— åˆ·é©±åŠ¨ è·å–é€Ÿåº¦ä¿¡æ¯
+// @brief  ÎŞË¢Çı¶¯ »ñÈ¡ËÙ¶ÈĞÅÏ¢
+void small_driver_get_speed(void); // ÎŞË¢Çı¶¯ »ñÈ¡ËÙ¶ÈĞÅÏ¢
 
-// @brief  æ— åˆ·é©±åŠ¨ ä¸²å£é€šè®¯åˆå§‹åŒ–
-void small_driver_uart_init(void); // æ— åˆ·é©±åŠ¨ ä¸²å£é€šè®¯åˆå§‹åŒ–
+// @brief  ÎŞË¢Çı¶¯ ´®¿ÚÍ¨Ñ¶³õÊ¼»¯
+void small_driver_uart_init(void); // ÎŞË¢Çı¶¯ ´®¿ÚÍ¨Ñ¶³õÊ¼»¯
 
 #endif

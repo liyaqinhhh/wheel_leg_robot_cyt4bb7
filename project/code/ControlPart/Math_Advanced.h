@@ -6,54 +6,54 @@
 #include "zf_common_headfile.h"
 
 
-#define M_2PI 6.283185307179586             // 2*Pi å¸¸é‡
-#define M_PI 3.141592653589793f              // Pi å¸¸é‡
-#define M_PI_2 1.570796326794897f            // Pi/2 å¸¸é‡
-#define DEG_TO_RAD 0.017453292519943295769236907684886f  // è§’åº¦è½¬å¼§åº¦ç³»æ•° (Pi/180)
-#define RAD_TO_DEG 57.295779513082320876798154814105f    // å¼§åº¦è½¬è§’åº¦ç³»æ•° (180/Pi)
-#define max(a,b) ((a)>(b)?(a):(b))          // å–ä¸¤æ•°æœ€å¤§å€¼å®
-#define min(a,b) ((a)<(b)?(a):(b))          // å–ä¸¤æ•°æœ€å°å€¼å®
+#define M_2PI 6.283185307179586             // 2*Pi ³£Á¿
+#define M_PI 3.141592653589793f              // Pi ³£Á¿
+#define M_PI_2 1.570796326794897f            // Pi/2 ³£Á¿
+#define DEG_TO_RAD 0.017453292519943295769236907684886f  // ½Ç¶È×ª»¡¶ÈÏµÊı (Pi/180)
+#define RAD_TO_DEG 57.295779513082320876798154814105f    // »¡¶È×ª½Ç¶ÈÏµÊı (180/Pi)
+#define max(a,b) ((a)>(b)?(a):(b))          // È¡Á½Êı×î´óÖµºê
+#define min(a,b) ((a)<(b)?(a):(b))          // È¡Á½Êı×îĞ¡Öµºê
 
 
-// å‡½æ•°å£°æ˜
+// º¯ÊıÉùÃ÷
 
-// @brief  æœ€å°äºŒä¹˜æ³•çº¿æ€§æ‹Ÿåˆ - å¯¹æ•°ç»„æŒ‡å®šåŒºé—´è¿›è¡Œç›´çº¿æ‹Ÿåˆï¼Œæ±‚æ–œç‡kå’Œæˆªè·b
-// @param  arr        æ•°æ®æ•°ç»„
-// @param  startline  æ‹Ÿåˆèµ·å§‹ç´¢å¼•
-// @param  endline    æ‹Ÿåˆç»“æŸç´¢å¼•
-// @param  k          è¾“å‡ºæ–œç‡
-// @param  b          è¾“å‡ºæˆªè·
+// @brief  ×îĞ¡¶ş³Ë·¨ÏßĞÔÄâºÏ - ¶ÔÊı×éÖ¸¶¨Çø¼ä½øĞĞÖ±ÏßÄâºÏ£¬ÇóĞ±ÂÊkºÍ½Ø¾àb
+// @param  arr        Êı¾İÊı×é
+// @param  startline  ÄâºÏÆğÊ¼Ë÷Òı
+// @param  endline    ÄâºÏ½áÊøË÷Òı
+// @param  k          Êä³öĞ±ÂÊ
+// @param  b          Êä³ö½Ø¾à
 void least_squares_fit(float arr[], int startline, int endline, float *k, float *b);
-// @brief  å¿«é€Ÿè®¡ç®— 1/Sqrt(x)ï¼Œä½¿ç”¨ç‰›é¡¿è¿­ä»£æ³•è¿‘ä¼¼
-float invSqrt(float x);                                     // å¿«é€Ÿè®¡ç®— 1/Sqrt(x)
-// @brief  å¿«é€Ÿåæ­£åˆ‡è®¡ç®—ï¼Œè¿”å›å¼§åº¦å€¼
-float fast_atan(float v);                                   // æ±‚åæ­£åˆ‡
-// @brief  å°†æµ®ç‚¹æ•°çº¦æŸåœ¨ [low, high] èŒƒå›´å†…
-float constrain_float(float amt, float low, float high);    // çº¦æŸå€¼
-// @brief  å°†16ä½æ•´æ•°çº¦æŸåœ¨ [low, high] èŒƒå›´å†…
-int16 constrain_int16(int16 amt, int16 low, int16 high);    // çº¦æŸå€¼
-// @brief  å°†32ä½æ•´æ•°çº¦æŸåœ¨ [low, high] èŒƒå›´å†…
-int32 constrain_int32(int32 amt, int32 low, int32 high);    // çº¦æŸå€¼
-// @brief  è§’åº¦è½¬å¼§åº¦
-float radians(float deg);                                   // åº¦è½¬åŒ–ä¸ºå¼§åº¦
-// @brief  å¼§åº¦è½¬è§’åº¦
-float degrees(float rad);                                   // å¼§åº¦è½¬åŒ–ä¸ºåº¦
-// @brief  è®¡ç®—å¹³æ–¹å€¼
-float sq(float v);                                          // æ±‚å¹³æ–¹
-// @brief  è®¡ç®—äºŒç»´çŸ¢é‡é•¿åº¦ sqrt(a^2+b^2)
-float pythagorous2(float a, float b);                       // äºŒç»´çŸ¢é‡é•¿åº¦
-// @brief  è®¡ç®—ä¸‰ç»´çŸ¢é‡é•¿åº¦ sqrt(a^2+b^2+c^2)
-float pythagorous3(float a, float b, float c);              // ä¸‰ç»´çŸ¢é‡é•¿åº¦
-// @brief  å°†è§’åº¦è¯¯å·®åŒ…è£¹åˆ° [-180, +180] èŒƒå›´å†…ï¼ˆå•ä½ï¼šç™¾åˆ†ä¹‹ä¸€åº¦ï¼‰
-float wrap_180_cd(float error);                             // ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦
-// @brief  å°†è§’åº¦è¯¯å·®åŒ…è£¹åˆ° [-90, +90] èŒƒå›´å†…ï¼ˆå•ä½ï¼šç™¾åˆ†ä¹‹ä¸€åº¦ï¼‰
-float wrap_90_cd(float error);                              // ä»¥æ‘„æ°åº¦ä¸ºå•ä½åŒ…è£¹è§’åº¦
-// @brief  æµ®ç‚¹æ•°å–æ•´ï¼ˆå‘é›¶æˆªæ–­ï¼‰
-int Round_Number( float f );                                // å–æ•´å‡½æ•°
-// @brief  æµ®ç‚¹æ•°å››èˆäº”å…¥å–æ•´
-int HalfAdjust_Number( float f );                           // å››èˆäº”å…¥å‡½æ•°
-// @brief  é™å¹…ï¼šå°† value é™åˆ¶åœ¨ [-bound, +bound] èŒƒå›´å†…
-float limit( float value, float bound );                    // é™å¹…ï¼šå°† value é™åˆ¶åœ¨ [-bound, +bound]
+// @brief  ¿ìËÙ¼ÆËã 1/Sqrt(x)£¬Ê¹ÓÃÅ£¶Ùµü´ú·¨½üËÆ
+float invSqrt(float x);                                     // ¿ìËÙ¼ÆËã 1/Sqrt(x)
+// @brief  ¿ìËÙ·´ÕıÇĞ¼ÆËã£¬·µ»Ø»¡¶ÈÖµ
+float fast_atan(float v);                                   // Çó·´ÕıÇĞ
+// @brief  ½«¸¡µãÊıÔ¼ÊøÔÚ [low, high] ·¶Î§ÄÚ
+float constrain_float(float amt, float low, float high);    // Ô¼ÊøÖµ
+// @brief  ½«16Î»ÕûÊıÔ¼ÊøÔÚ [low, high] ·¶Î§ÄÚ
+int16 constrain_int16(int16 amt, int16 low, int16 high);    // Ô¼ÊøÖµ
+// @brief  ½«32Î»ÕûÊıÔ¼ÊøÔÚ [low, high] ·¶Î§ÄÚ
+int32 constrain_int32(int32 amt, int32 low, int32 high);    // Ô¼ÊøÖµ
+// @brief  ½Ç¶È×ª»¡¶È
+float radians(float deg);                                   // ¶È×ª»¯Îª»¡¶È
+// @brief  »¡¶È×ª½Ç¶È
+float degrees(float rad);                                   // »¡¶È×ª»¯Îª¶È
+// @brief  ¼ÆËãÆ½·½Öµ
+float sq(float v);                                          // ÇóÆ½·½
+// @brief  ¼ÆËã¶şÎ¬Ê¸Á¿³¤¶È sqrt(a^2+b^2)
+float pythagorous2(float a, float b);                       // ¶şÎ¬Ê¸Á¿³¤¶È
+// @brief  ¼ÆËãÈıÎ¬Ê¸Á¿³¤¶È sqrt(a^2+b^2+c^2)
+float pythagorous3(float a, float b, float c);              // ÈıÎ¬Ê¸Á¿³¤¶È
+// @brief  ½«½Ç¶ÈÎó²î°ü¹üµ½ [-180, +180] ·¶Î§ÄÚ£¨µ¥Î»£º°Ù·ÖÖ®Ò»¶È£©
+float wrap_180_cd(float error);                             // ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È
+// @brief  ½«½Ç¶ÈÎó²î°ü¹üµ½ [-90, +90] ·¶Î§ÄÚ£¨µ¥Î»£º°Ù·ÖÖ®Ò»¶È£©
+float wrap_90_cd(float error);                              // ÒÔÉãÊÏ¶ÈÎªµ¥Î»°ü¹ü½Ç¶È
+// @brief  ¸¡µãÊıÈ¡Õû£¨ÏòÁã½Ø¶Ï£©
+int Round_Number( float f );                                // È¡Õûº¯Êı
+// @brief  ¸¡µãÊıËÄÉáÎåÈëÈ¡Õû
+int HalfAdjust_Number( float f );                           // ËÄÉáÎåÈëº¯Êı
+// @brief  ÏŞ·ù£º½« value ÏŞÖÆÔÚ [-bound, +bound] ·¶Î§ÄÚ
+float limit( float value, float bound );                    // ÏŞ·ù£º½« value ÏŞÖÆÔÚ [-bound, +bound]
 
 
 #endif

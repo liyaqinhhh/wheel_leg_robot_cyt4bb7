@@ -1,25 +1,25 @@
 /*********************************************************************************************************************
- * CYT4BB Ë®Ö¿Ë» GPS  -  ×´Ì¬Ä£Êµ
+ * CYT4BB ÖÇÄÜ³µ GPS µ¼º½ -  ºËÐÄµ¼º½Ä£¿é
  *
- * Ä¼: gps_nav.c
- * Ä£: M2 ×´Ì¬
- * : ×´Ì¬ +  + Æ¹ + GPS Ç³
+ * ÎÄ¼þ: gps_nav.c
+ * Ä£¿é: M2 ºËÐÄµ¼º½
+ * ¹¦ÄÜ: ×´Ì¬»ú + ·½Î»¼ÆËã + µÍÍ¨ÂË²¨ + GPS ×ªÏòÈÚºÏ
  *
- * Êµ:
- *   T08: ×´Ì¬ (IDLEâ†’CALIBRATINGâ†’NAVIGATINGâ†’ARRIVEDâ†’COMPLETE)
- *   T09: Î»Ç¼/ + Ë²
- *   T10: ÊµÐ¶ (Öµ)
- *   T11: Æ² + Æ¹á½» + GPS Ç³
+ * ÈÎÎñ:
+ *   T08: ×´Ì¬»ú (IDLE¡¢CALIBRATING¡¢NAVIGATING¡¢ARRIVED¡¢COMPLETE)
+ *   T09: ·½Î»¼ÆËã/µ½´ï¼ì²â + µÍÍ¨ÂË²¨
+ *   T10: º½µãÍÆ½ø (µ½´ïÅÐ¶¨)
+ *   T11: Æ¯ÒÆÐÞÕý + ×ªÏòÈÚºÏ + GPS ×ªÏòÊä³ö
  *
- * Ê±:
- *   gps_nav_proc()  while  10Hz 
- *   Æ¹Ð´ buf[write_idx] ÉºÔ­Ó½
- *   ISR  buf[read_idx] È¡ 250Hz
+ * ¼Ü¹¹:
+ *   gps_nav_proc()  ÔÚÖ÷Ñ­»· while ÖÐÒÔ 10Hz µ÷ÓÃ
+ *   µ¼º½Êä³ö buf[write_idx] Ð´Èë
+ *   ISR ´Ó buf[read_idx] ¶ÁÈ¡£¬Ô¼ 250Hz
  *
- * GPS Ç³:
- *   Ê¹Ö¡Ê½ (10Hz Ã— 5s = 50 Ö¡)
- *   Ç³Ú¼ä²»á½»Æ¹ ISR È¡
- *   Ö¡Ê½ system_getval_us() Æ½Ì¨
+ * GPS ÐÅºÅ±£»¤:
+ *   Á¬Ðø¶ªÊ§Ö¡ (10Hz ÏÂ 5s = 50 Ö¡) ×Ô¶¯Í£Ö¹µ¼º½
+ *   ÐÅºÅ»Ö¸´Ê±ÖØÖÃ¶ªÊ§Ö¡¼ÆÊý
+ *   ÀûÓÃ system_getval_us() »ñÈ¡Î¢ÃëÊ±¼ä´Á
  ********************************************************************************************************************/
 
 #include "gps_nav.h"
@@ -28,42 +28,42 @@
 #include "zf_device_gnss.h"
 #include "zf_device_imu660ra.h"
 
-/* turn_mode  Interrupt.h  */
+/* turn_mode ÔÚ Interrupt.h ÖÐ¶¨Òå */
 extern uint8 turn_mode;
 
-//====================================================È«Ö±====================================================
+//====================================================È«¾Ö±äÁ¿====================================================
 
 gps_steer_pp_t  gps_steer_pp;
 uint8           gps_nav_state = GPS_NAV_IDLE;
 
-//====================================================Ë½Ð±====================================================
+//====================================================Ë½ÓÐ±äÁ¿====================================================
 
-static float    lpf_bearing       = GPS_NAV_FIRST_FRAME_MAGIC;  // Ë²Öµ (Öµ=Î´Ê¼)
-static uint8    is_near_waypoint  = 0;                          // ÊµÙ½Ö¾ (Öµ)
-static uint8    gps_loss_frames   = 0;                          // GPS Ç³Ö¡
+static float    lpf_bearing       = GPS_NAV_FIRST_FRAME_MAGIC;  // µÍÍ¨ÂË²¨·½Î»½Ç£¨³õÊ¼Öµ=Ä§·¨Öµ£©
+static uint8    is_near_waypoint  = 0;                          // ÊÇ·ñ½Ó½üº½µã£¨ÖÍ»Ø±ê¼Ç£©
+static uint8    gps_loss_frames   = 0;                          // GPS ÐÅºÅ¶ªÊ§Ö¡Êý
 
-//====================================================Ë½Ðº====================================================
+//====================================================Ë½ÓÐº¯Êý====================================================
 
 static void     gps_steer_commit(void);
 static gps_steer_output_t* gps_steer_write_buf(void);
 static float    angle_lpf_circular(float old_val, float new_val, float alpha);
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Æ¹á½»: Ô­Ó½ write_idx â†” read_idx
- * Ê±: Ð´ buf[write_idx] Ö®
- * : ISR Â´Î¶È¡Â¿
- * Ô­:  volatile uint8 Ð´ ARM Ï¸Ô­
+ * ¹¦ÄÜ: ½»»» write_idx <-> read_idx
+ * Ô­Àí: ÏÈÐ´Íê buf[write_idx] ÔÙ½»»»
+ * ×÷ÓÃ: ISR ¶ÁÈ¡Ê±²»»á¶Áµ½°ëÐ´Êý¾Ý
+ * ×¢Òâ: volatile uint8 Ð´ÈëÔÚ ARM ÉÏÊÇÔ­×ÓµÄ
  *--------------------------------------------------------------------------------------------------------------------*/
 static void gps_steer_commit(void)
 {
     uint8 old_write = gps_steer_pp.write_idx;
     uint8 old_read  = gps_steer_pp.read_idx;
-    gps_steer_pp.read_idx  = old_write;   //  ISR Âµ
-    gps_steer_pp.write_idx = old_read;    //  Ð´
+    gps_steer_pp.read_idx  = old_write;   // ISR ¶ÁÈ¡ÐÂÐ´ÈëµÄÊý¾Ý
+    gps_steer_pp.write_idx = old_read;    // ÏÂ´ÎÐ´Èë¾É¶ÁÈ¡Î»ÖÃ
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * È¡Ð´Ö¸ (main while Ê¹)
+ * »ñÈ¡Ð´Èë»º³åÇøÖ¸Õë (Ö÷Ñ­»· while ×¨ÓÃ)
  *--------------------------------------------------------------------------------------------------------------------*/
 static gps_steer_output_t* gps_steer_write_buf(void)
 {
@@ -71,8 +71,8 @@ static gps_steer_output_t* gps_steer_write_buf(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Ë²:  Â±180 ß½
- * : 179 â†’ -179 ÊµÖ» 2 î£¬ 358
+ * ¹¦ÄÜ: »·ÐÎµÍÍ¨ÂË²¨£¬Ö§³Ö¿çÔ½¡À180¶È
+ * ·ÀÖ¹: 179¶È µ½ -179¶È ²îÖµÖ»ÓÐ 2¶È¶ø·Ç 358¶È
  *--------------------------------------------------------------------------------------------------------------------*/
 static float angle_lpf_circular(float old_val, float new_val, float alpha)
 {
@@ -82,18 +82,18 @@ static float angle_lpf_circular(float old_val, float new_val, float alpha)
     return old_val + alpha * diff;
 }
 
-//====================================================T08: ×´Ì¬====================================================
+//====================================================T08: ×´Ì¬»ú====================================================
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Ê¼: Êµ + Æ¹ + ×´Ì¬
- * Ç°: Flash  + gnss + IMU Ñ³Ê¼
+ * ¹¦ÄÜ: ³õÊ¼»¯µ¼º½Ä£¿é + º½µãÏµÍ³ + ×´Ì¬»ú
+ * ÒÀÀµ: Flash º½µã + gnss Çý¶¯ + IMU Êý¾Ý
  *--------------------------------------------------------------------------------------------------------------------*/
 void gps_nav_init(void)
 {
-    /* Êµ */
+    /* ³õÊ¼»¯º½µã */
     gps_wp_init();
 
-    /* Æ¹Ê¼: Ë«, write=0, read=1 */
+    /* ³õÊ¼»¯Ë«»º³å£ºÐ´Èë¶Ë=0£¬¶ÁÈ¡¶Ë=1 */
     gps_steer_pp.buf[0].target_bearing_deg = 0.0f;
     gps_steer_pp.buf[0].distance_to_wp_m   = 0.0f;
     gps_steer_pp.buf[0].imu_yaw_offset_deg = 0.0f;
@@ -103,7 +103,7 @@ void gps_nav_init(void)
     gps_steer_pp.write_idx = 0;
     gps_steer_pp.read_idx  = 1;
 
-    /* ×´Ì¬ */
+    /* ³õÊ¼»¯×´Ì¬»ú */
     gps_nav_state = GPS_NAV_IDLE;
     lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;
     is_near_waypoint = 0;
@@ -111,12 +111,12 @@ void gps_nav_init(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * : 10Hz  while 
- * Ç°: gnss_flag==1  gnss_data_parse() Ñµ
+ * ¹¦ÄÜ: 10Hz Ö÷Ñ­»·´¦Àíº¯Êý
+ * Ç°ÖÃ: gnss_flag==1 Ê±ÓÉ gnss_data_parse() ÖÃÎ»
  *--------------------------------------------------------------------------------------------------------------------*/
 void gps_nav_proc(void)
 {
-    /* === T11: GPS Ç³ === */
+    /* === T11: GPS ÐÅºÅ±£»¤ === */
     if (gnss.state != 1)
     {
         if (gps_nav_state == GPS_NAV_NAVIGATING || gps_nav_state == GPS_NAV_ARRIVED)
@@ -124,47 +124,47 @@ void gps_nav_proc(void)
             gps_loss_frames++;
             if (gps_loss_frames >= GPS_NAV_SIGNAL_LOSS_FRAMES)
             {
-                /* Ç³ 5s Í£ */
+                /* Á¬Ðø¶ªÊ§ 5s ÔòÍ£Ö¹µ¼º½ */
                 gps_nav_stop();
                 return;
             }
         }
-        /* Ç³Ú¼ä²»á½»Æ¹ ISR È¡ */
+        /* ÎÞÐÅºÅÊ±²»¸üÐÂ ISR Êä³ö */
         return;
     }
 
-    /* GPS Ö¸ â†’ Ã¼ */
+    /* GPS ÐÅºÅ»Ö¸´£¬ÖØÖÃ¶ªÊ§Ö¡¼ÆÊý */
     gps_loss_frames = 0;
 
-    /* === T11: turn_mode Ô¼ === */
+    /* === T11: turn_mode ±£»¤ === */
     if (turn_mode != 5 && gps_nav_state != GPS_NAV_IDLE)
     {
         gps_nav_state = GPS_NAV_IDLE;
-        /* Æ¹È«: ISR  turn_mode!=5 Ê± GPS ×ªÖ§
-         *  read_idx Ö¸Ä¾É±È« (Öµ)
+        /* ¾¯¸æ: ISR ÖÐ turn_mode!=5 Ê±²»»á¶ÁÈ¡ GPS Êä³ö
+         * µ« read_idx ÈÔÖ¸Ïò¾ÉÊý¾Ý£¨°²È«£©
          */
     }
 
-    /* === ×´Ì¬Ö· === */
+    /* === ×´Ì¬»ú´¦Àí === */
     switch (gps_nav_state)
     {
     case GPS_NAV_IDLE:
-        /* È´ gps_nav_start()  turn_mode==5 */
+        /* µÈ´ý gps_nav_start() µ÷ÓÃ²¢ÉèÖÃ turn_mode==5 */
         break;
 
     case GPS_NAV_CALIBRATING:
     {
-        /* Ð£×¼:  IMU yaw  GPS Î»Ç¼Æ« */
+        /* Ð£×¼: ÓÃ IMU yaw Óë GPS ·½Î»½Ç¼ÆËã³õÊ¼Æ«ÒÆ */
         if (gps_cal_startpoint())
         {
-            /* Ð£×¼É¹ */
-            lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // Ë²
+            /* Ð£×¼³É¹¦ */
+            lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // ÖØÖÃµÍÍ¨ÂË²¨
             is_near_waypoint = 0;
             gps_nav_state    = GPS_NAV_NAVIGATING;
         }
         else
         {
-            /* Ð£×¼Ê§: Êµ < 2 Æ«Æ³ */
+            /* Ð£×¼Ê§°Ü: º½µãÊý < 2 »òÆ«ÒÆ¹ý´ó */
             gps_nav_state = GPS_NAV_IDLE;
         }
         break;
@@ -172,7 +172,7 @@ void gps_nav_proc(void)
 
     case GPS_NAV_NAVIGATING:
     {
-        /* === T09:  === */
+        /* === T09: ·½Î»¼ÆËã === */
         gps_waypoint_t *wp = gps_wp_current();
         if (wp == (gps_waypoint_t *)0)
         {
@@ -180,13 +180,13 @@ void gps_nav_proc(void)
             break;
         }
 
-        /* Î»Ç¼ [0, 360)  (×¼) */
+        /* ¼ÆËã·½Î»½Ç [0, 360)  (¶È) */
         float raw_bearing = (float)get_two_points_azimuth(
             gnss.latitude, gnss.longitude, wp->lat, wp->lng);
         float distance = (float)get_two_points_distance(
             gnss.latitude, gnss.longitude, wp->lat, wp->lng);
 
-        /* Ë²: Ö¡Ö±Ó¸ (Öµ) */
+        /* µÍÍ¨ÂË²¨: Æ½»¬·½Î»½ÇÌø±ä (¶È) */
         if (lpf_bearing == GPS_NAV_FIRST_FRAME_MAGIC)
         {
             lpf_bearing = raw_bearing;
@@ -196,23 +196,23 @@ void gps_nav_proc(void)
             lpf_bearing = angle_lpf_circular(lpf_bearing, raw_bearing, GPS_NAV_LPF_ALPHA);
         }
 
-        /* Îª 0 Ê±Ö±Ð¶Ïµ */
+        /* ¾àÀë 0 Ê±Ö±½Ó±ê¼Çµ½´ï */
         if (distance < 0.01f)
         {
             gps_nav_state = GPS_NAV_ARRIVED;
             break;
         }
 
-        /* === T11: Æ² === */
+        /* === T11: Æ¯ÒÆÐÞÕý === */
         gps_cal_drift_correction();
 
-        /* Ð´Æ¹Ð´ */
+        /* ¸üÐÂ×ªÏòÊä³ö */
         gps_steer_output_t *out = gps_steer_write_buf();
         out->target_bearing_deg = lpf_bearing;
         out->distance_to_wp_m   = distance;
         out->imu_yaw_offset_deg = gps_cal_get_offset();
 
-        /* Ô­Ó½á½» */
+        /* Ìá½»µ½ ISR */
         gps_steer_commit();
 
         /* === T16: debug output (uncomment for wireless serial) === */
@@ -222,10 +222,10 @@ void gps_nav_proc(void)
         //        lpf_bearing + gps_cal_get_offset(),
         //        gps_cal_get_offset());
 
-        /* === T10: ÊµÐ¶ (Öµ) === */
+        /* === T10: º½µãµ½´ïÅÐ¶¨ (ÖÍ»Ø) === */
         if (!is_near_waypoint)
         {
-            /* Î´×´Ì¬:  < Öµ â†’ Ð¶Ïµ */
+            /* ½øÈëÅÐ¶¨: ¾àÀë < ½øÈëãÐÖµ ÇÒ Ê×´Î½øÈë */
             if (distance < GPS_NAV_ARRIVE_ENTER_M)
             {
                 is_near_waypoint = 1;
@@ -234,7 +234,7 @@ void gps_nav_proc(void)
         }
         else
         {
-            /* Ñµ×´Ì¬:  > ë¿ªÖµ â†’  */
+            /* Àë¿ªÅÐ¶¨: ¾àÀë > Àë¿ªãÐÖµ Ê±ÖØÖÃ±ê¼Ç */
             if (distance > GPS_NAV_ARRIVE_LEAVE_M)
             {
                 is_near_waypoint = 0;
@@ -245,17 +245,17 @@ void gps_nav_proc(void)
 
     case GPS_NAV_ARRIVED:
     {
-        /* Ð»Ò»Êµ */
+        /* ÍÆ½øº½µã */
         if (gps_wp_advance())
         {
-            /* Ò»Êµ */
+            /* »¹ÓÐÏÂÒ»º½µã */
             is_near_waypoint = 0;
-            lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // Ë²
+            lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // ÖØÖÃµÍÍ¨ÂË²¨
             gps_nav_state    = GPS_NAV_NAVIGATING;
         }
         else
         {
-            /* Êµ */
+            /* ËùÓÐº½µãÒÑ×ßÍê */
             gps_nav_state = GPS_NAV_COMPLETE;
         }
         break;
@@ -263,7 +263,7 @@ void gps_nav_proc(void)
 
     case GPS_NAV_COMPLETE:
     {
-        /* Í£: turn_mode=0 */
+        /* µ¼º½Íê³É: ¹Ø±Õ×ªÏò turn_mode=0 */
         turn_mode     = 0;
         gps_nav_state = GPS_NAV_IDLE;
         break;
@@ -276,8 +276,8 @@ void gps_nav_proc(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Ê¼: Ð£×¼
- * Ç°: Êµ >= 2
+ * ¹¦ÄÜ: Æô¶¯µ¼º½
+ * Ç°ÖÃ: º½µãÊý >= 2
  *--------------------------------------------------------------------------------------------------------------------*/
 void gps_nav_start(void)
 {
@@ -289,14 +289,14 @@ void gps_nav_start(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Í£Ö¹: IDLE + turn_mode=0
+ * ¹¦ÄÜ: Í£Ö¹µ¼º½£¬¸´Î»µ½ IDLE + turn_mode=0
  *--------------------------------------------------------------------------------------------------------------------*/
 void gps_nav_stop(void)
 {
     gps_nav_state = GPS_NAV_IDLE;
     turn_mode     = 0;
 
-    /* Ð´ ( ISR È¡É±È«) */
+    /* ÇåÁãÊä³ö£¨·ÀÖ¹ ISR ¶Áµ½¾ÉÊý¾Ý£© */
     gps_steer_output_t *out = gps_steer_write_buf();
     out->target_bearing_deg = 0.0f;
     out->distance_to_wp_m   = 0.0f;
@@ -304,7 +304,7 @@ void gps_nav_stop(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * È¡Ç°×´Ì¬
+ * ¹¦ÄÜ: »ñÈ¡µ±Ç°µ¼º½×´Ì¬
  *--------------------------------------------------------------------------------------------------------------------*/
 uint8 gps_nav_get_state(void)
 {
@@ -312,8 +312,8 @@ uint8 gps_nav_get_state(void)
 }
 
 /*--------------------------------------------------------------------------------------------------------------------
- * Ð»Ä¿Êµ
- * : 1=É¹, 0=Ê§ (Ô½)
+ * ¹¦ÄÜ: ÉèÖÃº½µãË÷Òý
+ * ·µ»Ø: 1=³É¹¦, 0=Ê§°Ü£¨Ë÷ÒýÔ½½ç£©
  *--------------------------------------------------------------------------------------------------------------------*/
 uint8 gps_nav_set_wp_index(uint8 idx)
 {
@@ -322,6 +322,6 @@ uint8 gps_nav_set_wp_index(uint8 idx)
 
     gps_wp_set.current_index = idx;
     is_near_waypoint = 0;
-    lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // Ë²
+    lpf_bearing      = GPS_NAV_FIRST_FRAME_MAGIC;  // ÖØÖÃµÍÍ¨ÂË²¨
     return 1;
 }

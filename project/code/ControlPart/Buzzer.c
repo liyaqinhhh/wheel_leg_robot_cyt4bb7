@@ -1,38 +1,38 @@
 /*
  * Buzzer.c
  *
- *  Created on: 2025å¹´5æœˆ23æ—¥
+ *  Created on: 2025Äê5ÔÂ23ÈÕ
  *      Author: Administrator
  */
 #include "zf_common_headfile.h"
 #include "image.h"
 
-#define    BEEP_TIME_convent       100   // å¸¸è§„å…ƒç´ èœ‚é¸£æŒç»­æ—¶é—´(ms)
-#define    BEEP_TIME_cross         500   // åå­—å…ƒç´ èœ‚é¸£æŒç»­æ—¶é—´(ms)
-#define    BEEP_TIME_circle        200   // ç¯å²›å…ƒç´ èœ‚é¸£æŒç»­æ—¶é—´(ms)
-#define    BEEP_TIME_zebra         2000  // æ–‘é©¬çº¿å…ƒç´ èœ‚é¸£æŒç»­æ—¶é—´(ms)
+#define    BEEP_TIME_convent       100   // ³£¹æÔªËØ·äÃù³ÖĞøÊ±¼ä(ms)
+#define    BEEP_TIME_cross         500   // Ê®×ÖÔªËØ·äÃù³ÖĞøÊ±¼ä(ms)
+#define    BEEP_TIME_circle        200   // »·µºÔªËØ·äÃù³ÖĞøÊ±¼ä(ms)
+#define    BEEP_TIME_zebra         2000  // °ßÂíÏßÔªËØ·äÃù³ÖĞøÊ±¼ä(ms)
 
-#define    BEEP_FREQ_NORMAL       3000  // æ­£å¸¸æç¤ºéŸ³é¢‘ç‡(Hz)
-#define    BEEP_FREQ_ERROR        5000  // é”™è¯¯æŠ¥è­¦éŸ³é¢‘ç‡(Hz)
+#define    BEEP_FREQ_NORMAL       3000  // Õı³£ÌáÊ¾ÒôÆµÂÊ(Hz)
+#define    BEEP_FREQ_ERROR        5000  // ´íÎó±¨¾¯ÒôÆµÂÊ(Hz)
 //#define    BEEP_freq_cross         4000
 //#define    BEEP_freq_circle        2000
 //#define    BEEP_freq_zebra         1500
 
 
 
-uint16 beep_count = 0;  // èœ‚é¸£å™¨è®¡æ—¶è®¡æ•°å™¨ï¼Œç”¨äºæ§åˆ¶é¸£å“æ—¶é•¿
+uint16 beep_count = 0;  // ·äÃùÆ÷¼ÆÊ±¼ÆÊıÆ÷£¬ÓÃÓÚ¿ØÖÆÃùÏìÊ±³¤
 
 
 /**
- * @brief  èœ‚é¸£å™¨æ§åˆ¶å‡½æ•°ï¼Œæ ¹æ®èµ›é“å…ƒç´ çŠ¶æ€å’Œé”™è¯¯æ ‡å¿—æ§åˆ¶èœ‚é¸£å™¨é¸£å“æ—¶é•¿ä¸é¢‘ç‡
+ * @brief  ·äÃùÆ÷¿ØÖÆº¯Êı£¬¸ù¾İÈüµÀÔªËØ×´Ì¬ºÍ´íÎó±êÖ¾¿ØÖÆ·äÃùÆ÷ÃùÏìÊ±³¤ÓëÆµÂÊ
  *
- * buzzer_flag ä¸º 1 æ—¶ä¸ºæ­£å¸¸æç¤ºéŸ³(3000Hz)ï¼Œæ ¹æ® Element_State(å½“å‰èµ›é“å…ƒç´ )
- * é€‰æ‹©ä¸åŒé¸£å“æ—¶é•¿ï¼šå¸¸è§„100msã€åå­—500msã€ç¯å²›200msã€æ–‘é©¬çº¿2000msã€‚
- * buzzer_flag ä¸º 2 æ—¶ä¸ºé”™è¯¯æŠ¥è­¦éŸ³(5000Hz)ï¼Œå›ºå®šé¸£å“500msã€‚
- * é¸£å“æ—¶é•¿åˆ°è¾¾åè‡ªåŠ¨å…³é—­èœ‚é¸£å™¨å¹¶æ¸…é›¶ buzzer_flagã€‚
+ * buzzer_flag Îª 1 Ê±ÎªÕı³£ÌáÊ¾Òô(3000Hz)£¬¸ù¾İ Element_State(µ±Ç°ÈüµÀÔªËØ)
+ * Ñ¡Ôñ²»Í¬ÃùÏìÊ±³¤£º³£¹æ100ms¡¢Ê®×Ö500ms¡¢»·µº200ms¡¢°ßÂíÏß2000ms¡£
+ * buzzer_flag Îª 2 Ê±Îª´íÎó±¨¾¯Òô(5000Hz)£¬¹Ì¶¨ÃùÏì500ms¡£
+ * ÃùÏìÊ±³¤µ½´ïºó×Ô¶¯¹Ø±Õ·äÃùÆ÷²¢ÇåÁã buzzer_flag¡£
  *
- * @param  æ— ï¼ˆé€šè¿‡å…¨å±€å˜é‡ buzzer_flag å’Œ Element_State è·å–è¾“å…¥ï¼‰
- * @return æ— 
+ * @param  ÎŞ£¨Í¨¹ıÈ«¾Ö±äÁ¿ buzzer_flag ºÍ Element_State »ñÈ¡ÊäÈë£©
+ * @return ÎŞ
  */
 void Buzzer_Control(void)
 {
@@ -124,7 +124,7 @@ void Buzzer_Control(void)
 
     if(beep_open)
     {
-        pwm_init(TCPWM_CH28_P10_0, current_freq, 3000); // ç§»æ¤ï¼šCYT4BB7 æ—  pwm_set_freqï¼Œç”¨ pwm_init åŒæ—¶è®¾ç½®é¢‘ç‡å’Œå ç©ºæ¯”
+        pwm_init(TCPWM_CH28_P10_0, current_freq, 3000); // ÒÆÖ²£ºCYT4BB7 ÎŞ pwm_set_freq£¬ÓÃ pwm_init Í¬Ê±ÉèÖÃÆµÂÊºÍÕ¼¿Õ±È
     }
     else
     {
@@ -137,10 +137,10 @@ void Buzzer_Control(void)
 
 
 
-////æ’­æ”¾é€Ÿåº¦ï¼Œå€¼ä¸ºå››åˆ†éŸ³ç¬¦çš„æ—¶é•¿(ms)
+////²¥·ÅËÙ¶È£¬ÖµÎªËÄ·ÖÒô·ûµÄÊ±³¤(ms)
 //#define       SPEED                103
 //
-////éŸ³ç¬¦ä¸ç´¢å¼•å¯¹åº”è¡¨ï¼ŒPï¼šä¼‘æ­¢ç¬¦ï¼ŒLï¼šä½éŸ³ï¼ŒMï¼šä¸­éŸ³ï¼ŒHï¼šé«˜éŸ³ï¼Œä¸‹åˆ’çº¿ï¼šå‡åŠéŸ³ç¬¦å·#
+////Òô·ûÓëË÷Òı¶ÔÓ¦±í£¬P£ºĞİÖ¹·û£¬L£ºµÍÒô£¬M£ºÖĞÒô£¬H£º¸ßÒô£¬ÏÂ»®Ïß£ºÉı°ëÒô·ûºÅ#
 //#define P   0
 ////#define L1  1
 //#define L1_1 2
@@ -268,14 +268,14 @@ void Buzzer_Control(void)
 //void Music()
 //{
 //    music_count++;
-//    if(On_My_Own[MusicSelect]!=3000)    //å¦‚æœä¸æ˜¯åœæ­¢æ ‡å¿—ä½
+//    if(On_My_Own[MusicSelect]!=3000)    //Èç¹û²»ÊÇÍ£Ö¹±êÖ¾Î»
 //    {
-//        FreqSelect=On_My_Own[MusicSelect];  //é€‰æ‹©éŸ³ç¬¦å¯¹åº”çš„é¢‘ç‡
+//        FreqSelect=On_My_Own[MusicSelect];  //Ñ¡ÔñÒô·û¶ÔÓ¦µÄÆµÂÊ
 //        pwm_set_duty(TCPWM_CH28_P10_0, (uint32)(65268/65535*5000));
 //        if(music_count >= SPEED/4*On_My_Own[MusicSelect+1])
 //            MusicSelect += 2;
 //    }
-//    else    //å¦‚æœæ˜¯åœæ­¢æ ‡å¿—ä½
+//    else    //Èç¹ûÊÇÍ£Ö¹±êÖ¾Î»
 //    {
 //        MusicSelect = 0;
 //    }

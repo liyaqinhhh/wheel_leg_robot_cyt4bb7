@@ -1,7 +1,7 @@
 /*
  * yaokong.c
  *
- *  Created on: 2024å¹´9æœˆ7æ—¥
+ *  Created on: 2024Äê9ÔÂ7ÈÕ
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -13,28 +13,36 @@
 
 float speed_yk;
 
-// lora3a22 æ¨¡å—åœ¨ CYT4BB7 å·¥ç¨‹ä¸­æœªå¯ç”¨ï¼Œå‡½æ•°ä½“æ³¨é‡Šä¿ç•™
-uint8 yaokong_data_deal(void) {
-   // å‰åŽ
-   if (lora3a22_uart_transfer.joystick[1] > 200)
-       Yao.Target_Speed = 1000;
-   else if (lora3a22_uart_transfer.joystick[1] < -200)
-       Yao.Target_Speed = (int)(0.2f * lora3a22_uart_transfer.joystick[1]);
-   else
-       Yao.Target_Speed = 0;
+void yaokong_map_joystick(int16_t joystick_1, int16_t joystick_2)
+{
+    /* Ç°ºóËÙ¶È£ºËÀÇø ¡À200£¬ÂúËÙÔ¼ 1000 */
+    if (joystick_1 > 200)
+        Yao.Target_Speed = 1000;
+    else if (joystick_1 < -200)
+        Yao.Target_Speed = (int)(0.2f * joystick_1);
+    else
+        Yao.Target_Speed = 0;
 
-   // å·¦å³
-   if (lora3a22_uart_transfer.joystick[2] > 100)
-       Deviation_Value = (float)( -lora3a22_uart_transfer.joystick[2]/1800.0f);
-   else if (lora3a22_uart_transfer.joystick[2] < -100)
-       Deviation_Value = (float)( -lora3a22_uart_transfer.joystick[2]/1800.0f);
-   else
-       Deviation_Value = 0;
+    /* ×óÓÒ×ªÏò£ºËÀÇø ¡À100£¬ÏÞ·ù ¡À1.0 */
+    if (joystick_2 > 100 || joystick_2 < -100)
+        Deviation_Value = -((float)joystick_2 / 1800.0f);
+    else
+        Deviation_Value = 0.0f;
 
-   Deviation_Value = func_limit_ab( Deviation_Value , -1.0f, 1.0f );
-   lora3a22_finsh_flag = 0;
-   return 1;
-    return 0;
+    Deviation_Value = func_limit_ab(Deviation_Value, -1.0f, 1.0f);
+}
+
+uint8 yaokong_data_deal(void)
+{
+    /* ±£ÁôÀÏ½Ó¿Ú£¬¼æÈÝ¾Éµ÷ÓÃ£»Êµ¼ÊÒ£¿ØÂ·¾¶×ß yaokong_map_joystick() */
+    if (lora3a22_finsh_flag)
+    {
+        yaokong_map_joystick((int16_t)lora3a22_uart_transfer.joystick[1],
+                             (int16_t)lora3a22_uart_transfer.joystick[2]);
+    }
+
+    lora3a22_finsh_flag = 0;
+    return 1;
 }
 
 

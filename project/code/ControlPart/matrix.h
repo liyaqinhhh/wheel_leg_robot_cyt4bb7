@@ -19,106 +19,106 @@
 typedef float matrix_type;
 
 /**
- * @brief é€šç”¨çŸ©é˜µç»“æ„ä½“
+ * @brief Í¨ÓÃ¾ØÕó½á¹¹Ìå
  */
 typedef struct
 {
-    int rows;                                /**< çŸ©é˜µè¡Œæ•° */
-    int cols;                                /**< çŸ©é˜µåˆ—æ•° */
-    matrix_type data[MAX_SIZE][MAX_SIZE];    /**< çŸ©é˜µå…ƒç´ å­˜å‚¨åŒº */
+    int rows;                                /**< ¾ØÕóĞĞÊı */
+    int cols;                                /**< ¾ØÕóÁĞÊı */
+    matrix_type data[MAX_SIZE][MAX_SIZE];    /**< ¾ØÕóÔªËØ´æ´¢Çø */
 }matrix_t;
 extern matrix_t error;
 extern matrix_t exf_x;
 
 /**
- * @brief æ¬§æ‹‰è§’è¾“å‡ºç»“æ„ä½“
+ * @brief Å·À­½ÇÊä³ö½á¹¹Ìå
  */
 typedef struct
 {
-    matrix_type roll;     /**< æ¨ªæ»šè§’ï¼Œå•ä½ä¸ºåº¦ */
-    matrix_type pitch;    /**< ä¿¯ä»°è§’ï¼Œå•ä½ä¸ºåº¦ */
-    matrix_type yaw;      /**< åèˆªè§’ï¼Œå•ä½ä¸ºåº¦ */
+    matrix_type roll;     /**< ºá¹ö½Ç£¬µ¥Î»Îª¶È */
+    matrix_type pitch;    /**< ¸©Ñö½Ç£¬µ¥Î»Îª¶È */
+    matrix_type yaw;      /**< Æ«º½½Ç£¬µ¥Î»Îª¶È */
 }EulerAngles;
 extern EulerAngles euler_angle;
 
 
 /**
- * @brief åˆå§‹åŒ–æŒ‡å®šå°ºå¯¸çš„é›¶çŸ©é˜µ
- * @param martix å¾…åˆå§‹åŒ–çš„çŸ©é˜µæŒ‡é’ˆ
- * @param rows çŸ©é˜µè¡Œæ•°
- * @param col çŸ©é˜µåˆ—æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯Ö¸¶¨³ß´çµÄÁã¾ØÕó
+ * @param martix ´ı³õÊ¼»¯µÄ¾ØÕóÖ¸Õë
+ * @param rows ¾ØÕóĞĞÊı
+ * @param col ¾ØÕóÁĞÊı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_Init(matrix_t*martix,int rows,int col);
 
 /**
- * @brief ä½¿ç”¨ä¸€ç»´æ•°ç»„æŒ‰è¡Œå¡«å……çŸ©é˜µ
- * @param mat ç›®æ ‡çŸ©é˜µæŒ‡é’ˆ
- * @param array æºæ•°ç»„é¦–åœ°å€
- * @param rows çŸ©é˜µè¡Œæ•°
- * @param cols çŸ©é˜µåˆ—æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief Ê¹ÓÃÒ»Î¬Êı×é°´ĞĞÌî³ä¾ØÕó
+ * @param mat Ä¿±ê¾ØÕóÖ¸Õë
+ * @param array Ô´Êı×éÊ×µØÖ·
+ * @param rows ¾ØÕóĞĞÊı
+ * @param cols ¾ØÕóÁĞÊı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_From_Array(matrix_t* mat, const matrix_type* array,const int rows,const int cols);
 
 /**
- * @brief åˆ›å»ºæŒ‡å®šé˜¶æ•°çš„å•ä½çŸ©é˜µ
- * @param matrix ç›®æ ‡çŸ©é˜µæŒ‡é’ˆ
- * @param size å•ä½çŸ©é˜µé˜¶æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief ´´½¨Ö¸¶¨½×ÊıµÄµ¥Î»¾ØÕó
+ * @param matrix Ä¿±ê¾ØÕóÖ¸Õë
+ * @param size µ¥Î»¾ØÕó½×Êı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_Identity(matrix_t* matrix, int size);
 
 /**
- * @brief è®¡ç®—çŸ©é˜µè½¬ç½®
- * @param src æºçŸ©é˜µæŒ‡é’ˆ
- * @return matrix_t è½¬ç½®åçš„çŸ©é˜µ
+ * @brief ¼ÆËã¾ØÕó×ªÖÃ
+ * @param src Ô´¾ØÕóÖ¸Õë
+ * @return matrix_t ×ªÖÃºóµÄ¾ØÕó
  */
 matrix_t Matrix_Transpose(const matrix_t* src);
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„ä¹˜ç§¯
- * @param A å·¦æ“ä½œæ•°çŸ©é˜µ
- * @param B å³æ“ä½œæ•°çŸ©é˜µ
- * @return matrix_t çŸ©é˜µä¹˜æ³•ç»“æœ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄ³Ë»ı
+ * @param A ×ó²Ù×÷Êı¾ØÕó
+ * @param B ÓÒ²Ù×÷Êı¾ØÕó
+ * @return matrix_t ¾ØÕó³Ë·¨½á¹û
  */
 matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B);
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„é€å…ƒç´ å’Œ
- * @param A ç¬¬ä¸€ä¸ªåŠ æ•°çŸ©é˜µ
- * @param B ç¬¬äºŒä¸ªåŠ æ•°çŸ©é˜µ
- * @return matrix_t çŸ©é˜µåŠ æ³•ç»“æœ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄÖğÔªËØºÍ
+ * @param A µÚÒ»¸ö¼ÓÊı¾ØÕó
+ * @param B µÚ¶ş¸ö¼ÓÊı¾ØÕó
+ * @return matrix_t ¾ØÕó¼Ó·¨½á¹û
  */
 matrix_t add_matrices(const matrix_t* A, const matrix_t* B);
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„é€å…ƒç´ å·®
- * @param A è¢«å‡çŸ©é˜µ
- * @param B å‡æ•°çŸ©é˜µ
- * @return matrix_t çŸ©é˜µå‡æ³•ç»“æœ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄÖğÔªËØ²î
+ * @param A ±»¼õ¾ØÕó
+ * @param B ¼õÊı¾ØÕó
+ * @return matrix_t ¾ØÕó¼õ·¨½á¹û
  */
 matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B);
 
 /**
- * @brief ä½¿ç”¨é«˜æ–¯æ¶ˆå…ƒæ³•æ±‚çŸ©é˜µé€†
- * @param A å¾…æ±‚é€†çš„æ–¹é˜µ
- * @param invA è¾“å‡ºçš„é€†çŸ©é˜µ
- * @return int 0 è¡¨ç¤ºæ±‚é€†æˆåŠŸï¼Œ1 è¡¨ç¤ºçŸ©é˜µä¸å¯é€†
+ * @brief Ê¹ÓÃ¸ßË¹ÏûÔª·¨Çó¾ØÕóÄæ
+ * @param A ´ıÇóÄæµÄ·½Õó
+ * @param invA Êä³öµÄÄæ¾ØÕó
+ * @return int 0 ±íÊ¾ÇóÄæ³É¹¦£¬1 ±íÊ¾¾ØÕó²»¿ÉÄæ
  */
 int inverse_matrix(matrix_t *A, matrix_t *invA);
 
 /**
- * @brief å¯¹è¡Œå‘é‡æˆ–åˆ—å‘é‡æ‰§è¡Œå½’ä¸€åŒ–
- * @param v å¾…å½’ä¸€åŒ–çš„å‘é‡
- * @return void æ— è¿”å›å€¼
+ * @brief ¶ÔĞĞÏòÁ¿»òÁĞÏòÁ¿Ö´ĞĞ¹éÒ»»¯
+ * @param v ´ı¹éÒ»»¯µÄÏòÁ¿
+ * @return void ÎŞ·µ»ØÖµ
  */
 void normalize_vector(matrix_t *v);
 
 /**
- * @brief æ‰“å°çŸ©é˜µå†…å®¹ï¼Œä¾¿äºè°ƒè¯•è§‚å¯Ÿ
- * @param matrix å¾…æ‰“å°çš„çŸ©é˜µæŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief ´òÓ¡¾ØÕóÄÚÈİ£¬±ãÓÚµ÷ÊÔ¹Û²ì
+ * @param matrix ´ı´òÓ¡µÄ¾ØÕóÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void print_matrix(const matrix_t* matrix);
 

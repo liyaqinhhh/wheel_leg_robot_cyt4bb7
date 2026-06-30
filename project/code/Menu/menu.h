@@ -1,94 +1,94 @@
 /*
  * menu.h
  *
- *  Created on: 2024å¹´7æœˆ5æ—¥
+ *  Created on: 2024Äê7ÔÂ5ÈÕ
  *      Author: LateRain
  */
 
 #ifndef CODE_KEY_MENU_H_
 #define CODE_KEY_MENU_H_
 
-#define WRITE 0    // å°†å½“å‰èœå•å‚æ•°å†™å…¥ Flash
-#define READ  1    // ä» Flash è¯»å–èœå•å‚æ•°
+#define WRITE 0    // ½«µ±Ç°²Ëµ¥²ÎÊıĞ´Èë Flash
+#define READ  1    // ´Ó Flash ¶ÁÈ¡²Ëµ¥²ÎÊı
 
-extern uint8 menu_mode;        // èœå•æ¨¡å¼ï¼š0=å‚æ•°èœå•ï¼Œ1=è¿è¡Œæ˜¾ç¤º
-extern uint8 flag_track;       // èœå•è¿è¡Œæ ‡å¿—ï¼šç”¨äºæš‚åœå¯»è¿¹è°ƒå‚
-extern uint8 screen_refresh;   // å±å¹•åˆ·æ–°æ ‡å¿—
+extern uint8 menu_mode;        // ²Ëµ¥Ä£Ê½£º0=²ÎÊı²Ëµ¥£¬1=ÔËĞĞÏÔÊ¾
+extern uint8 flag_track;       // ²Ëµ¥ÔËĞĞ±êÖ¾£ºÓÃÓÚÔİÍ£Ñ°¼£µ÷²Î
+extern uint8 screen_refresh;   // ÆÁÄ»Ë¢ĞÂ±êÖ¾
 
-extern uint16 Image_Gain;      // æ‘„åƒå¤´å¢ç›Šå‚æ•°
-extern uint16 Image_EpTime;    // æ‘„åƒå¤´æ›å…‰æ—¶é—´å‚æ•°
-extern uint8  Change_Control;  // å‚æ•°ä¿å­˜åæ˜¯å¦é‡åˆå§‹åŒ–æ‘„åƒå¤´
+extern uint16 Image_Gain;      // ÉãÏñÍ·ÔöÒæ²ÎÊı
+extern uint16 Image_EpTime;    // ÉãÏñÍ·ÆØ¹âÊ±¼ä²ÎÊı
+extern uint8  Change_Control;  // ²ÎÊı±£´æºóÊÇ·ñÖØ³õÊ¼»¯ÉãÏñÍ·
 
 /**
- * @brief  æ£€æµ‹æŒ‡å®šæŒ‰é”®æ˜¯å¦è¿›å…¥ç›®æ ‡çŠ¶æ€
- * @param  key_n  ç›®æ ‡æŒ‰é”®ç¼–å·
- * @param  state  ç›®æ ‡æŒ‰é”®çŠ¶æ€
- * @return 1 è¡¨ç¤ºæ£€æµ‹åˆ°ç›®æ ‡çŠ¶æ€ï¼Œ0 è¡¨ç¤ºæœªæ£€æµ‹åˆ°
+ * @brief  ¼ì²âÖ¸¶¨°´¼üÊÇ·ñ½øÈëÄ¿±ê×´Ì¬
+ * @param  key_n  Ä¿±ê°´¼ü±àºÅ
+ * @param  state  Ä¿±ê°´¼ü×´Ì¬
+ * @return 1 ±íÊ¾¼ì²âµ½Ä¿±ê×´Ì¬£¬0 ±íÊ¾Î´¼ì²âµ½
  */
 int key_detect(key_index_enum key_n, key_state_enum state);
 
 /**
- * @brief  åœ¨ IPS200 å±å¹•ä¸Šæ˜¾ç¤ºè¿è¡ŒçŠ¶æ€ä¸è°ƒè¯•ä¿¡æ¯
- * @return æ— 
+ * @brief  ÔÚ IPS200 ÆÁÄ»ÉÏÏÔÊ¾ÔËĞĞ×´Ì¬Óëµ÷ÊÔĞÅÏ¢
+ * @return ÎŞ
  */
 void IPS200_Show1(void);
 
 /**
- * @brief  å°†èœå•å‚æ•°å†™å…¥ Flash æˆ–ä» Flash æ¢å¤
- * @param  way  æ“ä½œæ–¹å¼ï¼Œå–å€¼ä¸º WRITE æˆ– READ
- * @return æ— 
+ * @brief  ½«²Ëµ¥²ÎÊıĞ´Èë Flash »ò´Ó Flash »Ö¸´
+ * @param  way  ²Ù×÷·½Ê½£¬È¡ÖµÎª WRITE »ò READ
+ * @return ÎŞ
  */
 void store_or_read_DATA(int way);
 
 /**
- * @brief  åˆ‡æ¢å‚æ•°è°ƒèŠ‚æ­¥è¿›å•ä½
- * @return æ— 
+ * @brief  ÇĞ»»²ÎÊıµ÷½Ú²½½øµ¥Î»
+ * @return ÎŞ
  */
 void switch_unit();
 
 /**
- * @brief  å¯¹æµ®ç‚¹ç±»å‹èœå•å‚æ•°æ‰§è¡Œå¢å‡è°ƒèŠ‚
- * @param  data  æŒ‡å‘å¾…è°ƒèŠ‚å‚æ•°çš„æŒ‡é’ˆ
- * @return æ— 
+ * @brief  ¶Ô¸¡µãÀàĞÍ²Ëµ¥²ÎÊıÖ´ĞĞÔö¼õµ÷½Ú
+ * @param  data  Ö¸Ïò´ıµ÷½Ú²ÎÊıµÄÖ¸Õë
+ * @return ÎŞ
  */
 void data_operate(float *data);
 
 /**
- * @brief  å¤„ç†èœå•ç•Œé¢æ˜¾ç¤ºã€å…‰æ ‡åˆ‡æ¢ä¸å‚æ•°ä¿®æ”¹
- * @return æ— 
+ * @brief  ´¦Àí²Ëµ¥½çÃæÏÔÊ¾¡¢¹â±êÇĞ»»Óë²ÎÊıĞŞ¸Ä
+ * @return ÎŞ
  */
 void menu(void);
 
-extern uint8 menu_show;               // èœå•æ˜¾ç¤ºå¼€å…³
-extern uint8 Jump_Control_Flag;       // è·³è·ƒå…ƒç´ å¤„ç†å¼€å…³
-extern uint8 Single_Control_Flag;     // å•è¾¹æ¡¥å…ƒç´ å¤„ç†å¼€å…³
-extern uint8 L_Circle_Flag;           // å·¦ç¯å²›å¤„ç†æ¨¡å¼
-extern uint8 R_Circle_Flag;           // å³ç¯å²›å¤„ç†æ¨¡å¼
-extern uint16 ConvenTion_Speed;       // å¸¸è§„å·¡çº¿é€Ÿåº¦
-extern uint16 Derailment_Speed;       // å‡ºèµ›é“æ—¶çš„ä¿æŠ¤é€Ÿåº¦
-extern uint16 Straightaway_Speed;     // ç›´é“é€Ÿåº¦
-extern uint16 L_Turn_Speed;           // å·¦è½¬å¼¯é“é€Ÿåº¦
-extern uint16 R_Turn_SPeed;           // å³è½¬å¼¯é“é€Ÿåº¦
-extern uint16 Jump_speed;             // è·³è·ƒåŠ¨ä½œé€Ÿåº¦
-extern uint16 Single_speed_1;         // å•è¾¹æ¡¥åˆ‡æ¢å§¿æ€é€Ÿåº¦
-extern uint16 Single_speed_2;         // å•è¾¹æ¡¥é€šè¿‡é€Ÿåº¦
+extern uint8 menu_show;               // ²Ëµ¥ÏÔÊ¾¿ª¹Ø
+extern uint8 Jump_Control_Flag;       // ÌøÔ¾ÔªËØ´¦Àí¿ª¹Ø
+extern uint8 Single_Control_Flag;     // µ¥±ßÇÅÔªËØ´¦Àí¿ª¹Ø
+extern uint8 L_Circle_Flag;           // ×ó»·µº´¦ÀíÄ£Ê½
+extern uint8 R_Circle_Flag;           // ÓÒ»·µº´¦ÀíÄ£Ê½
+extern uint16 ConvenTion_Speed;       // ³£¹æÑ²ÏßËÙ¶È
+extern uint16 Derailment_Speed;       // ³öÈüµÀÊ±µÄ±£»¤ËÙ¶È
+extern uint16 Straightaway_Speed;     // Ö±µÀËÙ¶È
+extern uint16 L_Turn_Speed;           // ×ó×ªÍäµÀËÙ¶È
+extern uint16 R_Turn_SPeed;           // ÓÒ×ªÍäµÀËÙ¶È
+extern uint16 Jump_speed;             // ÌøÔ¾¶¯×÷ËÙ¶È
+extern uint16 Single_speed_1;         // µ¥±ßÇÅÇĞ»»×ËÌ¬ËÙ¶È
+extern uint16 Single_speed_2;         // µ¥±ßÇÅÍ¨¹ıËÙ¶È
 
-extern uint16 L_Circle_State_1_Speed; // å·¦ç¯å²›é¢„å…¥ç¯é€Ÿåº¦
-extern uint16 L_Circle_State_2_Speed; // å·¦ç¯å²›å…¥ç¯é€Ÿåº¦
-extern uint16 L_Circle_State_3_Speed; // å·¦ç¯å²›ç¯ä¸­é€Ÿåº¦
-extern uint16 L_Circle_State_4_Speed; // å·¦ç¯å²›é¢„å‡ºç¯é€Ÿåº¦
-extern uint16 L_Circle_State_5_Speed; // å·¦ç¯å²›å‡ºç¯é€Ÿåº¦
+extern uint16 L_Circle_State_1_Speed; // ×ó»·µºÔ¤Èë»·ËÙ¶È
+extern uint16 L_Circle_State_2_Speed; // ×ó»·µºÈë»·ËÙ¶È
+extern uint16 L_Circle_State_3_Speed; // ×ó»·µº»·ÖĞËÙ¶È
+extern uint16 L_Circle_State_4_Speed; // ×ó»·µºÔ¤³ö»·ËÙ¶È
+extern uint16 L_Circle_State_5_Speed; // ×ó»·µº³ö»·ËÙ¶È
 
-extern uint16 R_Circle_State_1_Speed; // å³ç¯å²›é¢„å…¥ç¯é€Ÿåº¦
-extern uint16 R_Circle_State_2_Speed; // å³ç¯å²›å…¥ç¯é€Ÿåº¦
-extern uint16 R_Circle_State_3_Speed; // å³ç¯å²›ç¯ä¸­é€Ÿåº¦
-extern uint16 R_Circle_State_4_Speed; // å³ç¯å²›é¢„å‡ºç¯é€Ÿåº¦
-extern uint16 R_Circle_State_5_Speed; // å³ç¯å²›å‡ºç¯é€Ÿåº¦
+extern uint16 R_Circle_State_1_Speed; // ÓÒ»·µºÔ¤Èë»·ËÙ¶È
+extern uint16 R_Circle_State_2_Speed; // ÓÒ»·µºÈë»·ËÙ¶È
+extern uint16 R_Circle_State_3_Speed; // ÓÒ»·µº»·ÖĞËÙ¶È
+extern uint16 R_Circle_State_4_Speed; // ÓÒ»·µºÔ¤³ö»·ËÙ¶È
+extern uint16 R_Circle_State_5_Speed; // ÓÒ»·µº³ö»·ËÙ¶È
 
-extern uint16 Cross_Speed;            // åå­—è·¯å£é€šè¿‡é€Ÿåº¦
-extern uint16 Cross_State_4_Speed;    // åå­—å†…éƒ¨ä¿®æ­£é˜¶æ®µé€Ÿåº¦
-extern uint16 L_Oblique_Cross_Speed;  // å·¦æ–œå…¥åå­—é€Ÿåº¦
-extern uint16 R_Oblique_Cross_Speed;  // å³æ–œå…¥åå­—é€Ÿåº¦
-extern uint16 Small_S_Speed;          // å° S å¼¯é€Ÿåº¦
+extern uint16 Cross_Speed;            // Ê®×ÖÂ·¿ÚÍ¨¹ıËÙ¶È
+extern uint16 Cross_State_4_Speed;    // Ê®×ÖÄÚ²¿ĞŞÕı½×¶ÎËÙ¶È
+extern uint16 L_Oblique_Cross_Speed;  // ×óĞ±ÈëÊ®×ÖËÙ¶È
+extern uint16 R_Oblique_Cross_Speed;  // ÓÒĞ±ÈëÊ®×ÖËÙ¶È
+extern uint16 Small_S_Speed;          // Ğ¡ S ÍäËÙ¶È
 
 #endif /* CODE_KEY_MENU_H_ */

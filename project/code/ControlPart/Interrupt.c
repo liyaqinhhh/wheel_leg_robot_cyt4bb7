@@ -1,18 +1,18 @@
 /**
  * @file    Interrupt.c
- * @brief   ï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½Ë¶à¼¶ï¿½ï¿½Ê±ï¿½Ð¶Ï·ï¿½ï¿½ï¿½Êµï¿½ï¿½
+ * @brief   Æ½ºâ³µ¶à¼¶¶¨Ê±ÖÐ¶Ï·þÎñÊµÏÖ
  *
- * ï¿½Ð¶Ïµï¿½ï¿½È¼Ü¹ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½É¶ï¿½Ê±ï¿½ï¿½Ó²ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1ms  ï¿½ï¿½ IMUÆ«ï¿½ï¿½ï¿½ï¿½ï¿½Û»ï¿½ï¿½ï¿½È¦ï¿½ï¿½ï¿½ï¿½ï¿½Ù£ï¿½Dirchangeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½Ê±
- *   2ms  ï¿½ï¿½ ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½Æ¡ï¿½ï¿½ï¿½ï¿½ï¿½É¨ï¿½è¡¢AIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½È¡ï¿½ï¿½
- *          ï¿½ï¿½ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ì£©
- *   4ms  ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½PIDï¿½ï¿½ï¿½â»·ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½PIDÄ£Ê½ï¿½Ð»ï¿½
- *          ï¿½ï¿½turn_mode 0~7ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½/ï¿½Ó¾ï¿½/GPS/ï¿½ßµï¿½/Ô­ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½
- *   8ms  ï¿½ï¿½ ï¿½ï¿½ï¿½È¸ß¶ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½(Single_Control)ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½(servo_balance)
- *   16ms ï¿½ï¿½ ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£©ï¿½ï¿½ï¿½ßµï¿½ÊµÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   40ms ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½â³¬Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¯ï¿½ï¿½ï¿½ï¿½
+ * ÖÐ¶Ï²ã¼¶¸ÅÀÀ£¨ÆµÂÊµÝ¼õ¡¢ºÄÊ±µÝÔö£©£º
+ *   1ms  £º IMUÆ«º½½Ç»ý·Ö¡¢ÀÛ¼ÓÈ¦¼ÆÊý¡¢Dirchange¡¢µ½´ïÕ¾¼ÆÊ±¡¢µ½´ïÊ±
+ *   2ms  £º ÌøÔ¾¿ØÖÆ¡¢°´¼üÉ¨Ãè¡¢AIÊý¾Ý½ÓÊÕ¡¢IMUÊý¾Ý¶ÁÈ¡¡¢
+ *          ½ÇËÙ¶È»·PID£¨ÄÚ»·£©¡¢Æ«º½ÏìÓ¦Êä³ö
+ *   4ms  £º ¿¨¶ûÂüÂË²¨¡¢½Ç¶È»·PID£¨Íâ»·£©¡¢×ªÏòPIDÄ£Ê½ÇÐ»»
+ *          £¨turn_mode 0~7£¬Ö§³ÖÊÓ¾õ/Ò£¿Ø/¹ßµ¼/GPS/Ô­µØ/¹ßµ¼×ªÏò£©
+ *   8ms  £º ÍÈ²¿¸ß¶ÈÇÐ»»¿ØÖÆ(Single_Control)¡¢¶æ»úÆ½ºâ»·(servo_balance)
+ *   16ms £º ËÙ¶È»·PID£¨Íâ»·¼ÆËã£©¡¢¹ßµ¼ÊµÊ±×ø±ê¸üÐÂ
+ *   40ms £º °ßÂíÏßÂß¼­¡¢ ³¬Ê±¼ì²â¡¢Æ«º½½ÇÆ¯ÒÆ²¹³¥
  *
- * Created on: 2024ï¿½ï¿½2ï¿½ï¿½
+ * Created on: 2024Äê2ÔÂ
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -30,60 +30,60 @@
 #include "Ins.h"
 #include "AI_Pid_Tuner.h"
 
-#include "Ins.h" // é«˜åº¦ç³»ç»Ÿçš„yaw_insç­‰
+#include "Ins.h" // ¹ßµ¼Ä£¿éÍ·ÎÄ¼þ£¬Ìá¹©yaw_insµÈ½Ó¿Ú
 
 #include "gps_nav.h"
 
-/* å…¨å±€æŽ§åˆ¶ç›®æ ‡å¹³è¡¡ç»“æž„ä½“å®žä¾‹ */
+/* ¿ØÖÆºËÐÄÊý¾Ý½á¹¹£¬¸÷ÖÐ¶Ï¹²Ïí */
 Center_struct Yao;
 
-/* ---- ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½Ð£×¼ï¿½ï¿½ï¿½ï¿½ ----
- * ï¿½ï¿½ï¿½Ì£ï¿½ï¿½Ïµï¿½ï¿½É¼ï¿½CALIBRATE_SAMPLESï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½Ç£ï¿½
- * È¡Æ½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Æ«ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶È¼ï¿½È¥ï¿½ï¿½Æ«ï¿½Æ¡ï¿½
+/* ---- ×ËÌ¬½Ç¶ÈÐ£×¼Ïà¹Ø ----
+ * Á÷³Ì£ºÁ¬Ðø²É¼¯CALIBRATE_SAMPLES¸ö×ËÌ¬½Ç²ÉÑù£¬
+ * È¡Æ½¾ùÖµ×÷ÎªÁãÆ«£¬ºóÐø×ËÌ¬½Ç¼õÈ¥´ËÆ«ÒÆ¡£
  */
-volatile uint8_t calibrate_state = 0;  /* Ð£×¼×´Ì¬ï¿½ï¿½0=Î´ï¿½ï¿½Ê¼, 1=ï¿½É¼ï¿½ï¿½ï¿½, 2=ï¿½ï¿½ï¿½ */
-volatile float calibrate_offset = 0;   /* Ð£×¼ï¿½Ãµï¿½ï¿½Ä½Ç¶ï¿½Æ«ï¿½Æ£ï¿½ï¿½È£ï¿½ */
-volatile uint16_t calibrate_count = 0; /* ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
-volatile float calibrate_sum = 0;      /* ï¿½Ç¶ï¿½ï¿½Û¼Óºï¿½ */
+volatile uint8_t calibrate_state = 0;  /* Ð£×¼×´Ì¬£º0=Î´¿ªÊ¼, 1=²É¼¯ÖÐ, 2=Íê³É */
+volatile float calibrate_offset = 0;   /* Ð£×¼µÃµ½µÄ½Ç¶ÈÆ«ÒÆ£¨¶È£© */
+volatile uint16_t calibrate_count = 0; /* ²ÉÑù¼ÆÊýÆ÷ */
+volatile float calibrate_sum = 0;      /* ½Ç¶ÈÀÛ¼ÓºÍ */
 
-/* ---- ADCï¿½ï¿½ï¿½Øµï¿½Ñ¹ ---- */
+/* ---- ADCµç³ØµçÑ¹ ---- */
 uint16 adc0;
 float Battery_voltage;
 
-/* ---- ×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½ ----
- * steer_control_mode: 0=ï¿½Ç¶È¿ï¿½ï¿½ï¿½(ï¿½ï¿½É·ï¿½ï¿½ï¿½), 1=PWMï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Ù¶È»ï¿½)
- * turn_mode:          0=ï¿½Ø±ï¿½, 1=ï¿½ï¿½ï¿½PID×ªï¿½ï¿½, 2=ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½,
- *                     3=Æ«ï¿½ï¿½ï¿½Ç¶È±Õ»ï¿½ï¿½ï¿½Ö±ï¿½ï¿½, 4=ï¿½Ó¾ï¿½×ªï¿½ï¿½,
- *                     5=GPS×ªï¿½ï¿½, 6=Ô­ï¿½ï¿½ï¿½ï¿½×ª(Spin3), 7=ï¿½ßµï¿½×ªï¿½ï¿½
- * fuzzy_mode:         0=ï¿½Ø±ï¿½Ä£ï¿½ï¿½(Ê¹ï¿½Ã¹Ì¶ï¿½KP), 1=ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½(ï¿½ï¿½Ì¬KPï¿½ï¿½Î§)
+/* ---- ×ªÏò¿ØÖÆÄ£Ê½  ----
+ * steer_control_mode: 0=½Ç¶È¿ØÖÆ(Æ½ºâ»·), 1=PWMÖ±Çý(½ÇËÙ¶È»·)
+ * turn_mode:          0=¹Ø±Õ, 1=Öð·ÉPID×ªÏò, 2=Í¨ÓÃ×ªÏò,
+ *                     3=Æ«º½½Ç¶ÈËø»·(Ö±ÐÐ), 4=ÊÓ¾õ×ªÏò,
+ *                     5=GPS×ªÏò, 6=Ô­µØÐý×ª(Spin3), 7=¹ßµ¼×ªÏò
+ * fuzzy_mode:         0=¹Ø±ÕÄ£ºý(Ê¹ÓÃ¹Ì¶¨KP), 1=¿ªÆôÄ£ºý(¶¯Ì¬KPËæÆ«²î·¶Î§)
  */
 uint8 steer_control_mode = 0;
 uint8 turn_mode = 7;
 uint8 fuzzy_mode = 0;
 
-/* ---- ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---- */
-uint8 menu_open = 1;  /* 0=ï¿½Ø±Õ²Ëµï¿½ï¿½ï¿½Flash(ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½ï¿½ï¿½Ð´Flash),
-                         1=ï¿½ò¿ª²Ëµï¿½, 2=Ö»ï¿½ò¿ª¶ï¿½È¡ï¿½ï¿½ï¿½ò¿ª²Ëµï¿½ */
-uint8 flag_yawan = 1; /* Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(yawan)Ê¹ï¿½Ü£ï¿½0=ï¿½Ø±ï¿½, 1=ï¿½ï¿½ï¿½ï¿½ */
-uint8 flag_stop = 1;  /* Í£Ö¹ï¿½ï¿½Ö¾ï¿½ï¿½1=Í£Ö¹(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»), 0=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-uint8 ins_open = 1;   /* ï¿½ßµï¿½×ªï¿½ò¿ª¹Ø£ï¿½0=ï¿½Ø±ï¿½, 1=ï¿½ï¿½ï¿½ï¿½ */
+/* ---- ²Ëµ¥Óë±êÖ¾  ---- */
+uint8 menu_open = 1;  /* 0=¹Ø±Õ²Ëµ¥ºÍFlash(±£Ö¤²»»áÎóÐ´Flash),
+                         1=´ò¿ª²Ëµ¥, 2=Ö»´ò¿ª¶ÁÈ¡²»´ò¿ª²Ëµ¥ */
+uint8 flag_yawan = 1; /* Æ«º½²¹³¥(yawan)Ê¹ÄÜ£º0=¹Ø±Õ, 1=¿ªÆô */
+uint8 flag_stop = 1;  /* Í£Ö¹±êÖ¾£º1=Í£Ö¹(µç»úÊä³öÁã), 0=Õý³£ÔËÐÐ */
+uint8 ins_open = 1;   /* ¹ßµ¼×ªÏò¿ª¹Ø£º0=¹Ø±Õ, 1=¿ªÆô */
 uint8 ins_getdata = 0;
 
-/* ---- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ ---- */
-uint16 a11111 = 0;     /* ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½1msï¿½Ð¶Ïµï¿½ï¿½ï¿½ï¿½ï¿½ */
-uint16 a2222 = 0;      /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-bool ff = 0;           /* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½Ö¾ */
-uint16 dis_tof_mm = 0; /* TOFï¿½ï¿½ï¿½ë´«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+/* ---- ¼ÆÊ±Óë´«¸ÐÆ÷  ---- */
+uint16 a11111 = 0;     /* µ½´ïÕ¾¼ÆÊ±Æ÷£¬1msÖÐ¶ÏÖÐµÄÀÛ¼ÓÆ÷ */
+uint16 a2222 = 0;      /* °´¼ü³¤°´¼ÆÊ±Æ÷£¬ÓÃÓÚ´¥·¢ÌøÔ¾µÈ */
+bool ff = 0;           /* °´¼üÖÐ¼ä±êÖ¾ */
+uint16 dis_tof_mm = 0; /* TOF²â¾à´«¸ÐÆ÷¾àÀë(mm) */
 
-uint16 time_flag = 0;   /* ï¿½ï¿½Ê±ï¿½ï¿½Ö¾ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
-uint16_t flag_open = 0; /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
-int16_t flag_main = 0;  /* ï¿½ï¿½×´Ì¬ï¿½ï¿½Ö¾ */
-uint16_t flag_text = 0; /* ï¿½Ä±ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ö¾ */
+uint16 time_flag = 0;   /* ÑÓÊ±±êÖ¾£¬Ô¤ÁôÀ©Õ¹ */
+uint16_t flag_open = 0; /* Ê¹ÄÜ±êÖ¾£¬Ô¤ÁôÀ©Õ¹ */
+int16_t flag_main = 0;  /* Ö÷×´Ì¬±êÖ¾ */
+uint16_t flag_text = 0; /* ÎÄ±¾ÏÔÊ¾±êÖ¾ */
 
-/* ---- Æ«ï¿½ï¿½ï¿½Ç±ï¿½ï¿½ï¿½ ----
- * angle_Z: ï¿½ï¿½ï¿½ï¿½ï¿½Û¼ï¿½Æ«ï¿½ï¿½ï¿½Ç£ï¿½ï¿½É³ï¿½ï¿½ï¿½ï¿½ï¿½180ï¿½ã£©ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½È¦ï¿½ï¿½×ªï¿½È³ï¿½ï¿½ï¿½ï¿½ï¿½
- *          ï¿½ï¿½ï¿½ã¹«Ê½ï¿½ï¿½angle_Z = 360 * Dirchange + yaw
- *          Dirchange ï¿½ï¿½Ã¿ï¿½Î¿ï¿½ï¿½ï¿½ï¿½180ï¿½ï¿½ß½ï¿½Ê±ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û¼ï¿½È¦ï¿½ï¿½ï¿½ï¿½
+/* ---- Æ«º½½ÇÏà¹Ø ----
+ * angle_Z: Á¬ÐøÀÛ¼ÓÆ«º½½Ç£¨¿É³¬Ô½¡À180¶È£©£¬ÓÃÓÚ¶àÈ¦Ðý×ªµÈ³¡¾°
+ *          ¼ÆËã¹«Ê½£ºangle_Z = 360 * Dirchange + yaw
+ *          Dirchange ÔÚÃ¿´Î¿ç¹ý ¡À180¶È±ß½çÊ± ¡À1£¬±íÊ¾ÀÛ¼ÓÈ¦¼ÆÊý
  */
 volatile float angle_Z = 0;
 
@@ -91,20 +91,17 @@ void control_main(void)
 {
     small_driver_get_speed();
 
-    if (motor_value.receive_right_speed_data < -3500 
-        || motor_value.receive_right_speed_data > 3500 
-        ||motor_value.receive_left_speed_data < -3500 
+    if (motor_value.receive_right_speed_data < -3500
+        || motor_value.receive_right_speed_data > 3500
+        ||motor_value.receive_left_speed_data < -3500
         || motor_value.receive_left_speed_data > 3500
         || ins_getdata)
     {
-        //            if(!flag_jump_stop)
         flag_main = 1;
         flag_stop = 1;
         Yao.Outp_Gyro_Pitch = 0;
         Yao.Outp_Angle_Pitch = 0;
         Yao.Outp_Speed_Pitch = 0;
-        //            motor_value.receive_left_speed_data = 0;
-        //            motor_value.receive_right_speed_data = 0;
         small_driver_set_duty(0, 0);
     }
 
@@ -114,160 +111,94 @@ void control_main(void)
         Yao.Outp_Gyro_Pitch = 0;
         Yao.Outp_Angle_Pitch = 0;
         Yao.Outp_Speed_Pitch = 0;
-        //            motor_value.receive_left_speed_data = 0;
-        //            motor_value.receive_right_speed_data = 0;
         small_driver_set_duty(0, 0);
     }
     else
     {
         if (ins_open == 0 || menu_mode == 1)
         {
-            // small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch)),     // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-            //                       (int16)(-Yao.Outp_Gyro_Pitch )); // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-            // small_driver_set_duty(0, 0);
-            
-            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw)),  // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-                                  (int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw))); // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-            // small_driver_set_duty(500,-500);
+            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw)),  // ×óÂÖÕ¼¿Õ±È
+                                  (int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw))); // ÓÒÂÖÕ¼¿Õ±È
         }
         else
         {
-            
-            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw)),  // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-                                  (int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw))); // ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
+            small_driver_set_duty((int16)(-(Yao.Outp_Gyro_Pitch - Yao.Outp_Gyro_Yaw)),  // ×óÂÖÕ¼¿Õ±È
+                                  (int16)(-(Yao.Outp_Gyro_Pitch + Yao.Outp_Gyro_Yaw))); // ÓÒÂÖÕ¼¿Õ±È
         }
     }
 }
 /**
- * @brief   1msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   1msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. TOFï¿½ï¿½ï¿½ë´«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ëµï¿½Ä£Ê½ï¿½Â£ï¿½
- *   2. IMUÆ«ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½Û»ï¿½ï¿½ï¿½gyro_z * 0.001 ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½yawï¿½ï¿½
- *   3. Æ«ï¿½ï¿½ï¿½Ç¹ï¿½Ò»ï¿½ï¿½ï¿½ï¿½[-180ï¿½ï¿½, 180ï¿½ï¿½]
- *   4. ï¿½ï¿½ß½ï¿½È¦ï¿½ï¿½ï¿½ï¿½â£¨Dirchangeï¿½ï¿½ï¿½ï¿½/ï¿½Ý¼ï¿½ï¿½ï¿½
- *   5. ï¿½ï¿½ï¿½ï¿½ï¿½Û¼ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ angle_Z ï¿½ï¿½ï¿½ï¿½
- *   6. ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ a11111 ï¿½ï¿½ï¿½ï¿½
+ * Ö´ÐÐË³Ðò£º
+ *   1. TOF²â¾à´«¸ÐÆ÷¶ÁÈ¡£¨²Ëµ¥Ä£Ê½ÏÂ£©
+ *   2. IMUÆ«º½½Ç»ý·Ö£¨ÀÛ¼Ógyro_z * 0.001 µÃµ½ÔöÁ¿yaw£©
+ *   3. Æ«º½½Ç¹éÒ»»¯µ½[-180¶È, 180¶È]
+ *   4. ¿çÔ½¡À180¶È±ß½ç¼ì²â£¨DirchangeÀÛ¼Ó/µÝ¼õ£©
+ *   5. ¸üÐÂÁ¬ÐøÀÛ¼ÓÆ«º½½Ç angle_Z ±äÁ¿
+ *   6. µ½´ïÕ¾¼ÆÊ±Æ÷ a11111 ÀÛ¼Ó
  */
 void Interrupt_1ms(void)
 {
-
     if (menu_mode)
     {
         dis_tof_mm = tof_dl1b_get_mm();
-        // ips200_show_uint( 0, 30*8, dis_tof_mm, 5 );
     }
-    // EKF_UpData();
-    // imu660ra.eulerAngle.pitch = euler_angle.roll - imu660ra.offset_angle.pitch;
-    // imu660ra.eulerAngle.roll  = euler_angle.pitch  - imu660ra.offset_angle.roll;
 
-    /* Æ«ï¿½ï¿½ï¿½Ç»ï¿½ï¿½Ö£ï¿½gyro_z(ï¿½ï¿½/ï¿½ï¿½) * 0.001ï¿½ï¿½ = Ã¿ï¿½ï¿½ï¿½Ú½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½ */
+    /* Æ«º½½Ç»ý·Ö£ºgyro_z(¶È/Ãë) * 0.001Ãë = Ã¿´ÎÖÐ¶Ï½Ç¶ÈÔöÁ¿ */
     imu660ra.eulerAngle.yaw += imu660ra.data_Raw.gyro_z * 0.001;
 
-    // Buzzer_Control();
-
-    /* Æ«ï¿½ï¿½ï¿½Ç¹ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ [-180ï¿½ï¿½, 180ï¿½ï¿½] ï¿½ï¿½Î§ */
+    /* Æ«º½½Ç¹éÒ»»¯µ½ [-180¶È, 180¶È] ·¶Î§ */
     if (imu660ra.eulerAngle.yaw > 180)
         imu660ra.eulerAngle.yaw -= 360;
     if (imu660ra.eulerAngle.yaw < -180)
         imu660ra.eulerAngle.yaw += 360;
 
-    /* ï¿½ï¿½ß½ï¿½È¦ï¿½ï¿½ï¿½ï¿½ï¿½
-     *   ï¿½ï¿½+180ï¿½ï¿½ï¿½äµ½-180ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½<-350ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×ªÒ»È¦ï¿½ï¿½Dirchange++
-     *   ï¿½ï¿½-180ï¿½ï¿½ï¿½äµ½+180ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½>350ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×ªÒ»È¦ï¿½ï¿½Dirchange--
+    /* ¿çÔ½¡À180¶È±ß½ç¼ì²â
+     *   ´Ó+180Ìø±äµ½-180£¨²îÖµ<-350£©£¬ËµÃ÷Õý×ªÒ»È¦£¬Dirchange++
+     *   ´Ó-180Ìø±äµ½+180£¨²îÖµ>350£©£¬ËµÃ÷·´×ªÒ»È¦£¬Dirchange--
      */
     if ((imu660ra.eulerAngle.yaw - imu660ra.eulerAngle.last_yaw) < -350)
         imu660ra.eulerAngle.Dirchange++;
     else if ((imu660ra.eulerAngle.yaw - imu660ra.eulerAngle.last_yaw) > 350)
         imu660ra.eulerAngle.Dirchange--;
 
-    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û¼ï¿½Æ«ï¿½ï¿½ï¿½Ç£ï¿½ï¿½ï¿½ï¿½Ü¡ï¿½180ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ */
+    /* ¸üÐÂÁ¬ÐøÀÛ¼ÓÆ«º½½Ç£¨Ö§³Ö³¬Ô½¡À180¶È·¶Î§£© */
     angle_Z = 360 * imu660ra.eulerAngle.Dirchange + imu660ra.eulerAngle.yaw;
     imu660ra.eulerAngle.last_yaw = imu660ra.eulerAngle.yaw;
 
-    // if(imu660ra.eulerAngle.pitch > 0)
-    //     imu660ra.eulerAngle.pitch -= 180;
-    // else if(imu660ra.eulerAngle.pitch < 0)
-    //     imu660ra.eulerAngle.pitch += 180;
-
-    /* ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½flag_Single=1Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-    // a11111++;
-
-    // control_main();
-
+    /* µ½´ïÕ¾¼ÆÊ±Æ÷£¨flag_Single=1Ê±²ÅÀÛ¼Ó£¬·ñÔòÇåÁã£© */
     if (flag_Single)
     {
         a11111++;
     }
     else
         a11111 = 0;
-
-    /* ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½×¢ï¿½Íµï¿½ï¿½Ô¶ï¿½90ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ ---- */
-    // if (time_flag == 0)
-    //  {
-    //      Count++;
-    //      if (Count >= 100)
-    //      {
-    //          Target_Yaw += 90;
-    //          time_flag = 1;
-    //     }
-
-    // }
-
-    // if(key_detect(KEY_2, KEY_SHORT_PRESS))
-    //
-    //     ff = ~ff;
-    // if(ff)
-    //     a2222++;
-    // else
-    // {
-    //     a2222 = 0;
-    //     Yao.Target_Speed = 0;
-    //     Deviation_Value = 0;
-    // }
-    //
-    // if(a2222 >= 3000)
-    // {
-    //     flag_jump=1;
-    //     ff=0;
-    //     Deviation_Value = -0.7;
-    //     Yao.Target_Speed = 300;
-    // }
-    // else if(3000 < a2222 && a2222 <= 6000)
-    // {
-    //     Deviation_Value = 0.7;
-    // }
-    //// else if(6000 < a2222 && a2222 <= 9000)
-    //// {
-    ////     Deviation_Value = -0.3;
-    //// }
-    // else if (a2222 > 6000)
-    //     a2222 = 0;
 }
 
-float integer = 0;     /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½Û¼ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ú±ê¶¨ï¿½ï¿½ */
-uint32 num_t = 0;      /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-float integer1 = 0;    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Û¼ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ú±ê¶¨ï¿½ï¿½ */
-uint32 num_t1 = 0;     /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-volatile float y1 = 0; /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶Èµï¿½Í¨ï¿½Ë²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ */
-float ddddd = 0;       /* Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+float integer = 0;     /* ÍÓÂÝÒÇYÖáÀÛ¼ÓÖµ£¬ÓÃÓÚ±ê¶¨ÁãÆ« */
+uint32 num_t = 0;      /* ÍÓÂÝÒÇYÖá²ÉÑù¼ÆÊýÆ÷ */
+float integer1 = 0;    /* ÍÓÂÝÒÇXÖáÀÛ¼ÓÖµ£¬ÓÃÓÚ±ê¶¨ÁãÆ« */
+uint32 num_t1 = 0;     /* ÍÓÂÝÒÇXÖá²ÉÑù¼ÆÊýÆ÷ */
+volatile float y1 = 0; /* ½ÇËÙ¶ÈµÍÍ¨ÂË²¨Öµ£¬ÓÃÓÚ½ÇËÙ¶È»·ÊäÈë */
+float ddddd = 0;       /* Ô¤Áô±äÁ¿ */
 
 /**
- * @brief   2msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   2msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½Æ£ï¿½flag_jump=1Ê±Ã¿ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ jump_control() ï¿½Æ½ï¿½×´Ì¬ï¿½ï¿½
- *   2. AIï¿½ï¿½ï¿½Î£ï¿½flag_ai_open=1Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õµï¿½PIDï¿½ï¿½ï¿½ï¿½
- *   3. ï¿½Ëµï¿½ï¿½ï¿½menu_open=1Ê±ï¿½ï¿½ï¿½Ð²Ëµï¿½ï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   4. ï¿½ï¿½ï¿½ï¿½KEY_2ï¿½ï¿½3ï¿½ë£©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½a2222>=3000Ê±flag_jumpï¿½ï¿½×ªï¿½ï¿½
- *   5. IMUï¿½ï¿½ï¿½Ý¶ï¿½È¡ï¿½ï¿½date_handleï¿½ï¿½
- *   6. ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½Ð£×¼ï¿½ï¿½ï¿½ï¿½×¢ï¿½Í£ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½
- *   7. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶Èµï¿½Í¨ï¿½Ë²ï¿½ + ï¿½ï¿½ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½
- *   8. Æ«ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½
+ * Ö´ÐÐË³Ðò£º
+ *   1. ÌøÔ¾¿ØÖÆ£ºflag_jump=1Ê±Ã¿´Îµ÷ÓÃ jump_control() Æ½»¬×´Ì¬
+ *   2. AIÊý¾Ý£ºflag_ai_open=1Ê±µ÷ÓÃ½ÓÊÕº¯Êý½øÐÐPID²ÎÊý¸üÐÂ
+ *   3. ²Ëµ¥£ºmenu_open=1Ê±Ö´ÐÐ²Ëµ¥Âß¼­ºÍ²ÎÊýÐÞ¸Ä
+ *   4. °´¼üKEY_2£¨³¤°´3Ãë£©´¥·¢ÌøÔ¾£ºa2222>=3000Ê±flag_jump·­×ª
+ *   5. IMUÊý¾Ý¶ÁÈ¡£ºdate_handle()
+ *   6. ×ËÌ¬½Ç¶ÈÐ£×¼£¨×¢ÊÍµô£¬Ô¤Áô¹¦ÄÜ£©
+ *   7. ½ÇËÙ¶ÈµÍÍ¨ÂË²¨ + ½ÇËÙ¶È»·PID£¨ÄÚ»·£©
+ *   8. Æ«º½½ÇËÙ¶È»·PID£¨ÄÚ»·£©
  */
 void Interrupt_2ms(void)
 {
-    /* 1. ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½Æ£ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ô¾×´Ì¬ï¿½ï¿½ */
+    /* 1. ÌøÔ¾¿ØÖÆ£ºÃ¿´Îµ÷ÓÃÆ½»¬¹ý¶ÉÌøÔ¾×´Ì¬ */
     if (flag_jump)
     {
         time_j++;
@@ -278,75 +209,21 @@ void Interrupt_2ms(void)
 
     key_scanner();
 
-    /* 2. AIï¿½ï¿½ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õµï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+    /* 2. AIÊý¾Ý£ºµ÷ÓÃ½ÓÊÕº¯Êý½øÐÐPID²ÎÊý¸üÐÂ */
     if (flag_ai_open)
     {
         AI_Pid_Tuner_ProcessRx();
     }
 
-    /* 3. ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ */
-    // if (menu_open == 1)
-    //     //menu();
-    // else
+    /* 3. ²Ëµ¥Âß¼­ */
     menu_mode = 1;
 
-    // if (menu_mode && key_detect(KEY_1, KEY_SHORT_PRESS))
-    //    flag_track = 1;
-
-    // servo_set_angle(LF, 180);
-    // servo_set_angle(RF, 180);
-    // servo_set_angle(LB, 0);
-    // servo_set_angle(RB, 0);
-    // servo_set_angle(LF, 265.7f);
-    // servo_set_angle(RF, 265.7f);
-    // servo_set_angle(LB, 42.2f);
-    // servo_set_angle(RB, 42.2f);
-
-    /* 4. ï¿½ï¿½ï¿½ï¿½KEY_2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½Ô¼3ï¿½ï¿½=3000*2msï¿½ï¿½ */
-    // if (menu_mode && key_detect(KEY_2, KEY_SHORT_PRESS))
-    // {
-    //     ff = ~ff;
-    // }
-    // if (ff)
-    //     a2222++;
-    // else
-    // {
-    //     a2222 = 0;
-    // }
-    // if (a2222 >= 3000)
-    // {
-    //     flag_jump = ~flag_jump;
-    //     ff = 0;
-    // }
-
-    // pwm_set_duty(ATOM0_CH0_P21_2, 1500);
-    // pwm_set_duty(ATOM0_CH1_P21_3, 1500);
-    // pwm_set_duty(ATOM0_CH2_P21_4, 1500);
-    // pwm_set_duty(ATOM0_CH3_P21_5, 1500);
-
-    /* 5. IMUï¿½ï¿½ï¿½Ý¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ */
-    // get_eulerAngle();
+    /* 5. IMUÊý¾Ý¶ÁÈ¡£¬¸üÐÂ×ËÌ¬½Ç */
     date_handle();
 
-    /* 6. ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½Ð£×¼ï¿½ï¿½ï¿½ï¿½×¢ï¿½Í£ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½Ü£ï¿½ */
-    /*if (calibrate_state == 1)
-    {
-        calibrate_sum += imu660ra.eulerAngle.pitch;
-        calibrate_count++;
-
-        if (calibrate_count >= CALIBRATE_SAMPLES)
-        {
-            calibrate_offset = calibrate_sum / calibrate_count;
-            calibrate_state = 2;  // ??????
-        }
-         ips200_show_float( 30 , 80 , calibrate_offset , 3 , 3 );
-    }*/
-
-    /* 7. ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½IMUï¿½ï¿½ï¿½Ö±ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ô£ï¿½ */
+    /* 7. µ÷ÊÔÄ£Ê½£ºIMUÊý¾ÝÖ±¶Á±êÖ¾ºÍZÖáÆ«º½½Ç»ý·Ö£¬¼ÆËãÆ«º½Æ«ÒÆ */
     if (menu_mode)
     {
-        // if(num_t >= 3000)
-        // date_handle();
         if (IMU_JF_Flag)
         {
             Z_Yaw += imu660ra.data_Raw.gyro_z / 500;
@@ -355,117 +232,87 @@ void Interrupt_2ms(void)
         {
             Z_Yaw = 0;
         }
-
-        // else
-        //     num_t++;
     }
 
-    // imu660ra_get_gyro();
-
-    // if(num_t <= 10000)
-    // {
-    //     num_t++;
-    //     integer += (float)imu660ra_gyro_y-2.5f;
-    // }
-    // ips200_show_float( 0, 0*8, integer, 5,5 );
-    // ips200_show_float( 0, 1*8, (integer/num_t), 5,5 );
-    // if(num_t1 <= 10000)
-    // {
-    //     num_t1++;
-    //     integer1 += (float)imu660ra_gyro_x-1.62f;
-    // }
-    // ips200_show_float( 0, 3*8, integer1, 5,5 );
-    // ips200_show_float( 0, 4*8, (integer1/num_t1), 5,5 );
-
-    /* 8. ï¿½ï¿½ï¿½ï¿½PIDï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ã£©----
-     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½(0.15ï¿½ï¿½+0.85ï¿½ï¿½) ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¶ï¿½PID ï¿½ï¿½ ï¿½Þ·ï¿½ï¿½ï¿½8000
-     * Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¶ï¿½PID ï¿½ï¿½ ï¿½Þ·ï¿½ï¿½ï¿½8000
-     * ×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½SetPointï¿½ï¿½ï¿½Ô½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½Öµï¿½ï¿½-Yao.Outp_Angle_Pitchï¿½ï¿½ï¿½ï¿½
-     *       ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ä´«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    /* 8. ½ÇËÙ¶È»·PID£¨ÄÚ»·¼ÆËã£©----
+     * ÕýÏòÍ¨µÀ£ºXÖá½ÇËÙ¶È µÍÍ¨ÂË²¨(0.15ÐÂ+0.85¾É) -> ½ÇËÙ¶ÈPID -> ÏÞ·ùÖÁ8000
+     * Æ«º½Í¨µÀ£ºZÖá½ÇËÙ¶È -> ½ÇËÙ¶ÈPID -> ÏÞ·ùÖÁ8000
+     * ×¢Òâ£º½ÇËÙ¶È»·µÄSetPointÈ¡×Ô½Ç¶È»·Íâ»·µÄÊä³öÖµ -Yao.Outp_Angle_PitchµÈ£¬
+     *       ¹¹³É´®¼¶¿ØÖÆ£¬Æ¥Åä´«¸ÐÆ÷ÖáÓëµç»ú·½Ïò
      */
     y1 = 0.15f * ((float)-imu660ra_gyro_x) + 0.85f * y1;
     Yao.Outp_Gyro_Pitch = -limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, -Yao.Outp_Angle_Pitch), 8000.0f);
     Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, Yao.Outp_turn), 8000.0f);
-    // if(fabs(Yao.Outp_Gyro_Pitch) < 80) Yao.Outp_Gyro_Pitch = 0;
 }
 
-/* ---- 4msï¿½Ð¶ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ ---- */
-volatile float aa1 = 0;                                  /* ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½Í¨ï¿½Ë²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ú½Ç¶È»ï¿½ï¿½ï¿½ */
-volatile float aa2 = 0;                                  /* ×ªï¿½ï¿½Çµï¿½Í¨ï¿½Ë²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½PIDï¿½ï¿½ */
-volatile float dd = 0;                                   /* Æ«ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½Öµ */
-float temp_erect_turn[4];                                /* ×ªï¿½ï¿½PIDï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½Ä£Ê½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½KPï¿½ï¿½ */
-float k11 = 0;                                           /* ï¿½ï¿½ï¿½ï¿½ï¿½Ù²ï¿½ï¿½ï¿½Ïµï¿½ï¿½1 */
-float k22 = 0;                                           /* ï¿½ï¿½ï¿½ï¿½ï¿½Ù²ï¿½ï¿½ï¿½Ïµï¿½ï¿½2 */
-float kp_roll = 0.9;                                     /* ï¿½ï¿½ï¿½ï¿½KPÏµï¿½ï¿½ */
-float Target_Yaw = 0;                                    /* Ä¿ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç£ï¿½turn_mode=3ï¿½ï¿½Ö±ï¿½ï¿½Ä£Ê½ï¿½ï¿½ */
-float V_trans = 0;                                       /* ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
-uint8 TCount_falg_4ms = 0;                               /* 4msï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ü±ï¿½Ö¾ */
-uint16 TCount_4ms = 0;                                   /* 4msï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
-float dt = 0.004f;                                       /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½4ms=0.004ï¿½ë£© */
-float desired_yaw = 0.0f;                                /* ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç£ï¿½ï¿½Ó¾ï¿½/GPSÄ£Ê½ï¿½ï¿½ */
-float raw_vision_yaw = 0.0f;                             /* ï¿½Ó¾ï¿½Ô­Ê¼Æ«ï¿½ï¿½ï¿½Ç£ï¿½ï¿½ï¿½×¶ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ */
-static float steer_vision_cmd_lpf_alpha = 0.35f;         /* ï¿½Ó¾ï¿½Ö¸ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½Ïµï¿½ï¿½ */
-static float steer_vision_cmd_lpf = 0.0f;                /* ï¿½Ó¾ï¿½Ö¸ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½Öµ */
-volatile float steer_vision_target_yaw_deg = 0.0f;       /* ï¿½Ó¾ï¿½Ä¿ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç£ï¿½ï¿½È£ï¿½ */
-volatile float steer_vision_cone_avoid_delta_deg = 0.0f; /* ï¿½Ó¾ï¿½ï¿½ï¿½×¶ï¿½Ç¶ï¿½Æ«ï¿½Æ£ï¿½ï¿½È£ï¿½ */
+/* ---- 4msÖÐ¶ÏÈ«¾Ö±äÁ¿ ---- */
+volatile float aa1 = 0;                                  /* ×ËÌ¬½ÇµÍÍ¨ÂË²¨Öµ£¬ÓÃÓÚ½Ç¶È»·ÊäÈë */
+volatile float aa2 = 0;                                  /* ×ªÏò½ÇµÍÍ¨ÂË²¨Öµ£¬ÓÃÓÚ×ªÏòPIDÊäÈë */
+volatile float dd = 0;                                   /* Æ«²îÆ«ÒÆµÍÍ¨ÂË²¨Öµ */
+float temp_erect_turn[4];                                /* ×ªÏòPIDÁÙÊ±²ÎÊý£¨Ä£Ê½ÇÐ»»¡¢¶¯Ì¬KP£© */
+float k11 = 0;                                           /* ³µÂÖ²îËÙÏµÊý1 */
+float k22 = 0;                                           /* ³µÂÖ²îËÙÏµÊý2 */
+float kp_roll = 0.9;                                     /* ºá¹öKPÏµÊý */
+float Target_Yaw = 0;                                    /* Ä¿±êÆ«º½½Ç£¨turn_mode=3Ö±ÐÐÄ£Ê½ÓÃ£© */
+float V_trans = 0;                                       /* ºáÏòËÙ¶È£¬Ô¤ÁôÀ©Õ¹ */
+uint8 TCount_falg_4ms = 0;                               /* 4ms¼ÆÊýÊ¹ÄÜ±êÖ¾ */
+uint16 TCount_4ms = 0;                                   /* 4ms¼ÆÊýÆ÷ÀÛ¼ÓÆ÷ */
+float dt = 0.004f;                                       /* ¿ØÖÆÖÜÆÚ£¨4ms=0.004Ãë£© */
+float desired_yaw = 0.0f;                                /* ÆÚÍûÆ«º½½Ç£¬ÊÓ¾õ/GPSÄ£Ê½ÓÃ */
+float raw_vision_yaw = 0.0f;                             /* ÊÓ¾õÔ­Ê¼Æ«º½½Ç£¬×¶Í°±ÜÕÏÇ° */
+static float steer_vision_cmd_lpf_alpha = 0.35f;         /* ÊÓ¾õÖ¸ÁîµÍÍ¨ÂË²¨ÏµÊý */
+static float steer_vision_cmd_lpf = 0.0f;                /* ÊÓ¾õÖ¸ÁîµÍÍ¨ÂË²¨Öµ */
+volatile float steer_vision_target_yaw_deg = 0.0f;       /* ÊÓ¾õÄ¿±êÆ«º½½Ç£¨¶È£© */
+volatile float steer_vision_cone_avoid_delta_deg = 0.0f; /* ÊÓ¾õ×¶Í°½Ç¶ÈÆ«ÒÆ£¨¶È£© */
 
-/* ---- GPSè½¬å‘æ•°æ®å·²è¿ç§»è‡³ä¹’ä¹“ç¼“å†² gps_steer_pp ---- */
+/* ---- GPS×ªÏòÏà¹Ø±äÁ¿ÒÑÒÆÖÁ gps_steer_pp ---- */
 
 /**
- * @brief   4msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   4msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½imu963ra_kalman_filter_updateï¿½ï¿½
- *   2. ï¿½ï¿½Ì¬ï¿½ï¿½Æ«ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥offset_angleï¿½ï¿½
- *   3. ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½|pitch|<0.4ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ã£©
- *   4. ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½PIDï¿½ï¿½ï¿½â»·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Öµ
- *   5. ×ªï¿½ï¿½PIDÄ£Ê½ï¿½Ð»ï¿½ï¿½ï¿½Ö´ï¿½Ð£ï¿½turn_mode 0~7ï¿½ï¿½
+ * Ö´ÐÐË³Ðò£º
+ *   1. ¿¨¶ûÂüÂË²¨¸üÐÂ×ËÌ¬£¨imu963ra_kalman_filter_update£©
+ *   2. ×ËÌ¬Æ«ÒÆ²¹³¥£¨¼õÈ¥offset_angle£©
+ *   3. ½Ç¶ÈËÀÇø´¦Àí£¨|pitch|<0.4¶ÈÊ±ÇåÁã£©
+ *   4. Ö±Á¢½Ç¶È»·PID£¨Íâ»·¼ÆËã£©£¬Êä³ö×÷Îª ½ÇËÙ¶È»· µÄÄ¿±êÖµ
+ *   5. ×ªÏòPIDÄ£Ê½ÇÐ»»Ö´ÐÐ£¨turn_mode 0~7£©
  *
- * ×ªï¿½ï¿½Ä£Ê½ï¿½ï¿½â£º
- *   mode 0: ï¿½Ø±ï¿½×ªï¿½ï¿½
- *   mode 1: ï¿½ï¿½ï¿½PID×ªï¿½ï¿½PID_turn_seekfreeï¿½ï¿½Ê¹ï¿½ï¿½erect_turnï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   mode 2: ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Cascade_angle_Yawï¿½ï¿½Ö§ï¿½ï¿½fuzzy_modeï¿½ï¿½Ì¬KPï¿½ï¿½
- *   mode 3: Æ«ï¿½ï¿½ï¿½Ç¶È±Õ»ï¿½ï¿½ï¿½Ö±ï¿½ß£ï¿½Cascade_angle_Yaw_2ï¿½ï¿½Target_Yawï¿½Ì¶ï¿½ï¿½ï¿½
- *   mode 4: ï¿½Ó¾ï¿½×ªï¿½ï¿½Cascade_angle_Yaw_3ï¿½ï¿½desired_yaw=ï¿½Ó¾ï¿½Ä¿ï¿½ï¿½+ï¿½ï¿½×¶Æ«ï¿½Æ£ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½ï¿½ï¿½
- *   mode 5: GPS×ªï¿½ï¿½Cascade_angle_Yaw_4ï¿½ï¿½desired_yaw=GPSï¿½ï¿½Î»ï¿½ï¿½+IMUÆ«ï¿½Æ£ï¿½
- *   mode 6: Ô­ï¿½ï¿½ï¿½ï¿½×ªSpin3ï¿½ï¿½Cascade_angle_Yaw_2ï¿½ï¿½angle_ZÎªÄ¿ï¿½ê£¬ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½Ð»ï¿½mode2ï¿½ï¿½
- *   mode 7: ï¿½ßµï¿½×ªï¿½ï¿½Cascade_angle_Yaw_2ï¿½ï¿½Ä¿ï¿½ï¿½=ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½
+ * ×ªÏòÄ£Ê½ËµÃ÷£º
+ *   mode 0: ¹Ø±Õ×ªÏò
+ *   mode 1: Öð·ÉPID×ªÏò£¨PID_turn_seekfree£¬Ê¹ÓÃerect_turn²ÎÊý£©
+ *   mode 2: Í¨ÓÃ×ªÏò£¨Cascade_angle_Yaw£¬Ö§³Öfuzzy_mode¶¯Ì¬KP£©
+ *   mode 3: Æ«º½½Ç¶ÈËø»·Ö±ÐÐ£¨Cascade_angle_Yaw_2£¬Target_Yaw¹Ì¶¨Öµ£©
+ *   mode 4: ÊÓ¾õ×ªÏò£¨Cascade_angle_Yaw_3£¬desired_yaw=ÊÓ¾õÄ¿±ê+×¶Í°Æ«ÒÆ£¬¾­µÍÍ¨ÂË²¨£©
+ *   mode 5: GPS×ªÏò£¨Cascade_angle_Yaw_4£¬desired_yaw=GPS·½Î»½Ç+IMUÆ«ÒÆ£©
+ *   mode 6: Ô­µØÐý×ªSpin3£¨Cascade_angle_Yaw_2£¬angle_ZÎªµ±Ç°½Ç£¬µ½Î»ºó×Ô¶¯ÇÐ»»mode2£©
+ *   mode 7: ¹ßµ¼×ªÏò£¨Cascade_angle_Yaw_2£¬Ä¿±ê=¹ßµ¼Êä³ö£©
  */
 void Interrupt_4ms(void)
 {
-    // V_trans = (float)(motor_value.receive_left_speed_data-motor_value.receive_right_speed_data);
-
-    /* 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È¼Æ£ï¿½ï¿½ï¿½ï¿½ï¿½roll/pitch */
+    /* 1. ¿¨¶ûÂüÂË²¨¸üÐÂ£¬ÈÚºÏ¼ÓËÙ¶È¼ÆºÍÍÓÂÝÒÇ£¨roll/pitch£© */
     imu963ra_kalman_filter_update(&imu);
 
-    // imu963ra_menc15a_kalman_filter_Update(&vel_kf, 0, imu.ay_linear);
-
-    /* 2. Æ«ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½Ïµï¿½ê¶¨ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ */
+    /* 2. Æ«ÒÆ²¹³¥£¬¼õÈ¥¿ª»ú±ê¶¨µÄÁãÆ« */
     imu.roll -= imu660ra.offset_angle.roll;
     imu.pitch -= imu660ra.offset_angle.pitch;
-    imu660ra.eulerAngle.roll = imu.pitch; /* ×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rollÓ³ï¿½äµ½eulerAngle.pitch */
-    imu660ra.eulerAngle.pitch = imu.roll; /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pitchÓ³ï¿½äµ½eulerAngle.rollï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµ×ªï¿½ï¿½ï¿½ï¿½ */
+    imu660ra.eulerAngle.roll = imu.pitch; /* ×¢Òâ£º¿¨¶ûÂürollÓ³Éäµ½eulerAngle.pitch */
+    imu660ra.eulerAngle.pitch = imu.roll; /* ¿¨¶ûÂüpitchÓ³Éäµ½eulerAngle.roll£¨×ø±êÏµ×ª»»£© */
 
-    /* 3. ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½|pitch|<0.4ï¿½ï¿½Ê±Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½ï¿½ï¿½ï¿½Î¢ï¿½ï¿½ï¿½ï¿½ */
+    /* 3. ½Ç¶ÈËÀÇø´¦Àí£º|pitch|<0.4¶ÈÊ±Ç¿ÖÆÇåÁã£¬Ïû³ýÎ¢Ð¡¶¶¶¯ */
     if (imu660ra.eulerAngle.pitch < 0.4 && imu660ra.eulerAngle.pitch > -0.4)
         imu660ra.eulerAngle.pitch = 0;
 
-    /* 4msï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+    /* 4ms¼ÆÊýÆ÷ */
     if (TCount_falg_4ms)
         TCount_4ms++;
     else
         TCount_4ms = 0;
 
-    /* 4. ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½PIDï¿½ï¿½ï¿½â»·ï¿½ï¿½----
-     * ï¿½ï¿½ï¿½ë£ºï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½Í¨ï¿½Ë²ï¿½Öµ aa1ï¿½ï¿½ï¿½Ë²ï¿½Ïµï¿½ï¿½0.1ï¿½ï¿½+0.9ï¿½É£ï¿½
-     * ï¿½è¶¨Öµï¿½ï¿½Yao.Outp_Speed_Pitchï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-     * ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½12000
+    /* 4. Ö±Á¢½Ç¶È»·PID£¨Íâ»·¼ÆËã£©----
+     * ÊäÈë£º×ËÌ¬½ÇµÍÍ¨ÂË²¨Öµ aa1£¨ÂË²¨ÏµÊý0.1ÐÂ+0.9¾É£©
+     * Éè¶¨Öµ£ºYao.Outp_Speed_Pitch£¨À´×ÔËÙ¶È»·Êä³ö£©
+     * Êä³öÏÞ·ùÖÁ 12000
      */
-    /*float pitch_corrected = imu660ra.eulerAngle.pitch;
-    if (calibrate_state == 2)  // ï¿½ï¿½?????????
-    {
-        pitch_corrected -= calibrate_offset;
-    }*/
     aa1 = 0.1f * imu660ra.eulerAngle.pitch + 0.9f * aa1;
     if (steer_control_mode == 0)
     {
@@ -478,21 +325,21 @@ void Interrupt_4ms(void)
         Yao.Outp_Angle_Pitch = -limit(Yao.Outp_Angle_Pitch, 12000.0f);
     }
 
-    /* Æ«ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½ */
+    /* Æ«²îÆ«ÒÆµÍÍ¨ÂË²¨ */
     dd = 0.1f * Deviation_Value + 0.9f * dd;
 
-    /* 5. ×ªï¿½ï¿½ï¿½ï¿½ï¿½ ---- */
+    /* 5. ×ªÏò¿ØÖÆ  ---- */
     if (turn_mode == 1)
     {
-        /* Ä£Ê½1ï¿½ï¿½ï¿½ï¿½ï¿½PID×ªï¿½ò£¨ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ */
+        /* Ä£Ê½1£ºÖð·ÉPID×ªÏò£¨»ùÓÚÆ«º½½ÇËÙ¶È¿ØÖÆ£© */
         Yao.Outp_turn = PID_turn_seekfree(&PID_all.Pid_turn, erect_turn, imu660ra.data_Raw.gyro_z, Deviation_Value * 10 + 0.2f);
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
     }
     else if (turn_mode == 2)
     {
-        /* Ä£Ê½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½
-         * fuzzy_mode=0: Ê¹ï¿½Ã¹Ì¶ï¿½KP(erect_Angle_Yaw)
-         * fuzzy_mode=1: Ê¹ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Ì¬KP(Get_Pï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½)
+        /* Ä£Ê½2£ºÍ¨ÓÃ×ªÏò
+         * fuzzy_mode=0: Ê¹ÓÃ¹Ì¶¨KP(erect_Angle_Yaw)
+         * fuzzy_mode=1: Ê¹ÓÃÄ£ºý¶¯Ì¬KP(Get_P£¬¸ù¾ÝÆ«²î´óÐ¡µ÷Õû£©
          */
         if (fuzzy_mode == 0)
         {
@@ -508,40 +355,35 @@ void Interrupt_4ms(void)
             temp_erect_turn[2] = erect_Angle_Yaw[2];
             temp_erect_turn[3] = erect_Angle_Yaw[3];
         }
-
-        // if(flag_Single_HighState == 1)
-        //     temp_erect_turn[0] = 100;
-        Yao.Outp_turn = Cascade_angle_Yaw(&PID_all.Pid_turn, temp_erect_turn, Deviation_Value * 10 /*+ kp_roll * stab_roll*/, 0);
+        Yao.Outp_turn = Cascade_angle_Yaw(&PID_all.Pid_turn, temp_erect_turn, Deviation_Value * 10, 0);
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
     }
     else if (turn_mode == 3)
     {
-        /* Ä£Ê½3ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç¶È±Õ»ï¿½ï¿½ï¿½Ö±ï¿½ß£ï¿½Target_Yawï¿½ï¿½ï¿½Ö¹Ì¶ï¿½ï¿½ï¿½ï¿½ï¿½ */
+        /* Ä£Ê½3£ºÆ«º½½Ç¶ÈËø»·Ö±ÐÐ£¬Target_YawÎª¹Ì¶¨Ä¿±êÖµ */
         Yao.Outp_turn = Cascade_angle_Yaw_2(&PID_all.Pid_Angle_Yaw, erect_Angle_Yaw_2, imu660ra.eulerAngle.yaw, Target_Yaw);
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
-        // printf("Target_Yaw: %.2f, Current_Yaw: %.2f\n", Target_Yaw, imu660ra.eulerAngle.yaw);
     }
     else if (turn_mode == 4)
     {
-        /* Ä£Ê½4ï¿½ï¿½ï¿½Ó¾ï¿½×ªï¿½ï¿½
-         * Ä¿ï¿½ï¿½Ç¶ï¿½ = ï¿½Ó¾ï¿½Ä¿ï¿½ï¿½ + ï¿½ï¿½×¶Æ«ï¿½ï¿½ï¿½ï¿½
-         * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ë²ï¿½(a=0.35)Æ½ï¿½ï¿½Ä¿ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ù±ï¿½×¶Ë²ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½
+        /* Ä£Ê½4£ºÊÓ¾õ×ªÏò
+         * Ä¿±ê½Ç¶È = ÊÓ¾õÄ¿±ê + ×¶Í°Æ«ÒÆÁ¿
+         * ¾­¹ýµÍÍ¨ÂË²¨(a=0.35)Æ½»¬Ä¿±êÖµ£¬¼õÉÙ×¶Í°ÂË²¨µÄ¶¶¶¯
          */
         raw_vision_yaw = steer_vision_target_yaw_deg + steer_vision_cone_avoid_delta_deg;
         raw_vision_yaw = steer_wrap_deg180(raw_vision_yaw);
 
-        /* ï¿½ï¿½Í¨ï¿½Ë²ï¿½Æ½ï¿½ï¿½Ä¿ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ */
+        /* µÍÍ¨ÂË²¨Æ½»¬Ä¿±êÆ«º½½Ç */
         steer_vision_cmd_lpf = (1.0f - steer_vision_cmd_lpf_alpha) * steer_vision_cmd_lpf + steer_vision_cmd_lpf_alpha * raw_vision_yaw;
         desired_yaw = steer_vision_cmd_lpf;
         Yao.Outp_turn = Cascade_angle_Yaw_3(&PID_all.Pid_turn1, erect_Angle_Yaw_3, imu660ra.eulerAngle.yaw, desired_yaw);
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
-        // Target_Yaw = steer_target_yaw_deg;  // mirror to existing debug variable
     }
     else if (turn_mode == 5)
     {
-        /* æ¨¡å¼5ï¼šGPSè½¬å‘ï¼ˆä¹’ä¹“ç¼“å†²è¯»å–ï¼‰
-         * ä»Ž gps_steer_pp çš„ read_idx ä¾§è¯»å–æ•°æ®
-         * ç›®æ ‡è§’åº¦ = GPSæ–¹ä½è§’ + IMUåèˆªåç§»é‡
+        /* Ä£Ê½5£ºGPS×ªÏò
+         * ´Ó gps_steer_pp µÄ read_idx ²à¶ÁÈ¡µ¼º½Êä³ö
+         * ÆÚÍûÆ«º½½Ç = GPS·½Î»½Ç + IMUÆ«ÒÆÐÞÕý
          */
         const gps_steer_output_t *gps_steer = GPS_STEER_READ();
         desired_yaw = gps_steer->target_bearing_deg + gps_steer->imu_yaw_offset_deg;
@@ -550,18 +392,18 @@ void Interrupt_4ms(void)
     }
     else if (turn_mode == 6)
     {
-        /* Ä£Ê½6ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Spin3ï¿½ï¿½
-         * Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û¼Æ½Ç¶ï¿½ angle_Zï¿½ï¿½ï¿½ï¿½ï¿½Ü¡ï¿½180ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½Îªï¿½ï¿½Ç°ï¿½Ç¶È£ï¿½
-         * Ä¿ï¿½ï¿½Ç¶ï¿½ spin3_target_angleï¿½ï¿½ï¿½ï¿½Ê¼ï¿½Ç¡ï¿½1080ï¿½ï¿½=3È¦ï¿½ï¿½ï¿½ï¿½
+        /* Ä£Ê½6£ºÔ­µØÐý×ªSpin3
+         * Ê¹ÓÃÁ¬ÐøÀÛ¼Ó½Ç¶È angle_Z£¨Ö§³Ö³¬Ô½¡À180¶È·¶Î§£©×÷Îªµ±Ç°½Ç¶È
+         * Ä¿±ê½Ç¶È spin3_target_angle£¨³õÊ¼ÖµÈç1080¶È=3È¦£©
          *
-         * ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ < spin3_angle_ok_deg ï¿½ï¿½
-         *           ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ < spin3_gyro_ok_dps
-         * ï¿½ï¿½ï¿½ï¿½ spin3_hold_ticks ï¿½ï¿½ï¿½Úºï¿½ ï¿½ï¿½ ï¿½Ð»ï¿½mode2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°Æ«ï¿½ï¿½ÎªTarget_Yaw
+         * µ½Î»ÅÐ¶¨£ºÁ¬Ðø½Ç¶ÈÎó²î < spin3_angle_ok_deg ÇÒ
+         *           ZÖá½ÇËÙ¶È < spin3_gyro_ok_dps
+         * ³ÖÐø spin3_hold_ticks ¸öÖÜÆÚºó£¬ÇÐ»»mode2£¬ÒÔµ±Ç°Æ«º½ÎªTarget_Yaw
          */
         Yao.Outp_turn = Cascade_angle_Yaw_2(&PID_all.Pid_Angle_Yaw, erect_Angle_Yaw_2, angle_Z, spin3_target_angle);
         Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
 
-        /* ï¿½ï¿½éµ½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½+ï¿½ï¿½ï¿½Ù¶ï¿½Í¬Ê±ï¿½ï¿½ï¿½ã£© */
+        /* ¼ì²âµ½Î»ÅÐ¶¨£¨½Ç¶ÈÎó²î + ½ÇËÙ¶ÈÍ¬Ê±Âú×ã£© */
         if (func_abs(spin3_target_angle - angle_Z) < spin3_angle_ok_deg &&
             func_abs((float)imu660rb_gyro_z) < spin3_gyro_ok_dps)
         {
@@ -572,20 +414,20 @@ void Interrupt_4ms(void)
             spin3_hold_cnt = 0;
         }
 
-        /* ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ã¹»ï¿½ï¿½ï¿½Úºï¿½ï¿½Ë³ï¿½ï¿½ï¿½×ª */
+        /* µ½Î»³ÖÐø×ã¹»ÖÜÆÚºóÍË³öÔ­µØÐý×ª */
         if (spin3_hold_cnt >= spin3_hold_ticks)
         {
             spin3_active = 0;
             spin3_hold_cnt = 0;
             Yao.Outp_turn = 0;
-            turn_mode = 2;                        /* ï¿½Ð»Ø´ï¿½ï¿½ï¿½×ªï¿½ï¿½Ä£Ê½ */
-            Target_Yaw = imu660ra.eulerAngle.yaw; /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°Æ«ï¿½ï¿½ÎªÄ¿ï¿½ï¿½ */
+            turn_mode = 2;                        /* ÇÐ»»»ØÍ¨ÓÃ×ªÏòÄ£Ê½ */
+            Target_Yaw = imu660ra.eulerAngle.yaw; /* ÒÔµ±Ç°Æ«º½ÎªÄ¿±ê */
         }
     }
     else if (turn_mode == 7)
     {
-        /* Ä£Ê½7ï¿½ï¿½ï¿½ßµï¿½×ªï¿½ï¿½
-         * ins_open=1Ê±Ê¹ï¿½Ã¹ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ yaw_insï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½[-180,180]ï¿½ï¿½ï¿½ï¿½ÎªÄ¿ï¿½ï¿½
+        /* Ä£Ê½7£º¹ßµ¼×ªÏò
+         * ins_open=1Ê±Ê¹ÓÃ¹ßµ¼Êä³ö yaw_ins£¨¹éÒ»»¯µ½[-180,180]£©×÷ÎªÄ¿±ê
          */
         if (ins_open)
         {
@@ -594,7 +436,7 @@ void Interrupt_4ms(void)
                 yaw_ins_deg -= 360.0f;
             if (yaw_ins_deg < -180.0f)
                 yaw_ins_deg += 360.0f;
-            /* È·ï¿½ï¿½ setpoint ï¿½Úµï¿½Ç° yaw ï¿½ï¿½ ï¿½ï¿½180ï¿½ï¿½ ï¿½ï¿½Î§ï¿½Ú£ï¿½È¡ï¿½ï¿½ï¿½×ªï¿½ï¿½Â·ï¿½ï¿½ */
+            /* È·±£ setpoint ÔÚµ±Ç° yaw µÄ ¡À180¶È ·¶Î§ÄÚ£¨È¡×î¶ÌÂ·¾¶£© */
             {
                 float diff = yaw_ins_deg - imu660ra.eulerAngle.yaw;
                 if (diff > 180.0f)
@@ -602,7 +444,6 @@ void Interrupt_4ms(void)
                 else if (diff < -180.0f)
                     yaw_ins_deg += 360.0f;
             }
-            // aa2 = 0.95f * yaw_ins_deg + 0.05f * aa2;  /* ï¿½ßµï¿½Ä¿ï¿½ï¿½Çµï¿½Í¨ï¿½Ë²ï¿½ */
             Yao.Outp_turn = Cascade_angle_Yaw_2(&PID_all.Pid_Angle_Yaw, erect_Angle_Yaw_2, imu660ra.eulerAngle.yaw, yaw_ins_deg);
             Yao.Outp_turn = limit(Yao.Outp_turn, 8000.0f);
         }
@@ -613,186 +454,97 @@ void Interrupt_4ms(void)
     }
     else
     {
-        /* mode 0 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ */
+        /* mode 0£º¹Ø±Õ×ªÏòÊä³ö */
         Yao.Outp_turn = 0;
     }
 }
 
-/* ---- 8msï¿½Ð¶ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ ---- */
-int16 recordL = 0; /* ï¿½ï¿½ï¿½Ö¼ï¿½Â¼Öµï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
-int16 recordR = 0; /* ï¿½ï¿½ï¿½Ö¼ï¿½Â¼Öµï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
-float vv2 = 0;     /* ï¿½ï¿½ï¿½Ù²ï¿½ï¿½Ë²ï¿½Öµï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ */
+/* ---- 8msÖÐ¶ÏÈ«¾Ö±äÁ¿ ---- */
+int16 recordL = 0; /* ×óÂÖ¼ÇÂ¼Öµ£¬Ô¤ÁôÀ©Õ¹ */
+int16 recordR = 0; /* ÓÒÂÖ¼ÇÂ¼Öµ£¬Ô¤ÁôÀ©Õ¹ */
+float vv2 = 0;     /* ²îËÙµÍÍ¨ÂË²¨Öµ£¬Ô¤ÁôÀ©Õ¹ */
 
 /**
- * @brief   8msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   8msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. ï¿½ï¿½ï¿½È¸ß¶ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½Æ£ï¿½Single_Controlï¿½ï¿½ï¿½ï¿½flag_Single=1Ê±ï¿½ï¿½ï¿½ï¿½
- *   2. ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½servo_balanceï¿½ï¿½ï¿½ï¿½steer_control_mode=1Ê±ï¿½ï¿½ï¿½ï¿½
- *   3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¨KEY_1ï¿½ï¿½ï¿½ï¿½flag_trackï¿½ï¿½
+ * Ö´ÐÐË³Ðò£º
+ *   1. ÍÈ²¿¸ß¶ÈÇÐ»»¿ØÖÆ£¨Single_Control£¬flag_Single=1Ê±Ö´ÐÐ£©
+ *   2. ¶æ»úÆ½ºâ¿ØÖÆ£¨servo_balance£¬steer_control_mode=1Ê±Ö´ÐÐ£©
  *
- * ×¢ï¿½â£ºÔ­ï¿½Ù¶È»ï¿½PIDï¿½ï¿½Cascade_speed_Pitchï¿½ï¿½ï¿½ï¿½Ç¨ï¿½Æµï¿½16msï¿½Ð¶Ï¡ï¿½
- *       Adapt_Terrain() ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½×¢ï¿½Í£ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½mainÑ­ï¿½ï¿½ï¿½Ðµï¿½ï¿½Ã£ï¿½ï¿½ï¿½
+ * ×¢Òâ£ºÔ­ËÙ¶È»·PID£¨Cascade_speed_Pitch£©ÒÑÇ¨ÒÆÖÁ16msÖÐ¶Ï¡£
+ *       Adapt_Terrain() º¯ÊýÒ²ÒÑ×¢ÊÍ£¬µ±Ç°ÔÚmainÑ­»·ÖÐµ÷ÓÃ¡£
  */
 void Interrupt_8ms(void)
 {
-    /*
-     // ï¿½ï¿½Øµï¿½Ñ¹
-     adc0 = adc_mean_filter_convert( ADC0_CH6_A6 , 5 );
-     Battery_voltage = adc0 / 114.8936;
-
-     if(menu_mode)
-     {
-     Yao.Encoder_Left  = motor_value.receive_right_speed_data;
-     Yao.Encoder_Right = -motor_value.receive_left_speed_data;
-     }
-     else
-     {
-         Yao.Encoder_Left = 0;
-         Yao.Encoder_Right = 0;
-     }
-     Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, (float)(Yao.Encoder_Left+Yao.Encoder_Right)/2, (float)Yao.Target_Speed);
-     Yao.Outp_Speed_Pitch = limit( Yao.Outp_Speed_Pitch, 30.0f );
-     */
-    // vv2 = 0.05f * (float)(motor_value.receive_left_speed_data-motor_value.receive_right_speed_data) + 0.95 * vv2;
-    // Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, vv2, (float)Yao.Target_Speed);
-    // Yao.Outp_Speed_Pitch = limit( Yao.Outp_Speed_Pitch, 100.0f );
-
-    // ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½Æ²ï¿½ï¿½ï¿½
-    // if(flag_jump)
-    // {
-    //     time_j++;
-    //     jump_control();
-    // }
-    // else
-    //     time_j = 0;
-
-    /**************************************************************/
-
-    /* 1. ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ß¶ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ */
+    /* 1. µ½´ïÕ¾ÍÈ²¿¸ß¶ÈÇÐ»»¿ØÖÆ */
     if (flag_Single)
     {
         Single_Control();
     }
 
-    // if (menu_mode == 1 /*&& flag_jump == 0 && Element_State != Jump_State */ && steer_control_mode == 0)
-    // Adapt_Terrain();
-    // else
-
-    /* 2. ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½PWMÄ£Ê½ï¿½ï¿½Ö±ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½Ù²î£© */
-
+    /* 2. ¶æ»úÆ½ºâ¿ØÖÆ£¨PWMÄ£Ê½£¬Ö±½ÓÊ¹ÓÃ²îËÙ¿ØÖÆ£© */
     servo_balance();
-
-    /******************************************************************** */
-
-    /* 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£ºï¿½Ì°ï¿½KEY_1ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½ï¿½Ä£Ê½ */
-    /*if (menu_open == 1)
-       // menu();
-    else
-        menu_mode = 1;*/
-
-    // if (menu_mode && key_detect(KEY_1, KEY_SHORT_PRESS))
-    //     flag_track = 1;
-
-    // if(Element_State == Jump_State)
-    // {
-    //     if(flag_jump == 0)
-    //     servo_set_angle(RF, 210);servo_set_angle(RB, 0);
-    //     servo_set_angle(LF, 210);servo_set_angle(LB, 0);
-    // }
-
-    // small_driver_set_duty(0, 0);
-    // processImage();
 }
 
-/* ---- 16msï¿½Ð¶ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ ---- */
-volatile float aa11 = 0;        /* ï¿½ï¿½ï¿½Ù²ï¿½ï¿½Í¨ï¿½Ë²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ë£© */
-volatile float speed_MOTOR = 0; /* Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ù£ï¿½ï¿½ï¿½ï¿½Ú¹ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½ */
+/* ---- 16msÖÐ¶ÏÈ«¾Ö±äÁ¿ ---- */
+volatile float aa11 = 0;        /* ²îËÙµÍÍ¨ÂË²¨Öµ£¬ÓÃÓÚËÙ¶È»·ÊäÈë */
+volatile float speed_MOTOR = 0; /* Æ½¾ùËÙ¶È£¬ÓÃÓÚ¹ßµ¼×ø±ê¸üÐÂ */
 
 /**
- * @brief   16msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   16msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. ï¿½ßµï¿½ÊµÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½get_realtime_coordinateï¿½ï¿½ï¿½ï¿½ins_open=1Ê±ï¿½ï¿½ï¿½ï¿½
- *   2. Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ã£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù²ï¿½/2
- *   3. ï¿½ï¿½ï¿½Ùµï¿½Í¨ï¿½Ë²ï¿½ï¿½ï¿½Ïµï¿½ï¿½0.1ï¿½ï¿½+0.9ï¿½É£ï¿½
- *   4. ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£©ï¿½ï¿½
- *      ï¿½ï¿½ï¿½ï¿½=ï¿½Ë²ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ù£ï¿½ï¿½è¶¨Öµ=0ï¿½ï¿½Æ½ï¿½ï¿½Ê±Ä¿ï¿½ï¿½ï¿½Ù¶ï¿½Îª0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½100
+ * Ö´ÐÐË³Ðò£º
+ *   1. ¹ßµ¼ÊµÊ±×ø±ê¸üÐÂ£¨get_realtime_coordinate£¬ins_open=1Ê±Ö´ÐÐ£©
+ *   2. Æ½¾ùËÙ¶È¼ÆËã£º×óÓÒÂÖ²îËÙ/2
+ *   3. ËÙ¶ÈµÍÍ¨ÂË²¨£¨ÏµÊý0.1ÐÂ+0.9¾É£©
+ *   4. ËÙ¶È»·PID£¨Íâ»·¼ÆËã£©£º
+ *      ÊäÈë=ÂË²¨ºóÆ½¾ùËÙ¶È£¬Éè¶¨Öµ=0£¨Æ½ºâÊ±Ä¿±êËÙ¶ÈÎª0£¬·ÀÖ¹³åÅÜ£©£¬Êä³öÏÞ·ùÖÁ 100
  *
- * ×¢ï¿½â£ºï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ Yao.Outp_Speed_Pitch ï¿½ï¿½Îªï¿½Ç¶È»ï¿½ï¿½ï¿½SetPointï¿½ï¿½
- *       ï¿½Î³ï¿½"ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¡ï¿½
+ * ×¢Òâ£ºËÙ¶È»·Êä³ö Yao.Outp_Speed_Pitch ×÷Îª½Ç¶È»·µÄSetPoint£¬
+ *       ÐÎ³É"ËÙ¶È»·->½Ç¶È»·->½ÇËÙ¶È»·"Èý»·´®¼¶¿ØÖÆ¡£
  */
 void Interrupt_16ms(void)
 {
-
-    // ï¿½ï¿½Øµï¿½Ñ¹
-    // adc0 = adc_mean_filter_convert( ADC0_CH6_A6 , 5 );
-    // Battery_voltage = adc0 / 114.8936;
-
-    // if(menu_mode)
-    // {
-    //     if(func_abs(Yao.Encoder_Left-motor_value.receive_right_speed_data) <= 100)
-    //         Yao.Encoder_Left  = 0.5f * motor_value.receive_right_speed_data + 0.5f * Yao.Encoder_Left;
-    //     if(func_abs(Yao.Encoder_Right-motor_value.receive_left_speed_data) <= 100)
-    //         Yao.Encoder_Right = -(0.5f * motor_value.receive_left_speed_data + 0.5f * Yao.Encoder_Right);
-
-    //     Yao.Encoder_Left  = motor_value.receive_right_speed_data;
-    //     if(motor_value.receive_left_speed_data < 0)
-    //         Yao.Encoder_Right = -motor_value.receive_left_speed_data+22;
-    //     else if(motor_value.receive_left_speed_data > 0)
-    //         Yao.Encoder_Right = -motor_value.receive_left_speed_data-23;
-    //     else
-    //         Yao.Encoder_Right = -motor_value.receive_left_speed_data;
-
-    //     Yao.Encoder_Left  = motor_value.receive_right_speed_data;
-    //     Yao.Encoder_Right = -motor_value.receive_left_speed_data;
-    // }
-    // else
-    // {
-    //     Yao.Encoder_Left = 0;
-    //     Yao.Encoder_Right = 0;
-    // }
-
-    /* 1. ï¿½ßµï¿½ÊµÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½16msï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½Ç°Æ«ï¿½ï¿½ï¿½Ç£ï¿½ */
+    /* 1. ¹ßµ¼ÊµÊ±×ø±ê¸üÐÂ£¨16msÖÜÆÚ£¬´«Èëµ±Ç°Æ«º½½Ç£© */
     if (ins_open)
         get_realtime_coordinate(speed_MOTOR, 0.016, imu660ra.eulerAngle.yaw);
 
-    /* 2. Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ä·½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½×ªï¿½ï¿½ */
+    /* 2. Æ½¾ùËÙ¶È¼ÆËã£¨×óÓÒÂÖÆ¥Åä·½Ïò¡¢È¡·´×ªÏò£© */
     speed_MOTOR = (float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data) / 2.0f;
 
-    /* 3. ï¿½ï¿½ï¿½Ùµï¿½Í¨ï¿½Ë²ï¿½ */
+    /* 3. ËÙ¶ÈµÍÍ¨ÂË²¨ */
     aa11 = 0.1f * (((float)(-motor_value.receive_left_speed_data + motor_value.receive_right_speed_data)) / 2.0f) + 0.9f * aa11;
 
-    /* 4. ï¿½Ù¶È»ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£©
-     * ï¿½è¶¨Öµ=0ï¿½ï¿½Æ½ï¿½ï¿½Ê±Ä¿ï¿½ï¿½ï¿½Ù¶ï¿½Îª0ï¿½ï¿½ï¿½ï¿½Ö¹Æ½ï¿½â£©
-     * ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½100ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½
+    /* 4. ËÙ¶È»·PID£¨Íâ»·¼ÆËã£©
+     * Éè¶¨Öµ=0£¨Æ½ºâÊ±Ä¿±êËÙ¶ÈÎª0£¬·ÀÖ¹³åÅÜ£©
+     * Êä³öÏÞ·ùÖÁ 100£¨·ÀÖ¹ËÙ¶È»·Êä³ö¹ý´óµ¼ÖÂ½Ç¶È»··¢É¢£©
      */
     Yao.Outp_Speed_Pitch = -Cascade_speed_Pitch(&PID_all.Pid_Speed_Pitch, erect_Speed_Pitch, aa11, 0);
     Yao.Outp_Speed_Pitch = limit(Yao.Outp_Speed_Pitch, 100.0f);
 }
 
-/* ---- 40msï¿½Ð¶ï¿½ï¿½ï¿½ ---- */
-extern uint8 Zebra_Count_Flag; /* ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½å£© */
-uint16 TCount_40ms = 0;        /* 40msï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ï¿½ï¿½ï¿½ß³ï¿½Ê±ï¿½ï¿½â£© */
+/* ---- 40msÖÐ¶Ï ---- */
+extern uint8 Zebra_Count_Flag; /* °ßÂíÏßÂß¼­±êÖ¾£¨Íâ²¿¶¨Òå£© */
+uint16 TCount_40ms = 0;        /* 40ms¼ÆÊýÆ÷ÀÛ¼ÓÆ÷£¬ÓÃÓÚ°ßÂíÏß³¬Ê±¼ì²â */
 
-/* ---- Ò£ï¿½â·¢ï¿½Í¿ï¿½ï¿½ï¿½ ---- */
-uint8 telemetry_enable = 1;     /* Ò£ï¿½ï¿½Ê¹ï¿½Ü£ï¿½0=ï¿½Ø±ï¿½, 1=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½ï¿½Ú·ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ */
-uint8 ins_telemetry_enable = 1; /* ï¿½ßµï¿½Ò£ï¿½ï¿½Ê¹ï¿½Ü£ï¿½0=ï¿½Ø±ï¿½, 1=ï¿½ï¿½ï¿½ï¿½ */
+/* ---- Ò£²â·¢ËÍ¿ØÖÆ ---- */
+uint8 telemetry_enable = 1;     /* Ò£²âÊ¹ÄÜ£º0=¹Ø±Õ, 1=¿ªÆô£¨Í¨¹ýÎÞÏß´®¿Ú·¢ËÍµ÷ÊÔÊý¾Ý£© */
+uint8 ins_telemetry_enable = 1; /* ¹ßµ¼Ò£²âÊ¹ÄÜ£º0=¹Ø±Õ, 1=¿ªÆô */
 
 /**
- * @brief   40msï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   40msÖÐ¶Ï·þÎñº¯Êý
  *
- * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- *   1. ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½Ê±ï¿½ï¿½ï¿½
- *   2. Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¯ï¿½ï¿½ï¿½ï¿½
- *   3. Ò£ï¿½ï¿½ï¿½ï¿½ï¿½Ý½ï¿½ï¿½æ·¢ï¿½Í£ï¿½Ã¿80msï¿½Ð»ï¿½ $T ï¿½ï¿½Ì¬Ò£ï¿½ï¿½ / $I ï¿½ßµï¿½Ò£ï¿½â£©
- *      $Tï¿½ï¿½Ê½: tick,pitch,roll,yaw,gx,gy,gz,outp_turn,... (20ï¿½Ö¶ï¿½)
- *      $Iï¿½ï¿½Ê½: x,y,ins_mode,dis_ins,yaw_ins,n,target,flag_save (8ï¿½Ö¶ï¿½)
- *   4. ï¿½ßµï¿½Â¼ï¿½ï¿½Ë²ï¿½ä·¢ï¿½ï¿½ $W ï¿½ï¿½ï¿½ï¿½Ö¡
+ * Ö´ÐÐË³Ðò£º
+ *   1. °ßÂíÏß³¬Ê±¼ì²â
+ *   2. Æ«º½½ÇÆ¯ÒÆ²¹³¥
+ *   3. Ò£²âÊý¾Ý½»Ìæ·¢ËÍ£¨Ã¿80msÇÐ»» $T ×ËÌ¬Ò£²â / $I ¹ßµ¼Ò£²â£©
+ *      $T¸ñÊ½: tick,pitch,roll,yaw,gx,gy,gz,outp_turn,... (20×Ö¶Î)
+ *      $I¸ñÊ½: x,y,ins_mode,dis_ins,yaw_ins,n,target,flag_save (8×Ö¶Î)
+ *   4. ¹ßµ¼Â¼µãÂË²¨·¢ËÍ $W º½µãÖ¡
  */
 void Interrupt_40ms(void)
 {
-    /* 1. ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½Ê±ï¿½ï¿½â£º4ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½âµ½ï¿½Â°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò´¥·ï¿½ï¿½ï¿½Ö¾ */
+    /* 1. °ßÂíÏß³¬Ê±¼ì²â£º4ÃëÎ´¼ì²âµ½ÐÂ°ßÂíÏßÔò´¥·¢ */
     if (Zebra_Count_Flag == 0)
     {
         Zebra_Flag = 0;
@@ -807,15 +559,13 @@ void Interrupt_40ms(void)
         Zebra_Count_Flag = 1;
     }
 
-    // yaokong_data_deal();
-
-    /* 2. Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¯ï¿½ï¿½ï¿½ï¿½ */
+    /* 2. Æ«º½½ÇÆ¯ÒÆ²¹³¥ */
     imu660ra.eulerAngle.yaw += 0.0001;
 
-    /* 3. Ò£ï¿½ï¿½ï¿½ï¿½ï¿½Ý½ï¿½ï¿½æ·¢ï¿½Í£ï¿½
-     *    telemetry_toggle=0 ï¿½ï¿½ $T ï¿½ï¿½Ì¬Ò£ï¿½ï¿½
-     *    telemetry_toggle=1 ï¿½ï¿½ $I ï¿½ßµï¿½Ò£ï¿½ï¿½
-     *    ï¿½ï¿½Õ¼Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Ã¿80msï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+    /* 3. Ò£²âÊý¾Ý½»Ìæ·¢ËÍ£º
+     *    telemetry_toggle=0 Ê±·¢ËÍ $T ×ËÌ¬Ò£²â
+     *    telemetry_toggle=1 Ê±·¢ËÍ $I ¹ßµ¼Ò£²â
+     *    Á½ÕßÂÖÁ÷·¢ËÍ£¬Ã¿¸öÖÜÆÚ 80ms ·¢ËÍÒ»´Î
      */
     if (telemetry_enable || ins_telemetry_enable)
     {
@@ -827,7 +577,7 @@ void Interrupt_40ms(void)
 
             if (telemetry_enable)
             {
-                /* $T ï¿½ï¿½Ì¬Ò£ï¿½ï¿½Ö¡ */
+                /* $T ×ËÌ¬Ò£²âÖ¡ */
                 char telemetry_buf[128];
                 int len = sprintf(telemetry_buf,
                                   "$T,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%d,%.1f,%d,%.2f,%.1f,%.1f,%d,%d,%.2f,%.2f,%.1f\r\n",
@@ -857,7 +607,7 @@ void Interrupt_40ms(void)
             }
             else if (ins_telemetry_enable)
             {
-                /* $I ï¿½ßµï¿½Ò£ï¿½ï¿½Ö¡ï¿½ï¿½$Tï¿½Ø±ï¿½Ê±ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½Í´ï¿½ï¿½ï¿½ï¿½ï¿½ */
+                /* $I ¹ßµ¼Ò£²âÖ¡£¨$T¹Ø±ÕÊ±£¬¶ÀÕ¼·¢ËÍ´°¿Ú£© */
                 char ins_buf[100];
                 int len = sprintf(ins_buf,
                                   "$I,%.1f,%.1f,%d,%.1f,%.1f,%d,%d,%d\r\n",
@@ -877,7 +627,7 @@ void Interrupt_40ms(void)
         }
         else if (telemetry_enable && ins_telemetry_enable)
         {
-            /* toggle=1 Ê±ï¿½ï¿½ï¿½ï¿½ $I ï¿½ßµï¿½Ò£ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ $T ï¿½ï¿½ï¿½æ£© */
+            /* toggle=1 Ê±·¢ËÍ $I ¹ßµ¼Ò£²âÖ¡£¨$T ¼ä¸ôÖÐ£© */
             char ins_buf[100];
             int len = sprintf(ins_buf,
                               "$I,%.1f,%.1f,%d,%.1f,%.1f,%d,%d,%d\r\n",
@@ -896,21 +646,21 @@ void Interrupt_40ms(void)
         }
     }
 
-    /* 4. ï¿½ßµï¿½Â¼ï¿½ï¿½Ë²ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ $W ï¿½ï¿½ï¿½ï¿½Ö¡ */
+    /* 4. ¹ßµ¼Â¼µãÂË²¨·¢ËÍ£¬·¢ËÍ $W º½µãÖ¡ */
     if (ins_telemetry_enable && ins_getdata)
     {
         char wp_buf[50];
         int wp_len = sprintf(wp_buf,
                              "$W,%d,%.1f,%.1f,%d\r\n",
-                             (int)(n - 1),                /* ï¿½ï¿½ï¿½Âºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
-                             cod_saved[(uint8)(n - 1)].x, /* ï¿½ï¿½ï¿½ï¿½X */
-                             cod_saved[(uint8)(n - 1)].y, /* ï¿½ï¿½ï¿½ï¿½Y */
-                             (int)n                       /* ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+                             (int)(n - 1),                /* ¸üÐÂºóµÄº½µãË÷Òý */
+                             cod_saved[(uint8)(n - 1)].x, /* º½µãX */
+                             cod_saved[(uint8)(n - 1)].y, /* º½µãY */
+                             (int)n                       /* µ±Ç°º½µã×ÜÊý */
         );
         if (wp_len > 0 && wp_len < (int)sizeof(wp_buf))
         {
             wireless_uart_send_string(wp_buf);
         }
-        ins_getdata = 0; /* ï¿½ï¿½ï¿½Î·ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ */
+        ins_getdata = 0; /* ·¢ËÍÍê±Ï£¬Çå³ý±êÖ¾ */
     }
 }

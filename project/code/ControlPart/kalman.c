@@ -1,13 +1,13 @@
 /*
  * kalman.c
  *
- *  Created on: 2025å¹´6æœˆ26æ—¥
+ *  Created on: 2025Äê6ÔÂ26ÈÕ
  *      Author: Administrator
  */
 /*
  * Kalman_fusion_of_imu660ra.c
  *
- *  Created on: 2024å¹´11æœˆ22æ—¥
+ *  Created on: 2024Äê11ÔÂ22ÈÕ
  *      Author: 17104
  */
 
@@ -21,12 +21,12 @@ float standardized_curvature_ave = 0;
 imu963ra_struct imu;
 
 /**
- * @brief åˆå§‹åŒ–å…­è½´ IMU å§¿æ€å¡å°”æ›¼æ»¤æ³¢å™¨çŠ¶æ€å’Œå‚æ•°
- * @param imu å¾…åˆå§‹åŒ–çš„å§¿æ€æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param q ç³»ç»Ÿå™ªå£°åæ–¹å·®åˆå€¼
- * @param r æµ‹é‡å™ªå£°åæ–¹å·®åˆå€¼
- * @param T ç¦»æ•£é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯ÁùÖá IMU ×ËÌ¬¿¨¶ûÂüÂË²¨Æ÷×´Ì¬ºÍ²ÎÊı
+ * @param imu ´ı³õÊ¼»¯µÄ×ËÌ¬ÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param q ÏµÍ³ÔëÉùĞ­·½²î³õÖµ
+ * @param r ²âÁ¿ÔëÉùĞ­·½²î³õÖµ
+ * @param T ÀëÉ¢²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float T)
 {
@@ -49,7 +49,7 @@ void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float 
     int i;
     for (i = 0; i < 3;i++)
     {
-        // åˆå§‹åŒ–å¡å°”æ›¼å„çŠ¶æ€é‡ï¼Œå‡†å¤‡ roll/pitch/yaw ä¸‰é€šé“ç‹¬ç«‹æ»¤æ³¢
+        // ³õÊ¼»¯¿¨¶ûÂü¸÷×´Ì¬Á¿£¬×¼±¸ roll/pitch/yaw ÈıÍ¨µÀ¶ÀÁ¢ÂË²¨
         imu -> Xk_[i] = 0;
         imu -> Xk[i] = 0;
         imu -> Uk[i] = 0;
@@ -64,28 +64,28 @@ void imu963ra_kalman_filter_init(imu963ra_struct * imu, float q, float r, float 
     imu -> T = T;
     imu -> resultant_acceleration = 0;
 
-    imu -> imu_offset_fwd  = 0.025f;  // å‰+å-ï¼Œå½“å‰=åæ–¹2.5cmï¼ˆåŸæ³¨é‡Š"åæ–¹6cm -0.06"ï¼Œéœ€å®æµ‹ç¡®è®¤ï¼‰
-    imu -> imu_offset_left =  -0.04f;   // å·¦+å³-ï¼Œå½“å‰=å·¦æ–¹4cmï¼ˆåŸæ³¨é‡Š"å³æ–¹4cm -0.04"ï¼Œç¬¦å·å·²ç¿»è½¬ï¼Œéœ€å®æµ‹ç¡®è®¤ï¼‰
+    imu -> imu_offset_fwd  = 0.025f;  // Ç°+ºó-£¬µ±Ç°=ºó·½2.5cm£¨Ô­×¢ÊÍ"ºó·½6cm -0.06"£¬ĞèÊµ²âÈ·ÈÏ£©
+    imu -> imu_offset_left =  -0.04f;   // ×ó+ÓÒ-£¬µ±Ç°=×ó·½4cm£¨Ô­×¢ÊÍ"ÓÒ·½4cm -0.04"£¬·ûºÅÒÑ·­×ª£¬ĞèÊµ²âÈ·ÈÏ£©
     imu -> yaw_accel = 0;
     imu -> yaw_rate_prev = 0;
 }
 
 /**
- * @brief è¡¥å¿ IMU åå¿ƒå®‰è£…å¯¼è‡´çš„å‘å¿ƒåŠ é€Ÿåº¦è¯¯å·®
- * @param imu IMU æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief ²¹³¥ IMU Æ«ĞÄ°²×°µ¼ÖÂµÄÏòĞÄ¼ÓËÙ¶ÈÎó²î
+ * @param imu IMU ÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu_offset_compensate_acc(imu963ra_struct *imu)
 {
-    float yaw_rate = imu->gz;  // å½“å‰åèˆªè§’é€Ÿåº¦ï¼Œå•ä½ rad/s
+    float yaw_rate = imu->gz;  // µ±Ç°Æ«º½½ÇËÙ¶È£¬µ¥Î» rad/s
 
-    // å°è§’é€Ÿåº¦ä¸‹åå¿ƒå‘å¿ƒåŠ é€Ÿåº¦è¿œä½äºå™ªå£°ï¼Œç›´æ¥è·³è¿‡é¿å…å¼•å…¥è¡¥å¿æŠ–åŠ¨
+    // Ğ¡½ÇËÙ¶ÈÏÂÆ«ĞÄÏòĞÄ¼ÓËÙ¶ÈÔ¶µÍÓÚÔëÉù£¬Ö±½ÓÌø¹ı±ÜÃâÒıÈë²¹³¥¶¶¶¯
     const float DEAD_ZONE = 0.087266f;  // 5 deg/s
     if (fabsf(yaw_rate) < DEAD_ZONE) {
         return;
     }
 
-    // å‘å¿ƒåŠ é€Ÿåº¦æ¨¡å‹ï¼ša_c = -Ï‰^2 * rï¼Œåˆ†åˆ«æ±‚æœºä½“å‰å‘å’Œå·¦å‘æŠ•å½±
+    // ÏòĞÄ¼ÓËÙ¶ÈÄ£ĞÍ£ºa_c = -¦Ø^2 * r£¬·Ö±ğÇó»úÌåÇ°ÏòºÍ×óÏòÍ¶Ó°
     float omega2 = yaw_rate * yaw_rate;
     float cent_x = -omega2 * imu->imu_offset_fwd;
     float cent_y = -omega2 * imu->imu_offset_left;
@@ -94,7 +94,7 @@ void imu_offset_compensate_acc(imu963ra_struct *imu)
     float comp_x = cent_x / G;
     float comp_y = cent_y / G;
 
-    // å¯¹è¡¥å¿é‡åšé™å¹…ï¼Œé˜²æ­¢é™€èºä»ªå°–å³°å¯¼è‡´åŠ é€Ÿåº¦è§‚æµ‹å¼‚å¸¸
+    // ¶Ô²¹³¥Á¿×öÏŞ·ù£¬·ÀÖ¹ÍÓÂİÒÇ¼â·åµ¼ÖÂ¼ÓËÙ¶È¹Û²âÒì³£
     const float MAX_COMP = 0.5f;
     if (comp_x >  MAX_COMP) comp_x =  MAX_COMP;
     if (comp_x < -MAX_COMP) comp_x = -MAX_COMP;
@@ -103,13 +103,13 @@ void imu_offset_compensate_acc(imu963ra_struct *imu)
 
     imu->ax -= comp_x;
     imu->ay -= comp_y;
-    // az æ— éœ€è¡¥å¿ï¼Œå› ä¸ºçº¯æ°´å¹³å‘å¿ƒåŠ é€Ÿåº¦åœ¨æœºä½“ z è½´ä¸Šæ— æŠ•å½±
+    // az ÎŞĞè²¹³¥£¬ÒòÎª´¿Ë®Æ½ÏòĞÄ¼ÓËÙ¶ÈÔÚ»úÌå z ÖáÉÏÎŞÍ¶Ó°
 }
 
 /**
- * @brief æ‰§è¡Œä¸€æ¬¡å…­è½´ IMU å§¿æ€å¡å°”æ›¼æ»¤æ³¢æ›´æ–°
- * @param imu å§¿æ€æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief Ö´ĞĞÒ»´ÎÁùÖá IMU ×ËÌ¬¿¨¶ûÂüÂË²¨¸üĞÂ
+ * @param imu ×ËÌ¬ÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_kalman_filter_update(imu963ra_struct * imu)
 {
@@ -130,11 +130,11 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
     if(fabsf(imu -> gx) > MAX_READ_VALUE || fabsf(imu -> gy) > MAX_READ_VALUE || fabsf(imu -> gz) > MAX_READ_VALUE || fabsf(imu -> ax) > MAX_READ_VALUE || fabsf(imu -> ay) > MAX_READ_VALUE || fabsf(imu -> az) > MAX_READ_VALUE)
     {return;}
 
-    // å…ˆä¿®æ­£åå¿ƒå®‰è£…è¯¯å·®ï¼Œé¿å…è½¬å¼¯æ—¶æ¨ªå‘å‘å¿ƒåŠ é€Ÿåº¦æ±¡æŸ“ä¿¯ä»°ä¼°è®¡
+    // ÏÈĞŞÕıÆ«ĞÄ°²×°Îó²î£¬±ÜÃâ×ªÍäÊ±ºáÏòÏòĞÄ¼ÓËÙ¶ÈÎÛÈ¾¸©Ñö¹À¼Æ
     imu_offset_compensate_acc(imu);
     //printf("CMP_ACC: ax=%.4f, ay=%.4f, az=%.4f\r\n", imu->ax, imu->ay, imu->az);
 
-    // è½¬å¼¯è¶Šå‰§çƒˆï¼ŒåŠ é€Ÿåº¦è¶Šä¸å†è¿‘ä¼¼çº¯é‡åŠ›ï¼Œå› æ­¤åŠ¨æ€å¢å¤§ pitch è§‚æµ‹å™ªå£°
+    // ×ªÍäÔ½¾çÁÒ£¬¼ÓËÙ¶ÈÔ½²»ÔÙ½üËÆ´¿ÖØÁ¦£¬Òò´Ë¶¯Ì¬Ôö´ó pitch ¹Û²âÔëÉù
     {
         float yaw_rate_dps = imu->gz * 180.0f / My_PI;
         float yaw_factor = 1.0f + 0.005f * (yaw_rate_dps * yaw_rate_dps);
@@ -154,37 +154,37 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
         return;
     }
 
-    // é¢„æµ‹æ­¥éª¤ 1ï¼šç”±æœºä½“ç³»è§’é€Ÿåº¦è§£ç®—æ¬§æ‹‰è§’é€Ÿåº¦ï¼Œå¾—åˆ°ç³»ç»Ÿè¾“å…¥ Uk
+    // Ô¤²â²½Öè 1£ºÓÉ»úÌåÏµ½ÇËÙ¶È½âËãÅ·À­½ÇËÙ¶È£¬µÃµ½ÏµÍ³ÊäÈë Uk
     imu -> Uk[0] = imu -> gx + sin(imu -> Xk[0]) * tan(imu -> Xk[1]) * imu -> gy + cos(imu -> Xk[0]) * tan(imu -> Xk[1]) * imu -> gz;
     imu -> Uk[1] = cos(imu -> Xk[0]) * imu -> gy - sin(imu -> Xk[0]) * imu -> gz;
     imu -> Uk[2] = sin(imu -> Xk[0]) * imu -> gy / cos(imu -> Xk[1]) + cos(imu -> Xk[0]) * imu -> gz / cos(imu -> Xk[1]);
 
-    // é¢„æµ‹æ­¥éª¤ 2ï¼šå…ˆéªŒçŠ¶æ€ä¼°è®¡ X(k|k-1) = X(k-1|k-1) + T * Uk
+    // Ô¤²â²½Öè 2£ºÏÈÑé×´Ì¬¹À¼Æ X(k|k-1) = X(k-1|k-1) + T * Uk
     imu -> Xk_[0] = imu -> Xk[0] + imu -> T * imu -> Uk[0];
     imu -> Xk_[1] = imu -> Xk[1] + imu -> T * imu -> Uk[1];
     imu -> Xk_[2] = imu -> Xk[2] + imu -> T * imu -> Uk[2];
 
-    // é¢„æµ‹æ­¥éª¤ 3ï¼šå…ˆéªŒè¯¯å·®åæ–¹å·® P(k|k-1) = P(k-1|k-1) + Q
+    // Ô¤²â²½Öè 3£ºÏÈÑéÎó²îĞ­·½²î P(k|k-1) = P(k-1|k-1) + Q
     imu -> Pk_[0] = imu -> Pk[0] + imu -> Q[0];
     imu -> Pk_[1] = imu -> Pk[1] + imu -> Q[1];
     imu -> Pk_[2] = imu -> Pk[2] + imu -> Q[2];
 
-    // æ›´æ–°æ­¥éª¤ 1ï¼šè®¡ç®—å¡å°”æ›¼å¢ç›Šï¼Œå†³å®šé¢„æµ‹å€¼å’Œæµ‹é‡å€¼çš„èåˆæƒé‡
+    // ¸üĞÂ²½Öè 1£º¼ÆËã¿¨¶ûÂüÔöÒæ£¬¾ö¶¨Ô¤²âÖµºÍ²âÁ¿ÖµµÄÈÚºÏÈ¨ÖØ
     imu -> K[0] = imu -> Pk_[0] / (imu -> Pk_[0] + imu -> R[0]);
     imu -> K[1] = imu -> Pk_[1] / (imu -> Pk_[1] + imu -> R[1]);
     imu -> K[2] = 0;
 
-    // æ›´æ–°æ­¥éª¤ 2ï¼šç”±åŠ é€Ÿåº¦æ–¹å‘åè§£ roll / pitch æµ‹é‡å€¼ï¼Œyaw ä»ä¾èµ–é™€èºç§¯åˆ†
+    // ¸üĞÂ²½Öè 2£ºÓÉ¼ÓËÙ¶È·½Ïò·´½â roll / pitch ²âÁ¿Öµ£¬yaw ÈÔÒÀÀµÍÓÂİ»ı·Ö
     imu -> Zk[0] = atan( imu -> ay / imu -> az );
     imu -> Zk[1] = -atan( imu -> ax / (sqrt( imu -> ay * imu -> ay + imu -> az * imu -> az )));
     imu -> Zk[2] = 0;
 
-    // æ›´æ–°æ­¥éª¤ 3ï¼šåéªŒçŠ¶æ€ä¼°è®¡ X(k|k) = (1-K)X(k|k-1) + KZ(k)
+    // ¸üĞÂ²½Öè 3£ººóÑé×´Ì¬¹À¼Æ X(k|k) = (1-K)X(k|k-1) + KZ(k)
     imu -> Xk[0] = (1 - imu -> K[0]) * imu -> Xk_[0] + imu -> K[0] * imu -> Zk[0];
     imu -> Xk[1] = (1 - imu -> K[1]) * imu -> Xk_[1] + imu -> K[1] * imu -> Zk[1];
     imu -> Xk[2] = imu -> Xk_[2];
 
-    // æ›´æ–°æ­¥éª¤ 4ï¼šåéªŒåæ–¹å·®æ”¶ç¼©ï¼Œè¡¨ç¤ºèåˆè§‚æµ‹åä¸ç¡®å®šåº¦ä¸‹é™
+    // ¸üĞÂ²½Öè 4£ººóÑéĞ­·½²îÊÕËõ£¬±íÊ¾ÈÚºÏ¹Û²âºó²»È·¶¨¶ÈÏÂ½µ
     imu -> Pk[0] = (1 - imu -> K[0]) * imu -> Pk_[0];
     imu -> Pk[1] = (1 - imu -> K[1]) * imu -> Pk_[1];
     imu -> Pk[2] = imu -> Pk_[2];
@@ -194,8 +194,8 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
     imu -> yaw = imu -> Xk[2] / My_PI * 180.f;
     //printf(" %f\n", imu -> roll);
 
-    // æ ¹æ®æ»¤æ³¢åçš„å§¿æ€ä¼°è®¡è®¡ç®—é‡åŠ›åœ¨æœºä½“ç³»ä¸­çš„æŠ•å½±ï¼Œç”¨äºçº¿åŠ é€Ÿåº¦åˆ†ç¦»
-//    const float GRAVITY = 9.80665f; // æ ‡å‡†é‡åŠ›åŠ é€Ÿåº¦
+    // ¸ù¾İÂË²¨ºóµÄ×ËÌ¬¹À¼Æ¼ÆËãÖØÁ¦ÔÚ»úÌåÏµÖĞµÄÍ¶Ó°£¬ÓÃÓÚÏß¼ÓËÙ¶È·ÖÀë
+//    const float GRAVITY = 9.80665f; // ±ê×¼ÖØÁ¦¼ÓËÙ¶È
 
     float roll = imu->Xk[0];
     float pitch = imu->Xk[1];
@@ -205,17 +205,17 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
     float sin_pitch = sinf(pitch);
     float cos_pitch = cosf(pitch);
 
-    // å°†é‡åŠ›å‘é‡ä»åœ°ç†åæ ‡ç³»æ˜ å°„åˆ°æœºä½“åæ ‡ç³»
+    // ½«ÖØÁ¦ÏòÁ¿´ÓµØÀí×ø±êÏµÓ³Éäµ½»úÌå×ø±êÏµ
     float gx_body = -GRAVITY * sin_pitch;
     float gy_body = GRAVITY * sin_roll * cos_pitch;
     float gz_body = GRAVITY * cos_roll * cos_pitch;
 
-    // æŠŠåŠ é€Ÿåº¦è®¡é‡å€¼ä» g è½¬æ¢ä¸º m/s^2ï¼Œä¾¿äºåç»­åŠ¨åŠ›å­¦èåˆ
+    // °Ñ¼ÓËÙ¶È¼ÆÁ¿Öµ´Ó g ×ª»»Îª m/s^2£¬±ãÓÚºóĞø¶¯Á¦Ñ§ÈÚºÏ
     float ax_mps2 = imu->ax * GRAVITY;
     float ay_mps2 = imu->ay * GRAVITY;
     float az_mps2 = imu->az * GRAVITY;
 
-    // çº¿æ€§åŠ é€Ÿåº¦ = åŸå§‹åŠ é€Ÿåº¦ - é‡åŠ›åˆ†é‡
+    // ÏßĞÔ¼ÓËÙ¶È = Ô­Ê¼¼ÓËÙ¶È - ÖØÁ¦·ÖÁ¿
     imu->ax_linear = ax_mps2 - gx_body;
     imu->ay_linear = ay_mps2 - gy_body;
     imu->az_linear = az_mps2 - gz_body;
@@ -226,24 +226,24 @@ void imu963ra_kalman_filter_update(imu963ra_struct * imu)
 KF_Velocity vel_kf;
 
 /**
- * @brief åˆå§‹åŒ–è½®é€Ÿä¸çº¿åŠ é€Ÿåº¦èåˆçš„é€Ÿåº¦å¡å°”æ›¼æ»¤æ³¢å™¨
- * @param kf å¾…åˆå§‹åŒ–çš„é€Ÿåº¦æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param q_pos ä½ç§»çŠ¶æ€è¿‡ç¨‹å™ªå£°
- * @param q_vel é€Ÿåº¦çŠ¶æ€è¿‡ç¨‹å™ªå£°
- * @param r è½®é€Ÿæµ‹é‡å™ªå£°
- * @param T é‡‡æ ·å‘¨æœŸï¼Œå•ä½ä¸º s
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯ÂÖËÙÓëÏß¼ÓËÙ¶ÈÈÚºÏµÄËÙ¶È¿¨¶ûÂüÂË²¨Æ÷
+ * @param kf ´ı³õÊ¼»¯µÄËÙ¶ÈÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param q_pos Î»ÒÆ×´Ì¬¹ı³ÌÔëÉù
+ * @param q_vel ËÙ¶È×´Ì¬¹ı³ÌÔëÉù
+ * @param r ÂÖËÙ²âÁ¿ÔëÉù
+ * @param T ²ÉÑùÖÜÆÚ£¬µ¥Î»Îª s
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_menc15a_kalman_filter_init(KF_Velocity* kf, float q_pos, float q_vel, float r, float T) {
 
     kf->Xk_[0] = kf->Xk_[1] = 0;
     kf->Xk[0] = kf->Xk[1] = 0;
 
-    // åˆå§‹åŒ–åéªŒåæ–¹å·®çŸ©é˜µï¼Œè¡¨ç¤ºç³»ç»Ÿèµ·å§‹ä¸ç¡®å®šåº¦
+    // ³õÊ¼»¯ºóÑéĞ­·½²î¾ØÕó£¬±íÊ¾ÏµÍ³ÆğÊ¼²»È·¶¨¶È
     kf->Pk[0][0] = 1.0f; kf->Pk[0][1] = 0;
     kf->Pk[1][0] = 0;     kf->Pk[1][1] = 1.0f;
 
-    // è¿‡ç¨‹å™ªå£°çŸ©é˜µ Q åæ˜ ä½ç§»å’Œé€Ÿåº¦é¢„æµ‹æ¨¡å‹çš„ä¸ç¡®å®šæ€§
+    // ¹ı³ÌÔëÉù¾ØÕó Q ·´Ó³Î»ÒÆºÍËÙ¶ÈÔ¤²âÄ£ĞÍµÄ²»È·¶¨ĞÔ
     kf->Q[0][0] = q_pos; kf->Q[0][1] = 0;
     kf->Q[1][0] = 0;      kf->Q[1][1] = q_vel;
 
@@ -262,17 +262,17 @@ void imu963ra_menc15a_kalman_filter_init(KF_Velocity* kf, float q_pos, float q_v
 }
 
 /**
- * @brief ä½¿ç”¨è½®é€Ÿæµ‹é‡å’Œçº¿åŠ é€Ÿåº¦æ‰§è¡Œä¸€æ¬¡é€Ÿåº¦å¡å°”æ›¼æ›´æ–°
- * @param kf é€Ÿåº¦æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param measured_speed è½®é€Ÿæµ‹é‡å€¼
- * @param linear_accel å»é‡åŠ›åçš„çº¿åŠ é€Ÿåº¦
- * @return void æ— è¿”å›å€¼
+ * @brief Ê¹ÓÃÂÖËÙ²âÁ¿ºÍÏß¼ÓËÙ¶ÈÖ´ĞĞÒ»´ÎËÙ¶È¿¨¶ûÂü¸üĞÂ
+ * @param kf ËÙ¶ÈÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param measured_speed ÂÖËÙ²âÁ¿Öµ
+ * @param linear_accel È¥ÖØÁ¦ºóµÄÏß¼ÓËÙ¶È
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed, float linear_accel)
 {
-    // åœ¨é¢„æµ‹å‰æ ¹æ®æ‰“æ»‘çŠ¶æ€åŠ¨æ€è°ƒæ•´ Q / Rï¼Œé™ä½å¼‚å¸¸è½®é€Ÿå¯¹ä¼°è®¡çš„å½±å“
+    // ÔÚÔ¤²âÇ°¸ù¾İ´ò»¬×´Ì¬¶¯Ì¬µ÷Õû Q / R£¬½µµÍÒì³£ÂÖËÙ¶Ô¹À¼ÆµÄÓ°Ïì
 //    if(fabs(imu.resultant_acceleration) < 0.1f) {
-//        // åŠ é€Ÿåº¦è®¡æ•°æ®å¼‚å¸¸ï¼Œä½¿ç”¨çº¯è½®é€Ÿä¼°è®¡
+//        // ¼ÓËÙ¶È¼ÆÊı¾İÒì³££¬Ê¹ÓÃ´¿ÂÖËÙ¹À¼Æ
 //        kf->Xk[1] = measured_speed;
 //    }
 //    if(/*fabs(linear_accel) > 1.0f && */fabs(measured_speed - kf->Xk_[1]) > 0.2f)
@@ -284,18 +284,18 @@ void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed
 
     handle_slip_condition(kf, measured_speed, imu.gz, imu.ax_linear);
 
-    // è¾“å…¥çŸ©é˜µ B æŠŠçº¿åŠ é€Ÿåº¦æ˜ å°„åˆ°ä½ç§»å’Œé€Ÿåº¦ä¸¤ä¸ªçŠ¶æ€é‡
+    // ÊäÈë¾ØÕó B °ÑÏß¼ÓËÙ¶ÈÓ³Éäµ½Î»ÒÆºÍËÙ¶ÈÁ½¸ö×´Ì¬Á¿
     const float B[2] = {0.5f * kf->T * kf->T, kf->T};
 
-    // çŠ¶æ€è½¬ç§»çŸ©é˜µ Aï¼Œå¯¹åº”å¸¸åŠ é€Ÿåº¦ç¦»æ•£è¿åŠ¨æ¨¡å‹
+    // ×´Ì¬×ªÒÆ¾ØÕó A£¬¶ÔÓ¦³£¼ÓËÙ¶ÈÀëÉ¢ÔË¶¯Ä£ĞÍ
     const float A[2][2] = {{1, kf->T},
                           {0, 1}};
 
-    // é¢„æµ‹æ­¥éª¤ 1ï¼šå…ˆéªŒçŠ¶æ€ä¼°è®¡ï¼Œèåˆä¸Šä¸€æ—¶åˆ»çŠ¶æ€å’Œæœ¬å‘¨æœŸçº¿åŠ é€Ÿåº¦
+    // Ô¤²â²½Öè 1£ºÏÈÑé×´Ì¬¹À¼Æ£¬ÈÚºÏÉÏÒ»Ê±¿Ì×´Ì¬ºÍ±¾ÖÜÆÚÏß¼ÓËÙ¶È
     kf->Xk_[0] = A[0][0]*kf->Xk[0] + A[0][1]*kf->Xk[1] + B[0]*linear_accel;
     kf->Xk_[1] = A[1][0]*kf->Xk[0] + A[1][1]*kf->Xk[1] + B[1]*linear_accel;
 
-    // é¢„æµ‹æ­¥éª¤ 2ï¼šå…ˆç®— A * Pï¼Œä¾¿äºåç»­å¾—åˆ° A * P * A^T
+    // Ô¤²â²½Öè 2£ºÏÈËã A * P£¬±ãÓÚºóĞøµÃµ½ A * P * A^T
     float AP[2][2] = {
         {A[0][0]*kf->Pk[0][0] + A[0][1]*kf->Pk[1][0],
          A[0][0]*kf->Pk[0][1] + A[0][1]*kf->Pk[1][1]},
@@ -303,23 +303,23 @@ void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed
          A[1][0]*kf->Pk[0][1] + A[1][1]*kf->Pk[1][1]}
     };
 
-    // é¢„æµ‹æ­¥éª¤ 3ï¼šåæ–¹å·®é¢„æµ‹ P(k|k-1) = A * P(k-1|k-1) * A^T + Q
+    // Ô¤²â²½Öè 3£ºĞ­·½²îÔ¤²â P(k|k-1) = A * P(k-1|k-1) * A^T + Q
     kf->Pk_[0][0] = AP[0][0]*A[0][0] + AP[0][1]*A[0][1] + kf->Q[0][0];
     kf->Pk_[0][1] = AP[0][0]*A[1][0] + AP[0][1]*A[1][1] + kf->Q[0][1];
     kf->Pk_[1][0] = AP[1][0]*A[0][0] + AP[1][1]*A[0][1] + kf->Q[1][0];
     kf->Pk_[1][1] = AP[1][0]*A[1][0] + AP[1][1]*A[1][1] + kf->Q[1][1];
 
-    // æ›´æ–°æ­¥éª¤ 1ï¼šè§‚æµ‹æ–¹ç¨‹ä»…ç›´æ¥æµ‹é‡é€Ÿåº¦ï¼Œå› æ­¤ S ä¸ºé€Ÿåº¦åæ–¹å·®åŠ æµ‹é‡å™ªå£°
+    // ¸üĞÂ²½Öè 1£º¹Û²â·½³Ì½öÖ±½Ó²âÁ¿ËÙ¶È£¬Òò´Ë S ÎªËÙ¶ÈĞ­·½²î¼Ó²âÁ¿ÔëÉù
     const float S = kf->Pk_[1][1] + kf->R;
     kf->K[0] = kf->Pk_[0][1] / S;
     kf->K[1] = kf->Pk_[1][1] / S;
 
-    // æ›´æ–°æ­¥éª¤ 2ï¼šåˆ›æ–°é¡¹ y = z - Hxï¼Œè¿™é‡Œ z ä¸ºè½®é€Ÿæµ‹é‡å€¼
+    // ¸üĞÂ²½Öè 2£º´´ĞÂÏî y = z - Hx£¬ÕâÀï z ÎªÂÖËÙ²âÁ¿Öµ
     const float y = measured_speed - kf->Xk_[1];
     kf->Xk[0] += kf->K[0] * y;
     kf->Xk[1] += kf->K[1] * y;
 
-    // æ›´æ–°æ­¥éª¤ 3ï¼šåéªŒåæ–¹å·®çŸ©é˜µæ”¶ç¼©ï¼Œåæ˜ é‡æµ‹ä¿®æ­£åçš„ä¸ç¡®å®šåº¦ä¸‹é™
+    // ¸üĞÂ²½Öè 3£ººóÑéĞ­·½²î¾ØÕóÊÕËõ£¬·´Ó³Á¿²âĞŞÕıºóµÄ²»È·¶¨¶ÈÏÂ½µ
     const float P00 = kf->Pk_[0][0] - kf->K[0] * kf->Pk_[1][0];
     const float P01 = kf->Pk_[0][1] - kf->K[0] * kf->Pk_[1][1];
     const float P11 = kf->Pk_[1][1] - kf->K[1] * kf->Pk_[1][1];
@@ -329,16 +329,16 @@ void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed
     kf->Pk[1][0] = kf->Pk_[1][0] - kf->K[1] * kf->Pk_[1][0];
     kf->Pk[1][1] = P11;
 
-    // è¾“å‡ºä¼°è®¡ç»“æœï¼šç´¯è®¡ä½ç§»ä¸å½“å‰é€Ÿåº¦
+    // Êä³ö¹À¼Æ½á¹û£ºÀÛ¼ÆÎ»ÒÆÓëµ±Ç°ËÙ¶È
     kf->est_displacement += kf->Xk[0];
     kf->est_velocity = kf->Xk[1];
 
-    // æ¢å¤åŸºå‡†å™ªå£°å‚æ•°ï¼Œä¸‹ä¸€å‘¨æœŸå†æ ¹æ®å·¥å†µé‡æ–°è°ƒæ•´
+    // »Ö¸´»ù×¼ÔëÉù²ÎÊı£¬ÏÂÒ»ÖÜÆÚÔÙ¸ù¾İ¹¤¿öÖØĞÂµ÷Õû
     kf->R = kf->original_R;
     kf->Q[0][0] = kf->original_Q[0][0];
     kf->Q[1][1] = kf->original_Q[1][1];
 
-    // å¯¹é€Ÿåº¦çŠ¶æ€åšé™å¹…ï¼Œé˜²æ­¢å¼‚å¸¸å·¥å†µä¸‹ä¼°è®¡å‘æ•£
+    // ¶ÔËÙ¶È×´Ì¬×öÏŞ·ù£¬·ÀÖ¹Òì³£¹¤¿öÏÂ¹À¼Æ·¢É¢
     kf->Xk[1] = fmaxf(fminf(kf->Xk[1], MAX_SPEED), -MAX_SPEED);
 
 //        printf("%f,%f\n",kf->est_displacement,kf->est_velocity);
@@ -346,30 +346,30 @@ void imu963ra_menc15a_kalman_filter_Update(KF_Velocity* kf, float measured_speed
 }
 
 /**
- * @brief æ ¹æ®è½®é€Ÿåå·®å’Œå¼¯é“å·¥å†µåŠ¨æ€è°ƒæ•´æ‰“æ»‘è¡¥å¿å‚æ•°
- * @param kf é€Ÿåº¦æ»¤æ³¢å™¨ç»“æ„ä½“æŒ‡é’ˆ
- * @param measured_speed å½“å‰è½®é€Ÿæµ‹é‡å€¼
- * @param yaw_rate å½“å‰åèˆªè§’é€Ÿåº¦
- * @param lat_accel å½“å‰æ¨ªå‘åŠ é€Ÿåº¦
- * @return void æ— è¿”å›å€¼
+ * @brief ¸ù¾İÂÖËÙÆ«²îºÍÍäµÀ¹¤¿ö¶¯Ì¬µ÷Õû´ò»¬²¹³¥²ÎÊı
+ * @param kf ËÙ¶ÈÂË²¨Æ÷½á¹¹ÌåÖ¸Õë
+ * @param measured_speed µ±Ç°ÂÖËÙ²âÁ¿Öµ
+ * @param yaw_rate µ±Ç°Æ«º½½ÇËÙ¶È
+ * @param lat_accel µ±Ç°ºáÏò¼ÓËÙ¶È
+ * @return void ÎŞ·µ»ØÖµ
  */
 void handle_slip_condition(KF_Velocity* kf, float measured_speed, float yaw_rate, float lat_accel)
 {
-    // è½®é€Ÿæµ‹é‡ä¸é¢„æµ‹é€Ÿåº¦å·®è¶Šå¤§ï¼Œè¶Šå¯èƒ½å­˜åœ¨è½®èƒæ‰“æ»‘æˆ–è½®é€Ÿå¼‚å¸¸
+    // ÂÖËÙ²âÁ¿ÓëÔ¤²âËÙ¶È²îÔ½´ó£¬Ô½¿ÉÄÜ´æÔÚÂÖÌ¥´ò»¬»òÂÖËÙÒì³£
     float speed_diff = fabsf(measured_speed - kf->Xk_[1]);
 //    printf("%f\n",speed_diff);
     if(fabsf(standardized_curvature_ave) > 0.6) {
-        // å¤§æ›²ç‡è½¬å¼¯æ—¶ä¼°ç®—å‘å¿ƒåŠ é€Ÿåº¦åå·®ï¼Œå¹¶åé¦ˆä¿®æ­£çºµå‘çº¿åŠ é€Ÿåº¦
+        // ´óÇúÂÊ×ªÍäÊ±¹ÀËãÏòĞÄ¼ÓËÙ¶ÈÆ«²î£¬²¢·´À¡ĞŞÕı×İÏòÏß¼ÓËÙ¶È
         float radius = fabs(kf->Xk[1] / (yaw_rate + 0.001f));
         float centripetal_accel = kf->Xk[1] * yaw_rate;
         float accel_bias = centripetal_accel - lat_accel;
 
-        // å¯¹åå·®é™å¹…ï¼Œé¿å…ä¸€æ¬¡æ€§æ³¨å…¥è¿‡å¤§çš„è¡¥å¿é‡
+        // ¶ÔÆ«²îÏŞ·ù£¬±ÜÃâÒ»´ÎĞÔ×¢Èë¹ı´óµÄ²¹³¥Á¿
         accel_bias = fmaxf(fminf(accel_bias, 2.0f), -2.0f);
         imu.ax_linear -= 0.4f * accel_bias;
     }
 
-    // æ–¹å‘ä¸€è‡´æ€§æ£€æµ‹ï¼šå€’è½¦æˆ–é€Ÿåº¦åå‘æ—¶é™ä½æ»‘ç§»ç‡å¯¹æ»¤æ³¢å‚æ•°çš„å½±å“
+    // ·½ÏòÒ»ÖÂĞÔ¼ì²â£ºµ¹³µ»òËÙ¶È·´ÏòÊ±½µµÍ»¬ÒÆÂÊ¶ÔÂË²¨²ÎÊıµÄÓ°Ïì
     if (measured_speed * kf->Xk_[1] >= 0) {
         kf->direction_factor = 1.0f;
     } else {
@@ -377,7 +377,7 @@ void handle_slip_condition(KF_Velocity* kf, float measured_speed, float yaw_rate
         kf->direction_factor = cosf(My_PI_2 * reverse_ratio);
     }
 
-    // ä»¥è¾ƒå¤§é€Ÿåº¦ä½œä¸ºå½’ä¸€åŒ–åŸºå‡†ï¼Œé¿å…ä½é€Ÿæ—¶æ»‘ç§»ç‡è¢«å™ªå£°æ”¾å¤§
+    // ÒÔ½Ï´óËÙ¶È×÷Îª¹éÒ»»¯»ù×¼£¬±ÜÃâµÍËÙÊ±»¬ÒÆÂÊ±»ÔëÉù·Å´ó
     float base_speed = fmaxf(fabsf(measured_speed), fabsf(kf->Xk_[1]));
     if (base_speed < 0.2f) {
         kf->slip_ratio = 0;
@@ -386,31 +386,31 @@ void handle_slip_condition(KF_Velocity* kf, float measured_speed, float yaw_rate
         kf->slip_ratio = valid_speed_diff / base_speed;
     }
 
-    // ä¾æ®è½¨è¿¹æ›²ç‡æé«˜å¼¯é“å·¥å†µä¸‹çš„æ•æ„Ÿåº¦
+    // ÒÀ¾İ¹ì¼£ÇúÂÊÌá¸ßÍäµÀ¹¤¿öÏÂµÄÃô¸Ğ¶È
     float curve_factor = fabsf(standardized_curvature_ave) > 0.4 ? 1.5f : 1.0f;
-    // ä½¿ç”¨æŒ‡æ•°å¹³æ»‘å¾—åˆ°è¿ç»­å˜åŒ–çš„æ»‘ç§»å› å­ï¼Œé¿å… Q / R çªå˜
+    // Ê¹ÓÃÖ¸ÊıÆ½»¬µÃµ½Á¬Ğø±ä»¯µÄ»¬ÒÆÒò×Ó£¬±ÜÃâ Q / R Í»±ä
     kf->slip_factor = 0.8f * kf->slip_factor + 0.2f * kf->slip_ratio;
-    // æ‰“æ»‘è¶Šä¸¥é‡ï¼Œè¶Šé™ä½å¯¹è½®é€Ÿæµ‹é‡å’Œä½ç§»é¢„æµ‹çš„ä¿¡ä»»
+    // ´ò»¬Ô½ÑÏÖØ£¬Ô½½µµÍ¶ÔÂÖËÙ²âÁ¿ºÍÎ»ÒÆÔ¤²âµÄĞÅÈÎ
     kf->R = kf->original_R * (1.0f + 10000.0f * kf->slip_factor) * curve_factor;
     kf->Q[0][0] = kf->original_Q[0][0] * (1.0f + 10000.0f * kf->slip_factor) * curve_factor;
 
-    // é™åˆ¶æœ€å¤§æ”¾å¤§å€æ•°ï¼Œé¿å…å™ªå£°åæ–¹å·®æ— é™å¢å¤§
+    // ÏŞÖÆ×î´ó·Å´ó±¶Êı£¬±ÜÃâÔëÉùĞ­·½²îÎŞÏŞÔö´ó
     kf->R = fminf(kf->R, kf->original_R * 10000.0f);
     kf->Q[0][0] = fminf(kf->Q[0][0], kf->original_Q[0][0] * 10000.0f);
 
-    // å¼¯é“ç‰¹æ®Šå¤„ç†ä¿ç•™æ¥å£ï¼Œåç»­å¯ç»§ç»­æ”¾å¤§é€Ÿåº¦è¿‡ç¨‹å™ªå£°
+    // ÍäµÀÌØÊâ´¦Àí±£Áô½Ó¿Ú£¬ºóĞø¿É¼ÌĞø·Å´óËÙ¶È¹ı³ÌÔëÉù
 //    if(is_curving) {
-//        kf->Q[1][1] = kf->original_Q[1][1] * 2.0f; // æé«˜é€Ÿåº¦è¿‡ç¨‹å™ªå£°
+//        kf->Q[1][1] = kf->original_Q[1][1] * 2.0f; // Ìá¸ßËÙ¶È¹ı³ÌÔëÉù
 //    }
 }
 
 /**
- * @brief æ ¡éªŒ IMU åŠ é€Ÿåº¦ä¸è½®é€Ÿå˜åŒ–æ¨å¯¼çš„æ¨¡å‹åŠ é€Ÿåº¦æ˜¯å¦ä¸€è‡´
- * @param imu_accel IMU æµ‹å¾—çš„åŠ é€Ÿåº¦
- * @param speed_est å½“å‰ä¼°è®¡é€Ÿåº¦
- * @param measured_speed å½“å‰è½®é€Ÿæµ‹é‡å€¼
- * @param dt1 é‡‡æ ·å‘¨æœŸ
- * @return int 1 è¡¨ç¤ºä¸€è‡´ï¼Œ0 è¡¨ç¤ºå·®å¼‚è¿‡å¤§
+ * @brief Ğ£Ñé IMU ¼ÓËÙ¶ÈÓëÂÖËÙ±ä»¯ÍÆµ¼µÄÄ£ĞÍ¼ÓËÙ¶ÈÊÇ·ñÒ»ÖÂ
+ * @param imu_accel IMU ²âµÃµÄ¼ÓËÙ¶È
+ * @param speed_est µ±Ç°¹À¼ÆËÙ¶È
+ * @param measured_speed µ±Ç°ÂÖËÙ²âÁ¿Öµ
+ * @param dt1 ²ÉÑùÖÜÆÚ
+ * @return int 1 ±íÊ¾Ò»ÖÂ£¬0 ±íÊ¾²îÒì¹ı´ó
  */
 int validate_acceleration(float imu_accel, float speed_est, float measured_speed, float dt1)
 {

@@ -5,6 +5,9 @@
 #include "imu660.h"
 #include "Interrupt.h"
 #include "small_driver_uart_control.h"
+#include "zf_device_gnss.h"
+#include "gps_nav.h"
+#include "gps_waypoint.h"
 
 uint8 Other_Show_Flag = 2;
 
@@ -111,10 +114,10 @@ extern uint8 Ramp_Flag;
 extern uint8 Small_S_Flag;
 
 extern uint8 L_Border_Point_Num;
-extern uint8 L_UP_Border_Point_Num;    //è®°å½•ä½äºé¡¶éƒ¨é»‘æ¡†ä¸Šçš„è¾¹ç•Œç‚¹ä¸ªæ•°
+extern uint8 L_UP_Border_Point_Num;    //¼ÇÂ¼Î»ÓÚ¶¥²¿ºÚ¿òÉÏµÄ±ß½çµã¸öÊı
 extern uint8 R_Border_Point_Num;
 extern uint8 R_UP_Border_Point_Num;
-extern uint8 Relative_Border_Point_Num;        //å­˜å‚¨å¯¹ä½è¾¹ç•Œè¡Œçš„ä¸ªæ•°
+extern uint8 Relative_Border_Point_Num;        //´æ´¢¶ÔÎ»±ß½çĞĞµÄ¸öÊı
 extern uint8 Max_Row_Dif_Line_Num;
 
 //extern uint8 I_L_Line[(uint16)Use_Num][2];
@@ -125,8 +128,8 @@ extern uint8 Max_Row_Dif_Line_Num;
 //extern uint16 I_R_Statics;
 
 /**
- * @brief  åˆå§‹åŒ– IPS200 å±å¹•çš„é¢œè‰²ã€å­—ä½“ã€æ–¹å‘ä¸æ¥å£æ¨¡å¼
- * @return æ— 
+ * @brief  ³õÊ¼»¯ IPS200 ÆÁÄ»µÄÑÕÉ«¡¢×ÖÌå¡¢·½ÏòÓë½Ó¿ÚÄ£Ê½
+ * @return ÎŞ
  */
 void IPS200_Show_Init(void)
 {
@@ -137,12 +140,12 @@ void IPS200_Show_Init(void)
 }
 
 /**
- * @brief  åœ¨æŒ‡å®šåæ ‡é™„è¿‘ç»˜åˆ¶ X å½¢æ ‡è®°
- * @param  image    å‚è€ƒå›¾åƒç¼“å†²åŒºï¼Œä»…ç”¨äºä¿æŒæ¥å£ä¸€è‡´
- * @param  point_y  æ ‡è®°ä¸­å¿ƒçºµåæ ‡
- * @param  point_x  æ ‡è®°ä¸­å¿ƒæ¨ªåæ ‡
- * @param  colour   ç»˜åˆ¶é¢œè‰²
- * @return æ— 
+ * @brief  ÔÚÖ¸¶¨×ø±ê¸½½ü»æÖÆ X ĞÎ±ê¼Ç
+ * @param  image    ²Î¿¼Í¼Ïñ»º³åÇø£¬½öÓÃÓÚ±£³Ö½Ó¿ÚÒ»ÖÂ
+ * @param  point_y  ±ê¼ÇÖĞĞÄ×İ×ø±ê
+ * @param  point_x  ±ê¼ÇÖĞĞÄºá×ø±ê
+ * @param  colour   »æÖÆÑÕÉ«
+ * @return ÎŞ
  */
 void Draw_X_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour)
 {
@@ -181,12 +184,12 @@ void Draw_X_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x
 }
 
 /**
- * @brief  åœ¨æŒ‡å®šåæ ‡é™„è¿‘ç»˜åˆ¶åå­—å½¢æ ‡è®°
- * @param  image    å‚è€ƒå›¾åƒç¼“å†²åŒºï¼Œä»…ç”¨äºä¿æŒæ¥å£ä¸€è‡´
- * @param  point_y  æ ‡è®°ä¸­å¿ƒçºµåæ ‡
- * @param  point_x  æ ‡è®°ä¸­å¿ƒæ¨ªåæ ‡
- * @param  colour   ç»˜åˆ¶é¢œè‰²
- * @return æ— 
+ * @brief  ÔÚÖ¸¶¨×ø±ê¸½½ü»æÖÆÊ®×ÖĞÎ±ê¼Ç
+ * @param  image    ²Î¿¼Í¼Ïñ»º³åÇø£¬½öÓÃÓÚ±£³Ö½Ó¿ÚÒ»ÖÂ
+ * @param  point_y  ±ê¼ÇÖĞĞÄ×İ×ø±ê
+ * @param  point_x  ±ê¼ÇÖĞĞÄºá×ø±ê
+ * @param  colour   »æÖÆÑÕÉ«
+ * @return ÎŞ
  */
 void Draw_10_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour)
 {
@@ -225,9 +228,9 @@ void Draw_10_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_
 }
 
 /**
- * @brief  æ ¹æ®æ˜¾ç¤ºæ ‡å¿—ç»˜åˆ¶æŒ‡å®šè°ƒè¯•å›¾å±‚
- * @param  flag  å›¾å±‚ç¼–å·ï¼Œå–å€¼è§ ips.h ä¸­çš„ Show_* å®
- * @return æ— 
+ * @brief  ¸ù¾İÏÔÊ¾±êÖ¾»æÖÆÖ¸¶¨µ÷ÊÔÍ¼²ã
+ * @param  flag  Í¼²ã±àºÅ£¬È¡Öµ¼û ips.h ÖĞµÄ Show_* ºê
+ * @return ÎŞ
  */
 void IPS_Show(uint8 flag)
 {
@@ -266,7 +269,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < L_Statics; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(L_Line[i][0] <= 80 && L_Line[i][0] >= 0 && L_Line[i][1] >= 0 && L_Line[i][1] <= 60)
                 if(L_Line[i][0] <= 80 && L_Line[i][1] <= 60)
                 {
@@ -279,7 +282,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < R_Statics; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(R_Line[i][0] <= 80 && R_Line[i][0] >= 0 && R_Line[i][1] >= 0 && R_Line[i][1] <= 60)
                 if(R_Line[i][0] <= 80 && R_Line[i][1] <= 60)
                 {
@@ -292,7 +295,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 2; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(C_Line[i] <= 80 && C_Line[i] >= 0)
                 if(C_Line[i] <= 80)
                 {
@@ -305,7 +308,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < L_Statics; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(L_Line[i][0] <= 80 && L_Line[i][0] >= 0 && L_Line[i][1] >= 0 && L_Line[i][1] <= 60)
                 if(L_Line[i][0] <= 80 && L_Line[i][1] <= 60)
                 {
@@ -314,7 +317,7 @@ void IPS_Show(uint8 flag)
             }
             for (i = 0; i < R_Statics; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(R_Line[i][0] <= 80 && R_Line[i][0] >= 0 && R_Line[i][1] >= 0 && R_Line[i][1] <= 60)
                 if(R_Line[i][0] <= 80 && R_Line[i][1] <= 60)
                 {
@@ -323,7 +326,7 @@ void IPS_Show(uint8 flag)
             }
             for (i = 2; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(C_Line[i] <= 80 && C_Line[i] >= 0)
                 if(C_Line[i] <= 80)
                 {
@@ -454,7 +457,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(L_Border[i] <= 80 && L_Border[i] >= 0)
                 if(L_Border[i] <= 80)
                 {
@@ -467,7 +470,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(R_Border[i] <= 80 && R_Border[i] >= 0)
                 if(R_Border[i] <= 80)
                 {
@@ -480,7 +483,7 @@ void IPS_Show(uint8 flag)
         {
             for (i = 0; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(L_Border[i] <= 80 && L_Border[i] >= 0)
                 if(L_Border[i] <= 80)
                 {
@@ -489,7 +492,7 @@ void IPS_Show(uint8 flag)
             }
             for (i = 0; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(R_Border[i] <= 80 && R_Border[i] >= 0)
                 if(R_Border[i] <= 80)
                 {
@@ -498,7 +501,7 @@ void IPS_Show(uint8 flag)
             }
             for (i = 2; i < Image_Y - 2; i++)
             {
-                // ç§»æ¤æ³¨é‡Šï¼šPe186 - uint8ç±»å‹ >= 0 æ’ä¸ºçœŸï¼ŒåŸå†™æ³•ä¿ç•™å¦‚ä¸‹
+                // ÒÆÖ²×¢ÊÍ£ºPe186 - uint8ÀàĞÍ >= 0 ºãÎªÕæ£¬Ô­Ğ´·¨±£ÁôÈçÏÂ
                 // if(C_Line[i] <= 80 && C_Line[i] >= 0)
                 if(C_Line[i] <= 80)
                 {
@@ -819,12 +822,12 @@ void IPS_Show(uint8 flag)
 
 float Last_a = 0;
 float Last_b = 0;
-uint8 Show_Flag = 1;//2æ˜¾ç¤º
+uint8 Show_Flag = 1;//2ÏÔÊ¾
 
 /**
- * @brief  åˆ·æ–° IPS200 ç»¼åˆè°ƒè¯•ç”»é¢
- * @param  Show_Flag  å½“å‰æ˜¾ç¤ºæ¨¡å¼ï¼Œå€¼ä¸º 2 æ—¶æ˜¾ç¤ºå›¾åƒè°ƒè¯•ç•Œé¢
- * @return æ— 
+ * @brief  Ë¢ĞÂ IPS200 ×ÛºÏµ÷ÊÔ»­Ãæ
+ * @param  Show_Flag  µ±Ç°ÏÔÊ¾Ä£Ê½£¬ÖµÎª 2 Ê±ÏÔÊ¾Í¼Ïñµ÷ÊÔ½çÃæ
+ * @return ÎŞ
  */
 void IPS200_Show(uint8 Show_Flag)
 {
@@ -876,11 +879,11 @@ void IPS200_Show(uint8 Show_Flag)
 //        ips200_show_uint(0, 230, forward_target, 2);
 //        Wifi_Send_Data(Deviation_Value, Y_Meet, Speed_Proportion, Last_b - Last_a, 0, 0, 0, 0);
 
-        /********************************************é€šç”¨æ•°æ®æ˜¾ç¤º********************************************/
+        /********************************************Í¨ÓÃÊı¾İÏÔÊ¾********************************************/
 
 //                if(menu_mode)
 //                {
-                //eulerè§’,è§’é€Ÿåº¦
+                //euler½Ç,½ÇËÙ¶È
                 ips200_show_string(190 , 0*8 , "roll:");
                 ips200_show_float( 190 , 1*8 , imu660ra.eulerAngle.roll  , 3 , 3 );
 //                ips200_show_uint( 190 , 2*8 , imu660ra_gyro_x , 5 );
@@ -915,71 +918,185 @@ void IPS200_Show(uint8 Show_Flag)
 //                ips200_show_float( 0 , 38*8 , Battery_voltage , 4 , 3 );
 //                }
 
-                /********************************************é€šç”¨æ•°æ®æ˜¾ç¤º********************************************/
+                /********************************************Í¨ÓÃÊı¾İÏÔÊ¾********************************************/
 
 
     }
 }
-// æµ‹è¯•å‡½æ•°ï¼Œå¯ä»¥å¾—åˆ°å•è¾¹å·¡çº¿æ•°ç»„
+// ²âÊÔº¯Êı£¬¿ÉÒÔµÃµ½µ¥±ßÑ²ÏßÊı×é
 #define FONT_HEIGHT 8
 #define FONT_WIDTH 6
 #define MAX_Y 280
 #define START_Y 160
 
 /**
- * @brief  ä»¥æ•°å­—çŸ©é˜µæ–¹å¼æ˜¾ç¤ºä¸­çº¿ä¸å·¦å³è¾¹ç•Œçš„è·ç¦»å·®
- * @return æ— 
+ * @brief  ÒÔÊı×Ö¾ØÕó·½Ê½ÏÔÊ¾ÖĞÏßÓë×óÓÒ±ß½çµÄ¾àÀë²î
+ * @return ÎŞ
  */
 void DisplayBorderDistances(void)
 {
 //    if (key_detect(KEY_3, KEY_SHORT_PRESS))
 //    {
-        /* æ˜¾ç¤ºå‚æ•° */
-        const uint16 x_max = 240;                      // å±å¹•æ¨ªå‘æœ€å¤§å€¼
-        const uint16 items_per_row = x_max / (2 * FONT_WIDTH); // æ¯è¡Œæ˜¾ç¤º20ä¸ªæ•°æ®ï¼ˆ240/(2 * 6)=20ï¼‰
+        /* ÏÔÊ¾²ÎÊı */
+        const uint16 x_max = 240;                      // ÆÁÄ»ºáÏò×î´óÖµ
+        const uint16 items_per_row = x_max / (2 * FONT_WIDTH); // Ã¿ĞĞÏÔÊ¾20¸öÊı¾İ£¨240/(2 * 6)=20£©
 
-        /* ä¸ŠåŠåŒºï¼šå·¦è¾¹çº¿å·®å€¼ */
-        uint16 base_y = START_Y;                        // èµ·å§‹Yåæ ‡
+        /* ÉÏ°ëÇø£º×ó±ßÏß²îÖµ */
+        uint16 base_y = START_Y;                        // ÆğÊ¼Y×ø±ê
         for (uint8 i = 0; i < 60; i++)
         {
-            // è®¡ç®—æ˜¾ç¤ºä½ç½®
-            uint16 row = i / items_per_row;             // å½“å‰è¡Œï¼ˆ0-2ï¼‰
-            uint16 col = i % items_per_row;             // å½“å‰åˆ—ï¼ˆ0-19ï¼‰
-            uint16 x = col * 2 * FONT_WIDTH;            // Xåæ ‡ï¼ˆæ¯æ•°æ®å 12åƒç´ ï¼‰
-            uint16 y = base_y + row * FONT_HEIGHT;      // Yåæ ‡
+            // ¼ÆËãÏÔÊ¾Î»ÖÃ
+            uint16 row = i / items_per_row;             // µ±Ç°ĞĞ£¨0-2£©
+            uint16 col = i % items_per_row;             // µ±Ç°ÁĞ£¨0-19£©
+            uint16 x = col * 2 * FONT_WIDTH;            // X×ø±ê£¨Ã¿Êı¾İÕ¼12ÏñËØ£©
+            uint16 y = base_y + row * FONT_HEIGHT;      // Y×ø±ê
 
-            // è®¡ç®—å·®å€¼
+            // ¼ÆËã²îÖµ
             uint8 diff = C_Line[i] - L_Border[i];
 
             diff = (diff > 99) ? 0 : diff;
 
-            // æ˜¾ç¤ºä¸¤ä½æ•°å€¼
+            // ÏÔÊ¾Á½Î»ÊıÖµ
             ips200_show_uint(x, y, diff, 2);
 
-            // è¶…è¿‡æ˜¾ç¤ºåŒºåŸŸåˆ™åœæ­¢
+            // ³¬¹ıÏÔÊ¾ÇøÓòÔòÍ£Ö¹
             if (y + FONT_HEIGHT > (START_Y + (MAX_Y - START_Y)/2)) break;
         }
 
-        /* ä¸‹åŠåŒºï¼šå³è¾¹çº¿å·®å€¼ */
-        base_y = START_Y + (MAX_Y - START_Y)/2 + FONT_HEIGHT; // ä¸‹åŠåŒºèµ·å§‹Yåæ ‡
+        /* ÏÂ°ëÇø£ºÓÒ±ßÏß²îÖµ */
+        base_y = START_Y + (MAX_Y - START_Y)/2 + FONT_HEIGHT; // ÏÂ°ëÇøÆğÊ¼Y×ø±ê
         for (uint8 i = 0; i < 60; i++)
         {
-            // è®¡ç®—æ˜¾ç¤ºä½ç½®
-            uint16 row = i / items_per_row;             // å½“å‰è¡Œï¼ˆ0-2ï¼‰
-            uint16 col = i % items_per_row;             // å½“å‰åˆ—ï¼ˆ0-19ï¼‰
-            uint16 x = col * 2 * FONT_WIDTH;            // Xåæ ‡
-            uint16 y = base_y + row * FONT_HEIGHT;      // Yåæ ‡
+            // ¼ÆËãÏÔÊ¾Î»ÖÃ
+            uint16 row = i / items_per_row;             // µ±Ç°ĞĞ£¨0-2£©
+            uint16 col = i % items_per_row;             // µ±Ç°ÁĞ£¨0-19£©
+            uint16 x = col * 2 * FONT_WIDTH;            // X×ø±ê
+            uint16 y = base_y + row * FONT_HEIGHT;      // Y×ø±ê
 
-            // è®¡ç®—å·®å€¼
+            // ¼ÆËã²îÖµ
             uint8 diff = R_Border[i] - C_Line[i];
 
-            // æ˜¾ç¤ºä¸¤ä½æ•°å€¼
+            // ÏÔÊ¾Á½Î»ÊıÖµ
             ips200_show_uint(x, y, diff, 2);
 
-            // è¶…è¿‡æ˜¾ç¤ºåŒºåŸŸåˆ™åœæ­¢
+            // ³¬¹ıÏÔÊ¾ÇøÓòÔòÍ£Ö¹
             if (y + FONT_HEIGHT > MAX_Y) break;
         }
 //    }
+}
+
+/*********************************************************************************************************************
+ * GPSµ¼º½×¨ÓÃÆÁÄ»ÏÔÊ¾º¯Êı
+ *
+ * ¹¦ÄÜ: ÔÚIPS200ÆÁÄ»ÉÏÏÔÊ¾GPSµ¼º½²âÊÔËùĞèµÄÈ«²¿µ÷ÊÔĞÅÏ¢
+ * Ë¢ĞÂ: 10Hz (Óëgps_nav_procÍ¬Æµ), ¾Ö²¿Ë¢ĞÂ±ÜÃâÉÁË¸
+ * ²¼¾Ö: ×´Ì¬À¸ ¡ú GPSÔ­Ê¼Êı¾İ ¡ú µ¼º½¼ÆËã ¡ú IMU×ËÌ¬ ¡ú º½µãĞÅÏ¢
+ *
+ * Ê¹ÓÃ: ÔÚmain_cm7_0.cÖ÷Ñ­»·ÖĞµ÷ÓÃ, Ìæ´ú´®¿Úµ÷ÊÔ
+ ********************************************************************************************************************/
+
+/* GPSÏÔÊ¾Ë¢ĞÂ¿ØÖÆ - Ê¹ÓÃ¼òµ¥¼ÆÊıÆ÷½µÆµ, ±ÜÃâÒÀÀµÎ´Á´½ÓµÄ¶¨Ê±º¯Êı */
+static uint8 gps_show_decimate = 0;
+#define GPS_SHOW_DECIMATE_CNT  3     // Ö÷Ñ­»·Ô¼30Hzµ÷ÓÃ, Ã¿3´ÎË¢ĞÂ1´Î¡Ö10Hz
+
+/* µ¼º½×´Ì¬Ãû³Æ±í */
+static const char * const gps_nav_state_name[] = {
+    "IDLE",        // 0
+    "CALIB",       // 1
+    "NAVG",        // 2
+    "ARRVD",       // 3
+    "DONE"         // 4
+};
+
+/**
+ * @brief  GPSµ¼º½×¨ÓÃÆÁÄ»ÏÔÊ¾ (Ô¼10Hz¾Ö²¿Ë¢ĞÂ)
+ * @note   Ö÷Ñ­»·ÖĞµ÷ÓÃ, ÄÚ²¿3·ÖÆµ½µÆµµ½Ô¼10Hz
+ * @return ÎŞ
+ */
+void IPS200_ShowGPS(void)
+{
+    if(++gps_show_decimate < GPS_SHOW_DECIMATE_CNT) return;
+    gps_show_decimate = 0;
+
+    /* ¶ÁÈ¡µ¼º½Êı¾İ (´ÓË«»º³å¶ÁÈ¡¶Ë) */
+    gps_steer_output_t *steer = GPS_STEER_READ();
+    uint8 nav_state = gps_nav_get_state();
+    uint8 wp_count  = gps_wp_get_count();
+
+    /* ===== µÚ0ĞĞ: ±êÌâ ===== */
+    ips200_show_string(0, 0*8, "=== GPS NAV TEST ===");
+
+    /* ===== µÚ1ĞĞ: µ¼º½×´Ì¬ + ÎÀĞÇÊı + ¶¨Î»×´Ì¬ ===== */
+    ips200_show_string(0,  1*8, "ST:");
+    if(nav_state <= 4)
+        ips200_show_string(24, 1*8, gps_nav_state_name[nav_state]);
+    else
+        ips200_show_string(24, 1*8, "????");
+
+    ips200_show_string(84,  1*8, "SAT:");
+    ips200_show_uint(114, 1*8, gnss.satellite_used, 2);
+
+    ips200_show_string(144, 1*8, "FIX:");
+    ips200_show_uint(174, 1*8, gnss.state, 1);
+
+    /* ===== µÚ3-5ĞĞ: GPSÔ­Ê¼Êı¾İ ===== */
+    ips200_show_string(0,  3*8, "LAT:");
+    ips200_show_float(30, 3*8, gnss.latitude, 3, 6);
+
+    ips200_show_string(0,  4*8, "LNG:");
+    ips200_show_float(30, 4*8, gnss.longitude, 3, 6);
+
+    ips200_show_string(0,  5*8, "SPD:");
+    ips200_show_float(30, 5*8, gnss.speed, 3, 1);
+    ips200_show_string(90, 5*8, "HDG:");
+    ips200_show_float(114, 5*8, gnss.direction, 3, 1);
+
+    /* ===== µÚ7-10ĞĞ: µ¼º½¼ÆËã½á¹û ===== */
+    ips200_show_string(0,  7*8, "--- NAV ---");
+
+    ips200_show_string(0,  8*8, "BEAR:");
+    ips200_show_float(36, 8*8, steer->target_bearing_deg, 3, 1);
+
+    ips200_show_string(0,  9*8, "DIST:");
+    ips200_show_float(36, 9*8, steer->distance_to_wp_m, 3, 2);
+    ips200_show_string(120, 9*8, "m");
+
+    ips200_show_string(0,  10*8, "YOFF:");
+    ips200_show_float(36, 10*8, steer->imu_yaw_offset_deg, 3, 1);
+
+    /* ===== µÚ12-15ĞĞ: IMU×ËÌ¬ ===== */
+    ips200_show_string(0,  12*8, "--- IMU ---");
+
+    ips200_show_string(0,  13*8, "YAW:");
+    ips200_show_float(30, 13*8, imu660ra.eulerAngle.yaw, 3, 2);
+
+    ips200_show_string(0,  14*8, "PIT:");
+    ips200_show_float(30, 14*8, imu660ra.eulerAngle.pitch, 3, 2);
+
+    ips200_show_string(0,  15*8, "ROL:");
+    ips200_show_float(30, 15*8, imu660ra.eulerAngle.roll, 3, 2);
+
+    /* ===== µÚ17-18ĞĞ: º½µãĞÅÏ¢ ===== */
+    ips200_show_string(0,  17*8, "--- WAYPOINT ---");
+
+    ips200_show_string(0,  18*8, "CNT:");
+    ips200_show_uint(30, 18*8, wp_count, 2);
+    ips200_show_string(54, 18*8, "/40");
+
+    /* µ±Ç°º½µã×ø±ê (Èç¹ûÓĞ) */
+    if(wp_count > 0)
+    {
+        gps_waypoint_t *wp = gps_wp_current();
+        ips200_show_string(0,  19*8, "WPLAT:");
+        ips200_show_float(42, 19*8, wp->lat, 3, 6);
+        ips200_show_string(0,  20*8, "WPLNG:");
+        ips200_show_float(42, 20*8, wp->lng, 3, 6);
+    }
+    else
+    {
+        ips200_show_string(0,  19*8, "WPLAT: ------");
+        ips200_show_string(0,  20*8, "WPLNG: ------");
+    }
 }
 
 

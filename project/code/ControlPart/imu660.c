@@ -1,7 +1,7 @@
 /*
  * imu660.c
  *
- *  Created on: 2024å¹´1æœˆ29æ—¥
+ *  Created on: 2024Äê1ÔÂ29ÈÕ
  *      Author: LateRain
  */
 #include "zf_common_headfile.h"
@@ -12,8 +12,8 @@
 imu660_struct imu660ra;
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å•ä½è½¬æ¢ï¼Œæ•°æ®é¢„å¤„ç†
-//  @param      å…­è½´æ•°æ®è¾“å…¥
+//  @brief      µ¥Î»×ª»»£¬Êı¾İÔ¤´¦Àí
+//  @param      ÁùÖáÊı¾İÊäÈë
 //-------------------------------------------------------------------------------------------------------------------
 #define alpha 0.1f
 /*#define imu660ra_acc_x  imu660ra_acc_x
@@ -26,11 +26,11 @@ imu660_struct imu660ra;
 
 void date_handle(void)
 {
-    // åŸå§‹æ•°æ®è·å–
+    // Ô­Ê¼Êı¾İ»ñÈ¡
     imu660ra_get_gyro();
     imu660ra_get_acc();
 
-    // é›¶æ¼‚å¤„ç†
+    // ÁãÆ¯´¦Àí
     if (imu660ra_gyro_y < 5.1 && imu660ra_gyro_y > -1.1)
         imu660ra_gyro_y -= 2.5;
     if (imu660ra_gyro_x < 5.1 && imu660ra_gyro_x > -1.1)
@@ -38,12 +38,12 @@ void date_handle(void)
     if (imu660ra_gyro_z <= 2 && imu660ra_gyro_z >= -5)
         imu660ra_gyro_z = 0;
 
-    // å•ä½è½¬æ¢
-    // RCä½é€šæ»¤æ³¢,å•ä½m/s2
+    // µ¥Î»×ª»»
+    // RCµÍÍ¨ÂË²¨,µ¥Î»m/s2
     imu660ra.data_Ripen.acc_x = (((float)imu660ra_acc_x) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_x * (1 - alpha);
     imu660ra.data_Ripen.acc_y = (((float)imu660ra_acc_y) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_y * (1 - alpha);
     imu660ra.data_Ripen.acc_z = (((float)imu660ra_acc_z) * alpha) * 9.79 / 4096 + imu660ra.data_Ripen.acc_z * (1 - alpha);
-    // å•ä½rps
+    // µ¥Î»rps
     imu660ra.data_Ripen.gyro_x = ((float)imu660ra_gyro_x - 19.0f /*- GyroOffset.Xdata*/) * M_PI / 180 / 16.4f;
     imu660ra.data_Ripen.gyro_y = (-(float)imu660ra_gyro_y + 76.0f /*- GyroOffset.Ydata*/) * M_PI / 180 / 16.4f;
     imu660ra.data_Ripen.gyro_z = ((float)imu660ra_gyro_z /*- GyroOffset.Zdata*/) * M_PI / 180 / 16.4f;
@@ -51,13 +51,13 @@ void date_handle(void)
     imu660ra.data_Raw.acc_x = (float)imu660ra_acc_x;
     imu660ra.data_Raw.acc_y = (float)imu660ra_acc_y;
     imu660ra.data_Raw.acc_z = (float)imu660ra_acc_z;
-    // å•ä½dps
+    // µ¥Î»dps
     imu660ra.data_Raw.gyro_x = ((float)imu660ra_gyro_x - 19.0f) / 16.4f;
     imu660ra.data_Raw.gyro_y = ((float)imu660ra_gyro_y + 76.0f) / 16.4f;
     imu660ra.data_Raw.gyro_z = ((float)imu660ra_gyro_z) / 16.4f;
 }
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      å››å…ƒæ•°æ»¤æ³¢    åœ¨ä¸­æ–­ä¸­è°ƒç”¨å³å¯
+//  @brief      ËÄÔªÊıÂË²¨    ÔÚÖĞ¶ÏÖĞµ÷ÓÃ¼´¿É
 //  @param      none
 //  @return     none
 //-------------------------------------------------------------------------------------------------------------------
@@ -75,10 +75,10 @@ float exInt = 0, eyInt = 0, ezInt = 0;
 float per_pitch = 0;
 void get_eulerAngle(void)
 {
-    // å¤„ç†æ•°æ®å¾—åˆ°æ ‡å‡†å•ä½
+    // ´¦ÀíÊı¾İµÃµ½±ê×¼µ¥Î»
     date_handle();
 
-    // åˆ©ç”¨æ•°æ®å¾—åˆ°å››å…ƒæ•°
+    // ÀûÓÃÊı¾İµÃµ½ËÄÔªÊı
     float ax = imu660ra.data_Ripen.acc_x;
     float ay = imu660ra.data_Ripen.acc_y;
     float az = imu660ra.data_Ripen.acc_z;
@@ -135,7 +135,7 @@ void get_eulerAngle(void)
     q2 = q2 * norm;
     q3 = q3 * norm;
 
-    // å››å…ƒæ•°è½¬æ¢æˆè§’åº¦
+    // ËÄÔªÊı×ª»»³É½Ç¶È
     //    complementaryFilter(imu660ra.data_Ripen.gyro_x,imu660ra.data_Ripen.acc_y,imu660ra.data_Ripen.acc_z,0.002,&per_pitch,&imu660ra.eulerAngle.pitch);
     //    imu660ra.eulerAngle.roll  = asin(2*(q0q1 + q2q3 )) * 57.2957795f - imu660ra.offset_angle.roll;
     imu660ra.eulerAngle.pitch = asin(2 * (q0q1 + q2q3)) * 57.2957795f - imu660ra.offset_angle.pitch;
@@ -143,7 +143,7 @@ void get_eulerAngle(void)
 
     //    imu660ra.eulerAngle.yaw   = Kalman_Filter( imu660ra.eulerAngle.yaw , imu660ra.data_Raw.gyro_z );
 
-    /*  // å…ƒç´ ä¸­ä½¿ç”¨é™€èºä»ªç§¯åˆ†
+    /*  // ÔªËØÖĞÊ¹ÓÃÍÓÂİÒÇ»ı·Ö
       if(IMU_JF_Flag)
       {
           Z_Yaw += imu660ra.data_Raw.gyro_z/500;

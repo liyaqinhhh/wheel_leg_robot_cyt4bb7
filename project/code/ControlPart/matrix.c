@@ -2,11 +2,11 @@
 #include "matrix.h"
 
 /**
- * @brief åˆå§‹åŒ–æŒ‡å®šè¡Œåˆ—å°ºå¯¸çš„é›¶çŸ©é˜µ
- * @param martix å¾…åˆå§‹åŒ–çš„çŸ©é˜µæŒ‡é’ˆ
- * @param rows çŸ©é˜µè¡Œæ•°
- * @param cols çŸ©é˜µåˆ—æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯Ö¸¶¨ĞĞÁĞ³ß´çµÄÁã¾ØÕó
+ * @param martix ´ı³õÊ¼»¯µÄ¾ØÕóÖ¸Õë
+ * @param rows ¾ØÕóĞĞÊı
+ * @param cols ¾ØÕóÁĞÊı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_Init(matrix_t* martix, int rows, int cols)
 {
@@ -19,10 +19,10 @@ void Matrix_Init(matrix_t* martix, int rows, int cols)
 
 
 /**
- * @brief æ„é€ æŒ‡å®šé˜¶æ•°çš„å•ä½çŸ©é˜µ
- * @param matrix ç›®æ ‡çŸ©é˜µæŒ‡é’ˆ
- * @param size å•ä½çŸ©é˜µé˜¶æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief ¹¹ÔìÖ¸¶¨½×ÊıµÄµ¥Î»¾ØÕó
+ * @param matrix Ä¿±ê¾ØÕóÖ¸Õë
+ * @param size µ¥Î»¾ØÕó½×Êı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_Identity(matrix_t* matrix, int size)
 {
@@ -39,12 +39,12 @@ void Matrix_Identity(matrix_t* matrix, int size)
 
 
 /**
- * @brief ä½¿ç”¨ä¸€ç»´æ•°ç»„æŒ‰è¡Œä¼˜å…ˆé¡ºåºåˆå§‹åŒ–çŸ©é˜µ
- * @param mat ç›®æ ‡çŸ©é˜µæŒ‡é’ˆ
- * @param array æºæ•°ç»„é¦–åœ°å€
- * @param rows çŸ©é˜µè¡Œæ•°
- * @param cols çŸ©é˜µåˆ—æ•°
- * @return void æ— è¿”å›å€¼
+ * @brief Ê¹ÓÃÒ»Î¬Êı×é°´ĞĞÓÅÏÈË³Ğò³õÊ¼»¯¾ØÕó
+ * @param mat Ä¿±ê¾ØÕóÖ¸Õë
+ * @param array Ô´Êı×éÊ×µØÖ·
+ * @param rows ¾ØÕóĞĞÊı
+ * @param cols ¾ØÕóÁĞÊı
+ * @return void ÎŞ·µ»ØÖµ
  */
 void Matrix_From_Array(matrix_t* mat, const matrix_type* array,const int rows,const int cols)
 {
@@ -63,16 +63,16 @@ void Matrix_From_Array(matrix_t* mat, const matrix_type* array,const int rows,co
 
 
 /**
- * @brief è®¡ç®—çŸ©é˜µè½¬ç½®
- * @param src æºçŸ©é˜µæŒ‡é’ˆ
- * @return matrix_t è½¬ç½®åçš„çŸ©é˜µ
+ * @brief ¼ÆËã¾ØÕó×ªÖÃ
+ * @param src Ô´¾ØÕóÖ¸Õë
+ * @return matrix_t ×ªÖÃºóµÄ¾ØÕó
  */
 matrix_t Matrix_Transpose(const matrix_t* src)
 {
     matrix_t dest;
     Matrix_Init(&dest, src->cols, src->rows);
 
-    // å°†æºçŸ©é˜µç¬¬ i è¡Œç¬¬ j åˆ—å…ƒç´ æ˜ å°„åˆ°ç»“æœçŸ©é˜µç¬¬ j è¡Œç¬¬ i åˆ—
+    // ½«Ô´¾ØÕóµÚ i ĞĞµÚ j ÁĞÔªËØÓ³Éäµ½½á¹û¾ØÕóµÚ j ĞĞµÚ i ÁĞ
     for(int i = 0; i < src->rows; i++)
     {
         for(int j = 0; j < src->cols; j++)
@@ -87,10 +87,10 @@ matrix_t Matrix_Transpose(const matrix_t* src)
 
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„ä¹˜ç§¯
- * @param A å·¦æ“ä½œæ•°çŸ©é˜µ
- * @param B å³æ“ä½œæ•°çŸ©é˜µ
- * @return matrix_t ä¹˜æ³•ç»“æœçŸ©é˜µ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄ³Ë»ı
+ * @param A ×ó²Ù×÷Êı¾ØÕó
+ * @param B ÓÒ²Ù×÷Êı¾ØÕó
+ * @return matrix_t ³Ë·¨½á¹û¾ØÕó
  */
 matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B)
 {
@@ -99,7 +99,7 @@ matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B)
     matrix_t dest;
     Matrix_Init(&dest, A->rows, B->cols);
 
-    // ä¸‰é‡å¾ªç¯æŒ‰è¡Œåˆ—å†…ç§¯è®¡ç®—æ¯ä¸ªå…ƒç´ ï¼šC(i,j) = Î£ A(i,k) * B(k,j)
+    // ÈıÖØÑ­»·°´ĞĞÁĞÄÚ»ı¼ÆËãÃ¿¸öÔªËØ£ºC(i,j) = ¦² A(i,k) * B(k,j)
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < B->cols; j++)
@@ -117,10 +117,10 @@ matrix_t multiply_matrices(const matrix_t* A, const matrix_t* B)
 
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„é€å…ƒç´ å’Œ
- * @param A ç¬¬ä¸€ä¸ªåŠ æ•°çŸ©é˜µ
- * @param B ç¬¬äºŒä¸ªåŠ æ•°çŸ©é˜µ
- * @return matrix_t åŠ æ³•ç»“æœçŸ©é˜µ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄÖğÔªËØºÍ
+ * @param A µÚÒ»¸ö¼ÓÊı¾ØÕó
+ * @param B µÚ¶ş¸ö¼ÓÊı¾ØÕó
+ * @return matrix_t ¼Ó·¨½á¹û¾ØÕó
  */
 matrix_t add_matrices(const matrix_t* A, const matrix_t* B)
 {
@@ -129,7 +129,7 @@ matrix_t add_matrices(const matrix_t* A, const matrix_t* B)
     matrix_t result;
     Matrix_Init(&result, A->rows, A->cols);
 
-    // å¯¹åº”ä½ç½®å…ƒç´ é€ä¸ªç›¸åŠ ï¼Œä¿æŒåŸçŸ©é˜µç»´åº¦ä¸å˜
+    // ¶ÔÓ¦Î»ÖÃÔªËØÖğ¸öÏà¼Ó£¬±£³ÖÔ­¾ØÕóÎ¬¶È²»±ä
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < A->cols; j++)
@@ -145,10 +145,10 @@ matrix_t add_matrices(const matrix_t* A, const matrix_t* B)
 
 
 /**
- * @brief è®¡ç®—ä¸¤ä¸ªçŸ©é˜µçš„é€å…ƒç´ å·®
- * @param A è¢«å‡çŸ©é˜µ
- * @param B å‡æ•°çŸ©é˜µ
- * @return matrix_t å‡æ³•ç»“æœçŸ©é˜µ
+ * @brief ¼ÆËãÁ½¸ö¾ØÕóµÄÖğÔªËØ²î
+ * @param A ±»¼õ¾ØÕó
+ * @param B ¼õÊı¾ØÕó
+ * @return matrix_t ¼õ·¨½á¹û¾ØÕó
  */
 matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B)
 {
@@ -157,7 +157,7 @@ matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B)
     matrix_t result;
     Matrix_Init(&result, A->rows, A->cols);
 
-    // å¯¹åº”ä½ç½®å…ƒç´ é€ä¸ªç›¸å‡ï¼Œé€‚ç”¨äºçŠ¶æ€æ®‹å·®å’Œåæ–¹å·®ä¿®æ­£
+    // ¶ÔÓ¦Î»ÖÃÔªËØÖğ¸öÏà¼õ£¬ÊÊÓÃÓÚ×´Ì¬²Ğ²îºÍĞ­·½²îĞŞÕı
     for(int i = 0; i < A->rows; i++)
     {
         for(int j = 0; j < A->cols; j++)
@@ -173,10 +173,10 @@ matrix_t subtract_matrices(const matrix_t* A, const matrix_t* B)
 
 
 /**
- * @brief ä½¿ç”¨é«˜æ–¯æ¶ˆå…ƒæ³•æ±‚æ–¹é˜µé€†çŸ©é˜µ
- * @param A å¾…æ±‚é€†çš„æ–¹é˜µ
- * @param invA è¾“å‡ºçš„é€†çŸ©é˜µ
- * @return int 0 è¡¨ç¤ºæ±‚é€†æˆåŠŸï¼Œ1 è¡¨ç¤ºçŸ©é˜µä¸å¯é€†
+ * @brief Ê¹ÓÃ¸ßË¹ÏûÔª·¨Çó·½ÕóÄæ¾ØÕó
+ * @param A ´ıÇóÄæµÄ·½Õó
+ * @param invA Êä³öµÄÄæ¾ØÕó
+ * @return int 0 ±íÊ¾ÇóÄæ³É¹¦£¬1 ±íÊ¾¾ØÕó²»¿ÉÄæ
  */
 int inverse_matrix(matrix_t* A, matrix_t* invA)
 {
@@ -190,7 +190,7 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
 
     matrix_type augmented[MAX_SIZE][2 * MAX_SIZE];
 
-    // æ„é€ å¢å¹¿çŸ©é˜µ [A | I]ï¼Œå·¦ä¾§ä¸ºåŸçŸ©é˜µï¼Œå³ä¾§ä¸ºå•ä½çŸ©é˜µ
+    // ¹¹ÔìÔö¹ã¾ØÕó [A | I]£¬×ó²àÎªÔ­¾ØÕó£¬ÓÒ²àÎªµ¥Î»¾ØÕó
     for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < n; j++)
@@ -200,10 +200,10 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
         }
     }
 
-    // é€åˆ—æ‰§è¡Œé«˜æ–¯-è‹¥å°”å½“æ¶ˆå…ƒ
+    // ÖğÁĞÖ´ĞĞ¸ßË¹-Èô¶ûµ±ÏûÔª
     for(int i = 0; i < n; i++)
     {
-        // é€‰å–å½“å‰åˆ—ç»å¯¹å€¼æœ€å¤§çš„ä¸»å…ƒï¼Œæé«˜æ•°å€¼ç¨³å®šæ€§
+        // Ñ¡È¡µ±Ç°ÁĞ¾ø¶ÔÖµ×î´óµÄÖ÷Ôª£¬Ìá¸ßÊıÖµÎÈ¶¨ĞÔ
         int max_row = i;
         for(int j = i + 1; j < n; j++)
         {
@@ -213,13 +213,13 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
             }
         }
 
-        // ä¸»å…ƒè¿‡å°æ„å‘³ç€çŸ©é˜µå¥‡å¼‚æˆ–ç—…æ€ï¼Œæ— æ³•å¯é æ±‚é€†
+        // Ö÷Ôª¹ıĞ¡ÒâÎ¶×Å¾ØÕóÆæÒì»ò²¡Ì¬£¬ÎŞ·¨¿É¿¿ÇóÄæ
         if(fabs(augmented[max_row][i]) < THRESHOLD)
         {
             return 1;
         }
 
-        // é€šè¿‡äº¤æ¢è¡ŒæŠŠæœ€å¤§ä¸»å…ƒç§»åŠ¨åˆ°å½“å‰æ¶ˆå…ƒè¡Œ
+        // Í¨¹ı½»»»ĞĞ°Ñ×î´óÖ÷ÔªÒÆ¶¯µ½µ±Ç°ÏûÔªĞĞ
         if(max_row != i)
         {
             for(int j = 0; j < 2 * n; j++)
@@ -230,14 +230,14 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
             }
         }
 
-        // å°†ä¸»å…ƒè¡Œå½’ä¸€åŒ–ï¼Œä½¿ä¸»å¯¹è§’å…ƒç´ å˜ä¸º 1
+        // ½«Ö÷ÔªĞĞ¹éÒ»»¯£¬Ê¹Ö÷¶Ô½ÇÔªËØ±äÎª 1
         matrix_type pivot = augmented[i][i];
         for(int j = 0; j < 2 * n; j++)
         {
             augmented[i][j] /= pivot;
         }
 
-        // ç”¨å½“å‰ä¸»å…ƒè¡Œæ¶ˆå»æœ¬åˆ—å…¶ä»–è¡Œå…ƒç´ ï¼Œæœ€ç»ˆæŠŠå·¦åŠéƒ¨åˆ†åŒ–ä¸ºå•ä½çŸ©é˜µ
+        // ÓÃµ±Ç°Ö÷ÔªĞĞÏûÈ¥±¾ÁĞÆäËûĞĞÔªËØ£¬×îÖÕ°Ñ×ó°ë²¿·Ö»¯Îªµ¥Î»¾ØÕó
         for(int j = 0; j < n; j++)
         {
             if(j != i)
@@ -251,7 +251,7 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
         }
     }
 
-    // å¢å¹¿çŸ©é˜µå³åŠéƒ¨åˆ†å³ä¸º A^-1
+    // Ôö¹ã¾ØÕóÓÒ°ë²¿·Ö¼´Îª A^-1
     for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < n; j++)
@@ -268,9 +268,9 @@ int inverse_matrix(matrix_t* A, matrix_t* invA)
 
 
 /**
- * @brief å¿«é€Ÿè®¡ç®—å¹³æ–¹æ ¹å€’æ•°ï¼Œç”¨äºå‘é‡å½’ä¸€åŒ–
- * @param x è¾“å…¥æ ‡é‡
- * @return float 1/sqrt(x) çš„è¿‘ä¼¼å€¼
+ * @brief ¿ìËÙ¼ÆËãÆ½·½¸ùµ¹Êı£¬ÓÃÓÚÏòÁ¿¹éÒ»»¯
+ * @param x ÊäÈë±êÁ¿
+ * @return float 1/sqrt(x) µÄ½üËÆÖµ
  */
 static inline float invSqrt(float x)
 {
@@ -291,9 +291,9 @@ static inline float invSqrt(float x)
 
 
 /**
- * @brief å¯¹è¡Œå‘é‡æˆ–åˆ—å‘é‡åšå•ä½åŒ–å¤„ç†
- * @param v å¾…å½’ä¸€åŒ–çš„å‘é‡
- * @return void æ— è¿”å›å€¼
+ * @brief ¶ÔĞĞÏòÁ¿»òÁĞÏòÁ¿×öµ¥Î»»¯´¦Àí
+ * @param v ´ı¹éÒ»»¯µÄÏòÁ¿
+ * @return void ÎŞ·µ»ØÖµ
  */
 void normalize_vector(matrix_t *v)
 {
@@ -316,7 +316,7 @@ void normalize_vector(matrix_t *v)
         }
     }
 
-    // å…ˆæ±‚æ¨¡é•¿å€’æ•°ï¼Œå†ç»Ÿä¸€ç¼©æ”¾æ¯ä¸ªå…ƒç´ ï¼Œå‡å°‘é™¤æ³•è¿ç®—é‡
+    // ÏÈÇóÄ£³¤µ¹Êı£¬ÔÙÍ³Ò»Ëõ·ÅÃ¿¸öÔªËØ£¬¼õÉÙ³ı·¨ÔËËãÁ¿
     norm = invSqrt((float)norm);
     if(1 == v->rows)
     {
@@ -339,9 +339,9 @@ void normalize_vector(matrix_t *v)
 
 
 /**
- * @brief æ‰“å°çŸ©é˜µå†…å®¹ï¼Œä¾¿äºè°ƒè¯•è§‚å¯Ÿ
- * @param matrix å¾…æ‰“å°çš„çŸ©é˜µæŒ‡é’ˆ
- * @return void æ— è¿”å›å€¼
+ * @brief ´òÓ¡¾ØÕóÄÚÈİ£¬±ãÓÚµ÷ÊÔ¹Û²ì
+ * @param matrix ´ı´òÓ¡µÄ¾ØÕóÖ¸Õë
+ * @return void ÎŞ·µ»ØÖµ
  */
 void print_matrix(const matrix_t* matrix)
 {

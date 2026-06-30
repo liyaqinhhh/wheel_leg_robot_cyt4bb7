@@ -3,127 +3,135 @@
 
 #include "image.h"
 
-/* åŸºç¡€å›¾åƒæ˜¾ç¤ºé¡¹ */
-#define Show_Camera_Correct_Line            0   // æ˜¾ç¤ºå›¾åƒä¸­å¿ƒä¿®æ­£çº¿
-#define Show_Find_Line_Image                1   // æ˜¾ç¤ºåŸºç¡€å¯»çº¿äºŒå€¼å›¾
-#define Show_L_Line                         2   // æ˜¾ç¤ºå·¦ä¾§çº¿ç‚¹é›†
-#define Shop_R_Line                         3   // æ˜¾ç¤ºå³ä¾§çº¿ç‚¹é›†
-#define Show_M_Line                         5   // æ˜¾ç¤ºä¸­çº¿ç‚¹é›†
-#define Show_All_Line                       6   // åŒæ—¶æ˜¾ç¤ºå·¦å³çº¿ä¸ä¸­çº¿
-#define Show_L_Start_Point                  7   // æ˜¾ç¤ºå·¦èµ·å§‹ç‚¹
-#define Show_R_Start_Point                  8   // æ˜¾ç¤ºå³èµ·å§‹ç‚¹
-#define Show_All_Start_Point                9   // åŒæ—¶æ˜¾ç¤ºå·¦å³èµ·å§‹ç‚¹
-#define Show_L_Statics                      10  // æ˜¾ç¤ºå·¦çº¿ç»Ÿè®¡æ•°é‡
-#define Show_R_Statics                      11  // æ˜¾ç¤ºå³çº¿ç»Ÿè®¡æ•°é‡
-#define Show_All_Statics                    12  // åŒæ—¶æ˜¾ç¤ºå·¦å³çº¿ç»Ÿè®¡æ•°é‡
-#define Show_X_Meet                         13  // æ˜¾ç¤º X æ–¹å‘äº¤ç‚¹ä¿¡æ¯
-#define Show_Y_Meet                         14  // æ˜¾ç¤º Y æ–¹å‘äº¤ç‚¹ä¿¡æ¯
-#define Show_All_Meet                       15  // åŒæ—¶æ˜¾ç¤º X/Y äº¤ç‚¹ä¿¡æ¯
-#define Show_L_Border                       16  // æ˜¾ç¤ºå·¦è¾¹ç•Œ
-#define Show_R_Border                       17  // æ˜¾ç¤ºå³è¾¹ç•Œ
-#define Show_All_Border                     18  // åŒæ—¶æ˜¾ç¤ºå·¦å³è¾¹ç•Œä¸ä¸­çº¿
+/* »ù´¡Í¼ÏñÏÔÊ¾Ïî */
+#define Show_Camera_Correct_Line            0   // ÏÔÊ¾Í¼ÏñÖĞĞÄĞŞÕıÏß
+#define Show_Find_Line_Image                1   // ÏÔÊ¾»ù´¡Ñ°Ïß¶şÖµÍ¼
+#define Show_L_Line                         2   // ÏÔÊ¾×ó²àÏßµã¼¯
+#define Shop_R_Line                         3   // ÏÔÊ¾ÓÒ²àÏßµã¼¯
+#define Show_M_Line                         5   // ÏÔÊ¾ÖĞÏßµã¼¯
+#define Show_All_Line                       6   // Í¬Ê±ÏÔÊ¾×óÓÒÏßÓëÖĞÏß
+#define Show_L_Start_Point                  7   // ÏÔÊ¾×óÆğÊ¼µã
+#define Show_R_Start_Point                  8   // ÏÔÊ¾ÓÒÆğÊ¼µã
+#define Show_All_Start_Point                9   // Í¬Ê±ÏÔÊ¾×óÓÒÆğÊ¼µã
+#define Show_L_Statics                      10  // ÏÔÊ¾×óÏßÍ³¼ÆÊıÁ¿
+#define Show_R_Statics                      11  // ÏÔÊ¾ÓÒÏßÍ³¼ÆÊıÁ¿
+#define Show_All_Statics                    12  // Í¬Ê±ÏÔÊ¾×óÓÒÏßÍ³¼ÆÊıÁ¿
+#define Show_X_Meet                         13  // ÏÔÊ¾ X ·½Ïò½»µãĞÅÏ¢
+#define Show_Y_Meet                         14  // ÏÔÊ¾ Y ·½Ïò½»µãĞÅÏ¢
+#define Show_All_Meet                       15  // Í¬Ê±ÏÔÊ¾ X/Y ½»µãĞÅÏ¢
+#define Show_L_Border                       16  // ÏÔÊ¾×ó±ß½ç
+#define Show_R_Border                       17  // ÏÔÊ¾ÓÒ±ß½ç
+#define Show_All_Border                     18  // Í¬Ê±ÏÔÊ¾×óÓÒ±ß½çÓëÖĞÏß
 
-/* ç›´è§’æ‹ç‚¹æ˜¾ç¤ºé¡¹ */
-#define Show_L_Up_Turn_Left_Point_1         19  // æ˜¾ç¤ºå·¦ä¾§ä¸Šè½¬å·¦æ‹ç‚¹
-#define Show_L_Right_Turn_Up_Point_1        20  // æ˜¾ç¤ºå·¦ä¾§å³è½¬ä¸Šæ‹ç‚¹
-#define Show_R_Up_Turn_Right_Point_1        21  // æ˜¾ç¤ºå³ä¾§ä¸Šè½¬å³æ‹ç‚¹
-#define Show_R_Left_Turn_Up_Point_1         22  // æ˜¾ç¤ºå³ä¾§å·¦è½¬ä¸Šæ‹ç‚¹
-#define Show_All_Stight_Turn_Point          23  // æ˜¾ç¤ºå…¨éƒ¨ç›´è§’ä¸å•è¾¹æ¡¥ç›¸å…³æ‹ç‚¹
+/* Ö±½Ç¹ÕµãÏÔÊ¾Ïî */
+#define Show_L_Up_Turn_Left_Point_1         19  // ÏÔÊ¾×ó²àÉÏ×ª×ó¹Õµã
+#define Show_L_Right_Turn_Up_Point_1        20  // ÏÔÊ¾×ó²àÓÒ×ªÉÏ¹Õµã
+#define Show_R_Up_Turn_Right_Point_1        21  // ÏÔÊ¾ÓÒ²àÉÏ×ªÓÒ¹Õµã
+#define Show_R_Left_Turn_Up_Point_1         22  // ÏÔÊ¾ÓÒ²à×ó×ªÉÏ¹Õµã
+#define Show_All_Stight_Turn_Point          23  // ÏÔÊ¾È«²¿Ö±½ÇÓëµ¥±ßÇÅÏà¹Ø¹Õµã
 
-/* åœ†å¼§æ‹ç‚¹æ˜¾ç¤ºé¡¹ */
-#define Show_L_Arc_Turn_Point               24  // æ˜¾ç¤ºå·¦ä¾§åœ†å¼§æ‹ç‚¹
-#define Show_R_Arc_Turn_Point               25  // æ˜¾ç¤ºå³ä¾§åœ†å¼§æ‹ç‚¹
-#define Show_All_Arc_Turn_Point             26  // åŒæ—¶æ˜¾ç¤ºå·¦å³åœ†å¼§æ‹ç‚¹
+/* Ô²»¡¹ÕµãÏÔÊ¾Ïî */
+#define Show_L_Arc_Turn_Point               24  // ÏÔÊ¾×ó²àÔ²»¡¹Õµã
+#define Show_R_Arc_Turn_Point               25  // ÏÔÊ¾ÓÒ²àÔ²»¡¹Õµã
+#define Show_All_Arc_Turn_Point             26  // Í¬Ê±ÏÔÊ¾×óÓÒÔ²»¡¹Õµã
 
-/* æ–œç‡æ˜¾ç¤ºé¡¹ */
-#define Show_R_Straightaway_Lope_Rate_A     27  // æ˜¾ç¤ºå³ç›´é“æ–œç‡ A æ®µ
-#define Show_R_Straightaway_Lope_Rate_B     28  // æ˜¾ç¤ºå³ç›´é“æ–œç‡ B æ®µ
-#define Show_R_Straightaway_Lope_Rate_C     29  // æ˜¾ç¤ºå³ç›´é“æ–œç‡ C æ®µ
-#define Show_L_Straightaway_Lope_Rate_A     30  // æ˜¾ç¤ºå·¦ç›´é“æ–œç‡ A æ®µ
-#define Show_L_Straightaway_Lope_Rate_B     31  // æ˜¾ç¤ºå·¦ç›´é“æ–œç‡ B æ®µ
-#define Show_L_Straightaway_Lope_Rate_C     32  // æ˜¾ç¤ºå·¦ç›´é“æ–œç‡ C æ®µ
-#define Show_All_Straightaway_Lope_Rate     33  // åŒæ—¶æ˜¾ç¤ºå·¦å³ç›´é“æ–œç‡
+/* Ğ±ÂÊÏÔÊ¾Ïî */
+#define Show_R_Straightaway_Lope_Rate_A     27  // ÏÔÊ¾ÓÒÖ±µÀĞ±ÂÊ A ¶Î
+#define Show_R_Straightaway_Lope_Rate_B     28  // ÏÔÊ¾ÓÒÖ±µÀĞ±ÂÊ B ¶Î
+#define Show_R_Straightaway_Lope_Rate_C     29  // ÏÔÊ¾ÓÒÖ±µÀĞ±ÂÊ C ¶Î
+#define Show_L_Straightaway_Lope_Rate_A     30  // ÏÔÊ¾×óÖ±µÀĞ±ÂÊ A ¶Î
+#define Show_L_Straightaway_Lope_Rate_B     31  // ÏÔÊ¾×óÖ±µÀĞ±ÂÊ B ¶Î
+#define Show_L_Straightaway_Lope_Rate_C     32  // ÏÔÊ¾×óÖ±µÀĞ±ÂÊ C ¶Î
+#define Show_All_Straightaway_Lope_Rate     33  // Í¬Ê±ÏÔÊ¾×óÓÒÖ±µÀĞ±ÂÊ
 
-/* æˆªè·æ˜¾ç¤ºé¡¹ */
-#define Show_L_Intercept                    34  // æ˜¾ç¤ºå·¦è¾¹ç•Œæ‹Ÿåˆæˆªè·
-#define Show_R_Intercept                    35  // æ˜¾ç¤ºå³è¾¹ç•Œæ‹Ÿåˆæˆªè·
-#define Show_All_Intercept                  36  // åŒæ—¶æ˜¾ç¤ºå·¦å³æ‹Ÿåˆæˆªè·
+/* ½Ø¾àÏÔÊ¾Ïî */
+#define Show_L_Intercept                    34  // ÏÔÊ¾×ó±ß½çÄâºÏ½Ø¾à
+#define Show_R_Intercept                    35  // ÏÔÊ¾ÓÒ±ß½çÄâºÏ½Ø¾à
+#define Show_All_Intercept                  36  // Í¬Ê±ÏÔÊ¾×óÓÒÄâºÏ½Ø¾à
 
-/* æ‹Ÿåˆçº¿æ˜¾ç¤ºé¡¹ */
-#define Show_L_Fitting_Line                 37  // æ˜¾ç¤ºå·¦æ‹Ÿåˆçº¿
-#define Show_R_Fitting_Line                 38  // æ˜¾ç¤ºå³æ‹Ÿåˆçº¿
-#define Show_All_Fitting_Line               39  // åŒæ—¶æ˜¾ç¤ºå·¦å³æ‹Ÿåˆçº¿
+/* ÄâºÏÏßÏÔÊ¾Ïî */
+#define Show_L_Fitting_Line                 37  // ÏÔÊ¾×óÄâºÏÏß
+#define Show_R_Fitting_Line                 38  // ÏÔÊ¾ÓÒÄâºÏÏß
+#define Show_All_Fitting_Line               39  // Í¬Ê±ÏÔÊ¾×óÓÒÄâºÏÏß
 
-/* æ–¹å·®æ˜¾ç¤ºé¡¹ */
-#define Show_L_Variance                     40  // æ˜¾ç¤ºå·¦è¾¹ç•Œæ–¹å·®
-#define Show_R_Variance                     41  // æ˜¾ç¤ºå³è¾¹ç•Œæ–¹å·®
-#define Show_All_Variance                   42  // åŒæ—¶æ˜¾ç¤ºå·¦å³è¾¹ç•Œæ–¹å·®
+/* ·½²îÏÔÊ¾Ïî */
+#define Show_L_Variance                     40  // ÏÔÊ¾×ó±ß½ç·½²î
+#define Show_R_Variance                     41  // ÏÔÊ¾ÓÒ±ß½ç·½²î
+#define Show_All_Variance                   42  // Í¬Ê±ÏÔÊ¾×óÓÒ±ß½ç·½²î
 
-/* çŠ¶æ€é‡æ˜¾ç¤ºé¡¹ */
-#define Show_Deviation_Value                43  // æ˜¾ç¤ºå½“å‰åå·®å€¼
-#define Show_Sensitivity                    44  // æ˜¾ç¤ºå›¾åƒçµæ•åº¦å‚æ•°
-#define Show_Element_State                  45  // æ˜¾ç¤ºå½“å‰å…ƒç´ çŠ¶æ€æœºçŠ¶æ€
-#define Show_Zebra_Flag                     46  // æ˜¾ç¤ºæ–‘é©¬çº¿æ ‡å¿—ä½
-#define Show_Stop_Flag                      47  // æ˜¾ç¤ºåœè½¦æ ‡å¿—ä½
+/* ×´Ì¬Á¿ÏÔÊ¾Ïî */
+#define Show_Deviation_Value                43  // ÏÔÊ¾µ±Ç°Æ«²îÖµ
+#define Show_Sensitivity                    44  // ÏÔÊ¾Í¼ÏñÁéÃô¶È²ÎÊı
+#define Show_Element_State                  45  // ÏÔÊ¾µ±Ç°ÔªËØ×´Ì¬»ú×´Ì¬
+#define Show_Zebra_Flag                     46  // ÏÔÊ¾°ßÂíÏß±êÖ¾Î»
+#define Show_Stop_Flag                      47  // ÏÔÊ¾Í£³µ±êÖ¾Î»
 
-/* é€†é€è§†åŠé™„åŠ å›¾åƒæ˜¾ç¤ºé¡¹ */
-#define Show_Inverse_Perspective_Image      48  // æ˜¾ç¤ºé€†é€è§†å›¾åƒ
-#define Show_Back_Inverse_Perspective_Image 49  // æ˜¾ç¤ºåé€†é€è§†å›¾åƒ
-#define Show_I_L_Line                       50  // æ˜¾ç¤ºé€†é€è§†å·¦çº¿
-#define Show_I_R_Line                       51  // æ˜¾ç¤ºé€†é€è§†å³çº¿
-#define Show_I_M_Line                       52  // æ˜¾ç¤ºé€†é€è§†ä¸­çº¿
-#define Show_I_All_Line                     53  // åŒæ—¶æ˜¾ç¤ºé€†é€è§†å·¦å³çº¿ä¸ä¸­çº¿
-#define Show_Vague_Image                    54  // æ˜¾ç¤ºæ¨¡ç³Šå¤„ç†å›¾åƒ
-#define Show_Speed_Proportion               55  // æ˜¾ç¤ºé€Ÿåº¦æ¯”ä¾‹ç³»æ•°
-#define Show_Adaptive_Thres_Average         56  // æ˜¾ç¤ºè‡ªé€‚åº”é˜ˆå€¼å¹³å‡å€¼
-#define Show_Barrier_Distance               57  // æ˜¾ç¤ºéšœç¢ç‰©è·ç¦»ä¿¡æ¯
+/* ÄæÍ¸ÊÓ¼°¸½¼ÓÍ¼ÏñÏÔÊ¾Ïî */
+#define Show_Inverse_Perspective_Image      48  // ÏÔÊ¾ÄæÍ¸ÊÓÍ¼Ïñ
+#define Show_Back_Inverse_Perspective_Image 49  // ÏÔÊ¾·´ÄæÍ¸ÊÓÍ¼Ïñ
+#define Show_I_L_Line                       50  // ÏÔÊ¾ÄæÍ¸ÊÓ×óÏß
+#define Show_I_R_Line                       51  // ÏÔÊ¾ÄæÍ¸ÊÓÓÒÏß
+#define Show_I_M_Line                       52  // ÏÔÊ¾ÄæÍ¸ÊÓÖĞÏß
+#define Show_I_All_Line                     53  // Í¬Ê±ÏÔÊ¾ÄæÍ¸ÊÓ×óÓÒÏßÓëÖĞÏß
+#define Show_Vague_Image                    54  // ÏÔÊ¾Ä£ºı´¦ÀíÍ¼Ïñ
+#define Show_Speed_Proportion               55  // ÏÔÊ¾ËÙ¶È±ÈÀıÏµÊı
+#define Show_Adaptive_Thres_Average         56  // ÏÔÊ¾×ÔÊÊÓ¦ãĞÖµÆ½¾ùÖµ
+#define Show_Barrier_Distance               57  // ÏÔÊ¾ÕÏ°­Îï¾àÀëĞÅÏ¢
 
-extern uint8 Show_Flag;    // æ˜¾ç¤ºæ¨¡å¼ï¼š2 æ—¶æ˜¾ç¤ºå›¾åƒè°ƒè¯•å†…å®¹
+extern uint8 Show_Flag;    // ÏÔÊ¾Ä£Ê½£º2 Ê±ÏÔÊ¾Í¼Ïñµ÷ÊÔÄÚÈİ
 
 /**
- * @brief  åˆå§‹åŒ– IPS200 å±å¹•æ˜¾ç¤ºå‚æ•°
- * @return æ— 
+ * @brief  ³õÊ¼»¯ IPS200 ÆÁÄ»ÏÔÊ¾²ÎÊı
+ * @return ÎŞ
  */
 void IPS200_Show_Init(void);
 
 /**
- * @brief  åœ¨æŒ‡å®šç‚¹ä½ç»˜åˆ¶ X å½¢æ ‡è®°
- * @param  image    å‚è€ƒå›¾åƒç¼“å†²åŒº
- * @param  point_y  æ ‡è®°ç‚¹çºµåæ ‡
- * @param  point_x  æ ‡è®°ç‚¹æ¨ªåæ ‡
- * @param  colour   æ ‡è®°é¢œè‰²
- * @return æ— 
+ * @brief  ÔÚÖ¸¶¨µãÎ»»æÖÆ X ĞÎ±ê¼Ç
+ * @param  image    ²Î¿¼Í¼Ïñ»º³åÇø
+ * @param  point_y  ±ê¼Çµã×İ×ø±ê
+ * @param  point_x  ±ê¼Çµãºá×ø±ê
+ * @param  colour   ±ê¼ÇÑÕÉ«
+ * @return ÎŞ
  */
 void Draw_X_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour);
 
 /**
- * @brief  åœ¨æŒ‡å®šç‚¹ä½ç»˜åˆ¶åå­—å½¢æ ‡è®°
- * @param  image    å‚è€ƒå›¾åƒç¼“å†²åŒº
- * @param  point_y  æ ‡è®°ç‚¹çºµåæ ‡
- * @param  point_x  æ ‡è®°ç‚¹æ¨ªåæ ‡
- * @param  colour   æ ‡è®°é¢œè‰²
- * @return æ— 
+ * @brief  ÔÚÖ¸¶¨µãÎ»»æÖÆÊ®×ÖĞÎ±ê¼Ç
+ * @param  image    ²Î¿¼Í¼Ïñ»º³åÇø
+ * @param  point_y  ±ê¼Çµã×İ×ø±ê
+ * @param  point_x  ±ê¼Çµãºá×ø±ê
+ * @param  colour   ±ê¼ÇÑÕÉ«
+ * @return ÎŞ
  */
 void Draw_10_In_Point_IPS200(uint8(*image)[Image_X], uint8 point_y, uint8 point_x, uint16 colour);
 
 /**
- * @brief  æ ¹æ®æ˜¾ç¤ºæ ‡å¿—ç»˜åˆ¶å•é¡¹å›¾åƒè°ƒè¯•ä¿¡æ¯
- * @param  flag  æ˜¾ç¤ºé¡¹ç›®ç¼–å·
- * @return æ— 
+ * @brief  ¸ù¾İÏÔÊ¾±êÖ¾»æÖÆµ¥ÏîÍ¼Ïñµ÷ÊÔĞÅÏ¢
+ * @param  flag  ÏÔÊ¾ÏîÄ¿±àºÅ
+ * @return ÎŞ
  */
 void IPS_Show(uint8 flag);
 
 /**
- * @brief  åˆ·æ–° IPS200 ç»¼åˆè°ƒè¯•ç•Œé¢
- * @param  Show_Flag  å½“å‰æ˜¾ç¤ºæ¨¡å¼
- * @return æ— 
+ * @brief  Ë¢ĞÂ IPS200 ×ÛºÏµ÷ÊÔ½çÃæ
+ * @param  Show_Flag  µ±Ç°ÏÔÊ¾Ä£Ê½
+ * @return ÎŞ
  */
 void IPS200_Show(uint8 Show_Flag);
 
 /**
- * @brief  ä»¥è¡¨æ ¼å½¢å¼æ˜¾ç¤ºå·¦å³è¾¹ç•Œä¸ä¸­çº¿çš„è·ç¦»å·®
- * @return æ— 
+ * @brief  ÒÔ±í¸ñĞÎÊ½ÏÔÊ¾×óÓÒ±ß½çÓëÖĞÏßµÄ¾àÀë²î
+ * @return ÎŞ
  */
 void DisplayBorderDistances(void);
+
+/**
+ * @brief  GPSµ¼º½×¨ÓÃÆÁÄ»ÏÔÊ¾ (10Hz¾Ö²¿Ë¢ĞÂ)
+ * @note   ÏÔÊ¾GPSÔ­Ê¼Êı¾İ¡¢µ¼º½¼ÆËã½á¹û¡¢IMU×ËÌ¬¡¢º½µãĞÅÏ¢
+ *         ÓÃÓÚÊÒÍâÎŞµçÄÔµ÷ÊÔ³¡¾°
+ * @return ÎŞ
+ */
+void IPS200_ShowGPS(void);
 
 #endif /* CODE_IPS200_SHOW_H_ */

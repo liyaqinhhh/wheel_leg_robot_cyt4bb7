@@ -1,6 +1,6 @@
 /*
  * ins_track.h
- * è½¨è¿¹å­˜å–ä¸ Pure Pursuit å¾ªè¿¹å£°æ˜
+ * ¹ì¼£´æÈ¡Óë Pure Pursuit Ñ­¼£ÉùÃ÷
  */
 
 #ifndef _INS_TRACK_H_
@@ -8,65 +8,65 @@
 
 #include "zf_common_typedef.h"
 
- //------------------------------------------- Flash é¡µé…ç½® ----------------------------------------------------
-#define INS_TRACK_FLASH_PAGE_MAX       24       // æœ€å¤šä½¿ç”¨ 24 é¡µå­˜å‚¨è½¨è¿¹æ•°æ®
-#define INS_TRACK_FLASH_PAGE_BEGIN     26       // èµ·å§‹é¡µç¼–å·ï¼ˆé¡µ 25 ç•™ç»™ IMU é›¶åï¼‰
-#define INS_TRACK_FLASH_META_PAGE      0        // å…ƒæ•°æ®é¡µï¼ˆä½¿ç”¨é¡µ 0ï¼‰
-#define INS_TRACK_FLOAT_PER_POINT      4        // æ¯ä¸ªè½¨è¿¹ç‚¹ 4 ä¸ª floatï¼ˆx, y, yaw, speed_dirï¼‰
-#define INS_TRACK_PAGE_FLOAT_NUM       510      // æ¯é¡µå¯ç”¨ float æ•°é‡ï¼ˆ512-2 é¢„ç•™ï¼‰
+ //------------------------------------------- Flash Ò³ÅäÖÃ ----------------------------------------------------
+#define INS_TRACK_FLASH_PAGE_MAX       24       // ×î¶àÊ¹ÓÃ 24 Ò³´æ´¢¹ì¼£Êı¾İ
+#define INS_TRACK_FLASH_PAGE_BEGIN     26       // ÆğÊ¼Ò³±àºÅ£¨Ò³ 25 Áô¸ø IMU ÁãÆ«£©
+#define INS_TRACK_FLASH_META_PAGE      0        // ÔªÊı¾İÒ³£¨Ê¹ÓÃÒ³ 0£©
+#define INS_TRACK_FLOAT_PER_POINT      4        // Ã¿¸ö¹ì¼£µã 4 ¸ö float£¨x, y, yaw, speed_dir£©
+#define INS_TRACK_PAGE_FLOAT_NUM       510      // Ã¿Ò³¿ÉÓÃ float ÊıÁ¿£¨512-2 Ô¤Áô£©
 #define INS_TRACK_POINT_PER_PAGE       (INS_TRACK_PAGE_FLOAT_NUM / INS_TRACK_FLOAT_PER_POINT)  // 127
 
- //------------------------------------------- å¾ªè¿¹å‚æ•° --------------------------------------------------------
-#define INS_TRACK_SAMPLE_STEP          0.1f     // é‡‡æ ·é—´è·ï¼ˆç±³ï¼‰ï¼Œæ¯ 10cm è®°å½•ä¸€ä¸ªç‚¹
-#define INS_TRACK_LOOKAHEAD_DIST       0.4f     // Pure Pursuit å‰è§†è·ç¦»ï¼ˆç±³ï¼‰
-#define INS_TRACK_FOLLOW_SPEED         0.35f    // é»˜è®¤å¾ªè¿¹é€Ÿåº¦ï¼ˆm/sï¼‰
-#define INS_TRACK_WHEELBASE            0.2107f  // è½®è·ï¼ˆç±³ï¼‰ã€å¾…å®æµ‹ã€‘
-#define INS_TRACK_STEER_FILTER_ALPHA   0.85f    // è½¬å‘ä¸€é˜¶ä½é€šæ»¤æ³¢ç³»æ•°
+ //------------------------------------------- Ñ­¼£²ÎÊı --------------------------------------------------------
+#define INS_TRACK_SAMPLE_STEP          0.1f     // ²ÉÑù¼ä¾à£¨Ã×£©£¬Ã¿ 10cm ¼ÇÂ¼Ò»¸öµã
+#define INS_TRACK_LOOKAHEAD_DIST       0.4f     // Pure Pursuit Ç°ÊÓ¾àÀë£¨Ã×£©
+#define INS_TRACK_FOLLOW_SPEED         0.35f    // Ä¬ÈÏÑ­¼£ËÙ¶È£¨m/s£©
+#define INS_TRACK_WHEELBASE            0.2107f  // ÂÖ¾à£¨Ã×£©¡¾´ıÊµ²â¡¿
+#define INS_TRACK_STEER_FILTER_ALPHA   0.85f    // ×ªÏòÒ»½×µÍÍ¨ÂË²¨ÏµÊı
 
- //------------------------------------------- è½¨è¿¹ç‚¹ç»“æ„ ------------------------------------------------------
+ //------------------------------------------- ¹ì¼£µã½á¹¹ ------------------------------------------------------
 typedef struct
 {
     float x;
     float y;
     float yaw;
-    float speed_dir;   // 1.0=å‰è¿›ï¼Œ0.0=åé€€
+    float speed_dir;   // 1.0=Ç°½ø£¬0.0=ºóÍË
 } Ins_TrackPoint;
 
- //------------------------------------------- API å£°æ˜ --------------------------------------------------------
+ //------------------------------------------- API ÉùÃ÷ --------------------------------------------------------
 
-// @brief  è½¨è¿¹æ¨¡å—åˆå§‹åŒ–ï¼Œä»FlashåŠ è½½è½¨è¿¹å…ƒæ•°æ®
+// @brief  ¹ì¼£Ä£¿é³õÊ¼»¯£¬´ÓFlash¼ÓÔØ¹ì¼£ÔªÊı¾İ
 void ins_track_init(void);
 
-// è½¨è¿¹è®°å½•
-// @brief  å¼€å§‹è½¨è¿¹è®°å½•æ¨¡å¼
+// ¹ì¼£¼ÇÂ¼
+// @brief  ¿ªÊ¼¹ì¼£¼ÇÂ¼Ä£Ê½
 void ins_track_start_save(void);
-// @brief  åœæ­¢è½¨è¿¹è®°å½•å¹¶ä¿å­˜åˆ°Flash
+// @brief  Í£Ö¹¹ì¼£¼ÇÂ¼²¢±£´æµ½Flash
 void ins_track_stop_save(void);
-// @brief  æ¸…é™¤Flashä¸­çš„è½¨è¿¹æ•°æ®
+// @brief  Çå³ıFlashÖĞµÄ¹ì¼£Êı¾İ
 void ins_track_clear(void);
-// @brief  æ¯4msè°ƒç”¨ï¼Œæ ¹æ®é‡‡æ ·é—´è·è‡ªåŠ¨åˆ¤æ–­æ˜¯å¦éœ€è¦è®°å½•å½“å‰è½¨è¿¹ç‚¹
-void ins_track_push_point(void);                // æ¯ 4ms è°ƒç”¨ï¼Œè‡ªåŠ¨åˆ¤æ–­æ˜¯å¦éœ€è¦é‡‡æ ·
+// @brief  Ã¿4msµ÷ÓÃ£¬¸ù¾İ²ÉÑù¼ä¾à×Ô¶¯ÅĞ¶ÏÊÇ·ñĞèÒª¼ÇÂ¼µ±Ç°¹ì¼£µã
+void ins_track_push_point(void);                // Ã¿ 4ms µ÷ÓÃ£¬×Ô¶¯ÅĞ¶ÏÊÇ·ñĞèÒª²ÉÑù
 
-// è½¨è¿¹å¾ªè¿¹
-// @brief  å¼€å§‹Pure Pursuitå¾ªè¿¹æ¨¡å¼ï¼Œä»FlashåŠ è½½è½¨è¿¹æ•°æ®
+// ¹ì¼£Ñ­¼£
+// @brief  ¿ªÊ¼Pure PursuitÑ­¼£Ä£Ê½£¬´ÓFlash¼ÓÔØ¹ì¼£Êı¾İ
 void ins_track_start_follow(void);
-// @brief  åœæ­¢å¾ªè¿¹æ¨¡å¼
+// @brief  Í£Ö¹Ñ­¼£Ä£Ê½
 void ins_track_stop_follow(void);
-// @brief  æ¯4msè°ƒç”¨ï¼Œæ‰§è¡ŒPure Pursuitç®—æ³•è®¡ç®—è½¬å‘è¾“å‡º
-void ins_track_follow_proc(void);               // æ¯ 4ms è°ƒç”¨ï¼Œæ‰§è¡Œ Pure Pursuit
+// @brief  Ã¿4msµ÷ÓÃ£¬Ö´ĞĞPure PursuitËã·¨¼ÆËã×ªÏòÊä³ö
+void ins_track_follow_proc(void);               // Ã¿ 4ms µ÷ÓÃ£¬Ö´ĞĞ Pure Pursuit
 
-// çŠ¶æ€æŸ¥è¯¢
-// @brief  è·å–å½“å‰å·²è®°å½•çš„è½¨è¿¹ç‚¹æ€»æ•°
+// ×´Ì¬²éÑ¯
+// @brief  »ñÈ¡µ±Ç°ÒÑ¼ÇÂ¼µÄ¹ì¼£µã×ÜÊı
 uint32 ins_track_get_point_count(void);
-// @brief  æŸ¥è¯¢æ˜¯å¦æ­£åœ¨è®°å½•è½¨è¿¹
+// @brief  ²éÑ¯ÊÇ·ñÕıÔÚ¼ÇÂ¼¹ì¼£
 uint8 ins_track_is_saving(void);
-// @brief  æŸ¥è¯¢æ˜¯å¦æ­£åœ¨å¾ªè¿¹
+// @brief  ²éÑ¯ÊÇ·ñÕıÔÚÑ­¼£
 uint8 ins_track_is_following(void);
-// @brief  è·å–æ»¤æ³¢åçš„è½¬å‘è§’åº¦è¾“å‡ºï¼ˆåº¦ï¼‰
-float ins_track_get_steer_output_deg(void);     // è·å–æ»¤æ³¢åçš„è½¬å‘è§’åº¦ï¼ˆåº¦ï¼‰
+// @brief  »ñÈ¡ÂË²¨ºóµÄ×ªÏò½Ç¶ÈÊä³ö£¨¶È£©
+float ins_track_get_steer_output_deg(void);     // »ñÈ¡ÂË²¨ºóµÄ×ªÏò½Ç¶È£¨¶È£©
 
-// ç»Ÿä¸€å…¥å£
-// @brief  æ¯4msç»Ÿä¸€è°ƒç”¨å…¥å£ï¼Œå†…éƒ¨æ ¹æ®çŠ¶æ€åˆ¤æ–­æ‰§è¡Œè®°å½•æˆ–å¾ªè¿¹
-void ins_track_proc(void);                      // æ¯ 4ms è°ƒç”¨ï¼Œå†…éƒ¨åˆ¤æ–­è®°å½•/å¾ªè¿¹
+// Í³Ò»Èë¿Ú
+// @brief  Ã¿4msÍ³Ò»µ÷ÓÃÈë¿Ú£¬ÄÚ²¿¸ù¾İ×´Ì¬ÅĞ¶ÏÖ´ĞĞ¼ÇÂ¼»òÑ­¼£
+void ins_track_proc(void);                      // Ã¿ 4ms µ÷ÓÃ£¬ÄÚ²¿ÅĞ¶Ï¼ÇÂ¼/Ñ­¼£
 
 #endif /* _INS_TRACK_H_ */

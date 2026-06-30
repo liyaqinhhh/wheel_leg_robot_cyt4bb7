@@ -1,7 +1,7 @@
 /*
  * yaokong.c
  *
- *  Created on: 2024å¹´9æœˆ7æ—¥
+ *  Created on: 2024Äê9ÔÂ7ÈÕ
  *      Author: LateRain
  */
 
@@ -13,6 +13,7 @@
 extern int velocity;
 extern float speed_yk;
 
+void yaokong_map_joystick(int16_t joystick_1, int16_t joystick_2);
 uint8 yaokong_data_deal(void);
 
 #endif /* CODE_PERIPHERAL_YAOKONG_H_ */

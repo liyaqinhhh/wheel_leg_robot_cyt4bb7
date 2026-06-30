@@ -1,17 +1,17 @@
 /*
  * ins_interface.c
- * INS å¯¹å¤– API å®ç°
+ * INS ¶ÔÍâ API ÊµÏÖ
  *
- * æœ¬æ–‡ä»¶å°†åº•å±‚ ins_core / ins_track åŠŸèƒ½å°è£…ä¸ºé«˜å±‚ APIï¼Œ
- * ä¾› main å¾ªç¯æˆ– Interrupt è°ƒç”¨ï¼Œå±è”½å†…éƒ¨å®ç°ç»†èŠ‚ã€‚
+ * ±¾ÎÄ¼ş½«µ×²ã ins_core / ins_track ¹¦ÄÜ·â×°Îª¸ß²ã API£¬
+ * ¹© main Ñ­»·»ò Interrupt µ÷ÓÃ£¬ÆÁ±ÎÄÚ²¿ÊµÏÖÏ¸½Ú¡£
  *
- * API åˆ†ç»„:
- *   æ ¡å‡†ç›¸å…³:  é™€èºä»ªé›¶åæ ¡å‡†ã€ä¿å­˜ã€åŠ è½½
- *   åæ ‡ç³»ç®¡ç†: è®¾ç½®åŸç‚¹ã€è®¾ç½®èˆªå‘è§’
- *   è½¨è¿¹è®°å½•:  å¼€å§‹/åœæ­¢/æ¸…é™¤å½•åˆ¶
- *   è½¨è¿¹å¾ªè¿¹:  å¼€å§‹/åœæ­¢å¾ªè¿¹ã€è®¾ç½®å¾ªè¿¹é€Ÿåº¦
- *   çŠ¶æ€æŸ¥è¯¢:  è·å– INS çŠ¶æ€ã€è½¨è¿¹ç‚¹æ•°ã€å½•åˆ¶/å¾ªè¿¹çŠ¶æ€
- *   è½¬å‘è¾“å‡º:  è·å–å¾ªè¿¹è½¬å‘è§’
+ * API ·Ö×é:
+ *   Ğ£×¼Ïà¹Ø:  ÍÓÂİÒÇÁãÆ«Ğ£×¼¡¢±£´æ¡¢¼ÓÔØ
+ *   ×ø±êÏµ¹ÜÀí: ÉèÖÃÔ­µã¡¢ÉèÖÃº½Ïò½Ç
+ *   ¹ì¼£¼ÇÂ¼:  ¿ªÊ¼/Í£Ö¹/Çå³ıÂ¼ÖÆ
+ *   ¹ì¼£Ñ­¼£:  ¿ªÊ¼/Í£Ö¹Ñ­¼£¡¢ÉèÖÃÑ­¼£ËÙ¶È
+ *   ×´Ì¬²éÑ¯:  »ñÈ¡ INS ×´Ì¬¡¢¹ì¼£µãÊı¡¢Â¼ÖÆ/Ñ­¼£×´Ì¬
+ *   ×ªÏòÊä³ö:  »ñÈ¡Ñ­¼£×ªÏò½Ç
  */
 
 #include "ins_interface.h"
@@ -21,24 +21,24 @@
 #include "zf_driver_flash.h"
 #include <math.h>
 
- //------------------------------------------- å†…éƒ¨å˜é‡ --------------------------------------------------------
-static uint8 s_gyro_calib_active = 0u;       // æ ¡å‡†è¿›è¡Œä¸­æ ‡å¿—
-static uint32 s_gyro_calib_count = 0u;       // å·²é‡‡æ ·æ¬¡æ•°
-static float s_gyro_sum_x = 0.0f;            // é™€èºä»ª X ç´¯è®¡
-static float s_gyro_sum_y = 0.0f;            // é™€èºä»ª Y ç´¯è®¡
-static float s_gyro_sum_z = 0.0f;            // é™€èºä»ª Z ç´¯è®¡
-#define GYRO_CALIB_SAMPLES  500              // æ ¡å‡†é‡‡æ ·æ¬¡æ•°
+ //------------------------------------------- ÄÚ²¿±äÁ¿ --------------------------------------------------------
+static uint8 s_gyro_calib_active = 0u;       // Ğ£×¼½øĞĞÖĞ±êÖ¾
+static uint32 s_gyro_calib_count = 0u;       // ÒÑ²ÉÑù´ÎÊı
+static float s_gyro_sum_x = 0.0f;            // ÍÓÂİÒÇ X ÀÛ¼Æ
+static float s_gyro_sum_y = 0.0f;            // ÍÓÂİÒÇ Y ÀÛ¼Æ
+static float s_gyro_sum_z = 0.0f;            // ÍÓÂİÒÇ Z ÀÛ¼Æ
+#define GYRO_CALIB_SAMPLES  500              // Ğ£×¼²ÉÑù´ÎÊı
 
-static uint8 s_saved_turn_mode = 2;          // å¾ªè¿¹å‰ä¿å­˜çš„ turn_mode
-static float s_follow_speed = 0.35f;         // å¾ªè¿¹é€Ÿåº¦ï¼ˆm/sï¼‰
+static uint8 s_saved_turn_mode = 2;          // Ñ­¼£Ç°±£´æµÄ turn_mode
+static float s_follow_speed = 0.35f;         // Ñ­¼£ËÙ¶È£¨m/s£©
 
- //------------------------------------------- Flash é¡µåˆ†é… ----------------------------------------------------
-// é¡µ 25ï¼šIMU é›¶åå‚æ•°ï¼ˆä¸è½¨è¿¹é¡µä¸å†²çªï¼‰
+ //------------------------------------------- Flash Ò³·ÖÅä ----------------------------------------------------
+// Ò³ 25£ºIMU ÁãÆ«²ÎÊı£¨Óë¹ì¼£Ò³²»³åÍ»£©
 #define INS_FLASH_IMU_BIAS_PAGE   25u
 
- //------------------------------------------- æ ¡å‡†ç›¸å…³ --------------------------------------------------------
+ //------------------------------------------- Ğ£×¼Ïà¹Ø --------------------------------------------------------
 
-// @brief  å¯åŠ¨é™€èºä»ªé›¶åæ ¡å‡†ï¼ˆæ¸…é›¶ç´¯è®¡å™¨ï¼Œè®¾ç½®æ´»è·ƒæ ‡å¿—ï¼‰
+// @brief  Æô¶¯ÍÓÂİÒÇÁãÆ«Ğ£×¼£¨ÇåÁãÀÛ¼ÆÆ÷£¬ÉèÖÃ»îÔ¾±êÖ¾£©
 void ins_api_start_gyro_calib(void)
 {
     s_gyro_calib_active = 1u;
@@ -49,7 +49,7 @@ void ins_api_start_gyro_calib(void)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ ¡å‡†å¤„ç†ï¼ˆåœ¨ 2ms ä¸­æ–­ä¸­è°ƒç”¨ date_handle åè°ƒç”¨ï¼‰
+//  @brief      Ğ£×¼´¦Àí£¨ÔÚ 2ms ÖĞ¶ÏÖĞµ÷ÓÃ date_handle ºóµ÷ÓÃ£©
 //  @param      void
 //  @return     void
 //-------------------------------------------------------------------------------------------------------------------
@@ -65,15 +65,15 @@ void ins_api_calib_process(void)
 
     if (s_gyro_calib_count >= GYRO_CALIB_SAMPLES)
     {
-        // è®¡ç®—å‡å€¼ä½œä¸ºé›¶å
+        // ¼ÆËã¾ùÖµ×÷ÎªÁãÆ«
         imu660ra.offset_angle.pitch = s_gyro_sum_y / (float)GYRO_CALIB_SAMPLES;
         imu660ra.offset_angle.roll = s_gyro_sum_x / (float)GYRO_CALIB_SAMPLES;
-        // yaw é›¶åæš‚ä¸ä½¿ç”¨ï¼ˆé€šè¿‡ INS æ¨ç®—ï¼‰
+        // yaw ÁãÆ«Ôİ²»Ê¹ÓÃ£¨Í¨¹ı INS ÍÆËã£©
         s_gyro_calib_active = 0u;
     }
 }
 
-// @brief  ä¿å­˜ IMU é›¶ååˆ° Flashï¼ˆé¡µ25ï¼Œ2ä¸ª floatï¼‰
+// @brief  ±£´æ IMU ÁãÆ«µ½ Flash£¨Ò³25£¬2¸ö float£©
 void ins_api_save_imu_bias(void)
 {
     flash_union_buffer[0].float_type = imu660ra.offset_angle.pitch;
@@ -83,7 +83,7 @@ void ins_api_save_imu_bias(void)
     flash_buffer_clear();
 }
 
-// @brief  ä» Flash åŠ è½½ IMU é›¶åï¼ˆå« NaN å’ŒèŒƒå›´æ ¡éªŒï¼‰
+// @brief  ´Ó Flash ¼ÓÔØ IMU ÁãÆ«£¨º¬ NaN ºÍ·¶Î§Ğ£Ñé£©
 void ins_api_load_imu_bias(void)
 {
     flash_buffer_clear();
@@ -93,126 +93,126 @@ void ins_api_load_imu_bias(void)
     float roll_bias = flash_union_buffer[1].float_type;
     flash_buffer_clear();
 
-    // ç®€å•æœ‰æ•ˆæ€§æ£€æŸ¥ï¼ˆé›¶åä¸åº”è¶…è¿‡ Â±50 åº¦ï¼‰
+    // ¼òµ¥ÓĞĞ§ĞÔ¼ì²é£¨ÁãÆ«²»Ó¦³¬¹ı ¡À50 ¶È£©
     if (fabsf(pitch_bias) < 50.0f && fabsf(roll_bias) < 50.0f &&
-        pitch_bias == pitch_bias && roll_bias == roll_bias)  // æ’é™¤ NaN
+        pitch_bias == pitch_bias && roll_bias == roll_bias)  // ÅÅ³ı NaN
     {
         imu660ra.offset_angle.pitch = pitch_bias;
         imu660ra.offset_angle.roll = roll_bias;
     }
 }
 
- //------------------------------------------- åæ ‡ç³»ç®¡ç† ------------------------------------------------------
+ //------------------------------------------- ×ø±êÏµ¹ÜÀí ------------------------------------------------------
 
-// @brief  å°†å½“å‰ä½ç½®è®¾ä¸ºåŸç‚¹ (0,0)ï¼Œèˆªå‘è§’å½’é›¶
+// @brief  ½«µ±Ç°Î»ÖÃÉèÎªÔ­µã (0,0)£¬º½Ïò½Ç¹éÁã
 void ins_api_set_origin(void)
 {
     ins_core_reset(0.0f, 0.0f, 0.0f);
 }
 
-// @brief  é‡è®¾èˆªå‘è§’ï¼ˆä¸æ”¹å˜åæ ‡ä½ç½®ï¼‰
-// @param  yaw_deg  æ–°çš„èˆªå‘è§’ï¼ˆåº¦ï¼‰
+// @brief  ÖØÉèº½Ïò½Ç£¨²»¸Ä±ä×ø±êÎ»ÖÃ£©
+// @param  yaw_deg  ĞÂµÄº½Ïò½Ç£¨¶È£©
 void ins_api_set_heading(float yaw_deg)
 {
     const INS_State* state = ins_core_get_state();
     ins_core_reset(state->x, state->y, yaw_deg * INS_DEG2RAD);
 }
 
- //------------------------------------------- è½¨è¿¹è®°å½• --------------------------------------------------------
+ //------------------------------------------- ¹ì¼£¼ÇÂ¼ --------------------------------------------------------
 
-// @brief  å¼€å§‹è½¨è¿¹å½•åˆ¶ï¼ˆè½¬å‘åˆ° ins_track æ¨¡å—ï¼‰
+// @brief  ¿ªÊ¼¹ì¼£Â¼ÖÆ£¨×ª·¢µ½ ins_track Ä£¿é£©
 void ins_api_start_record(void)
 {
     ins_track_start_save();
 }
 
-// @brief  åœæ­¢è½¨è¿¹å½•åˆ¶
+// @brief  Í£Ö¹¹ì¼£Â¼ÖÆ
 void ins_api_stop_record(void)
 {
     ins_track_stop_save();
 }
 
-// @brief  æ¸…é™¤å·²å½•åˆ¶çš„è½¨è¿¹æ•°æ®
+// @brief  Çå³ıÒÑÂ¼ÖÆµÄ¹ì¼£Êı¾İ
 void ins_api_clear_track(void)
 {
     ins_track_clear();
 }
 
- //------------------------------------------- è½¨è¿¹å¾ªè¿¹ --------------------------------------------------------
+ //------------------------------------------- ¹ì¼£Ñ­¼£ --------------------------------------------------------
 
-// @brief  å¯åŠ¨ Pure Pursuit å¾ªè¿¹ï¼ˆé‡ç½® INS åˆ°åŸç‚¹ï¼Œåˆ‡æ¢ turn_mode åˆ°åèˆªè§’é—­ç¯ï¼‰
+// @brief  Æô¶¯ Pure Pursuit Ñ­¼££¨ÖØÖÃ INS µ½Ô­µã£¬ÇĞ»» turn_mode µ½Æ«º½½Ç±Õ»·£©
 void ins_api_start_follow(void)
 {
     if (ins_track_get_point_count() == 0)
         return;
 
-    // é‡ç½® INS ä½ç½®åˆ°åŸç‚¹
+    // ÖØÖÃ INS Î»ÖÃµ½Ô­µã
     ins_core_reset(0.0f, 0.0f, 0.0f);
 
-    // ä¿å­˜å½“å‰ turn_mode å¹¶åˆ‡æ¢åˆ° yaw è§’é—­ç¯æ¨¡å¼
+    // ±£´æµ±Ç° turn_mode ²¢ÇĞ»»µ½ yaw ½Ç±Õ»·Ä£Ê½
     s_saved_turn_mode = turn_mode;
     turn_mode = 3;
     Target_Yaw = 0.0f;
 
-    // å¯åŠ¨å¾ªè¿¹
+    // Æô¶¯Ñ­¼£
     ins_track_start_follow();
 
-    // è®¾ç½®å¾ªè¿¹é€Ÿåº¦
+    // ÉèÖÃÑ­¼£ËÙ¶È
     Yao.Target_Speed = (int)s_follow_speed;
 }
 
-// @brief  åœæ­¢å¾ªè¿¹ï¼ˆæ¢å¤ä¹‹å‰çš„ turn_modeï¼Œé€Ÿåº¦å½’é›¶ï¼‰
+// @brief  Í£Ö¹Ñ­¼££¨»Ö¸´Ö®Ç°µÄ turn_mode£¬ËÙ¶È¹éÁã£©
 void ins_api_stop_follow(void)
 {
     ins_track_stop_follow();
 
-    // æ¢å¤åŸ turn_mode
+    // »Ö¸´Ô­ turn_mode
     turn_mode = s_saved_turn_mode;
     Target_Yaw = 0.0f;
     Yao.Target_Speed = 0;
 }
 
-// @brief  è®¾ç½®å¾ªè¿¹ç›®æ ‡é€Ÿåº¦
-// @param  speed_mps  é€Ÿåº¦å€¼ï¼ˆm/sï¼‰
+// @brief  ÉèÖÃÑ­¼£Ä¿±êËÙ¶È
+// @param  speed_mps  ËÙ¶ÈÖµ£¨m/s£©
 void ins_api_set_follow_speed(float speed_mps)
 {
     s_follow_speed = speed_mps;
 }
 
- //------------------------------------------- çŠ¶æ€æŸ¥è¯¢ --------------------------------------------------------
+ //------------------------------------------- ×´Ì¬²éÑ¯ --------------------------------------------------------
 
-// @brief  è·å– INS å½“å‰çŠ¶æ€ï¼ˆä½ç½®ã€é€Ÿåº¦ã€èˆªå‘ï¼‰
-// @return INS_State åªè¯»æŒ‡é’ˆ
+// @brief  »ñÈ¡ INS µ±Ç°×´Ì¬£¨Î»ÖÃ¡¢ËÙ¶È¡¢º½Ïò£©
+// @return INS_State Ö»¶ÁÖ¸Õë
 const INS_State* ins_api_get_state(void)
 {
     return ins_core_get_state();
 }
 
-// @brief  è·å–å·²å½•åˆ¶çš„è½¨è¿¹ç‚¹æ•°
-// @return è½¨è¿¹ç‚¹æ•°
+// @brief  »ñÈ¡ÒÑÂ¼ÖÆµÄ¹ì¼£µãÊı
+// @return ¹ì¼£µãÊı
 uint32 ins_api_get_track_points(void)
 {
     return ins_track_get_point_count();
 }
 
-// @brief  æ˜¯å¦æ­£åœ¨å½•åˆ¶è½¨è¿¹
-// @return 1=å½•åˆ¶ä¸­ï¼Œ0=æœªå½•åˆ¶
+// @brief  ÊÇ·ñÕıÔÚÂ¼ÖÆ¹ì¼£
+// @return 1=Â¼ÖÆÖĞ£¬0=Î´Â¼ÖÆ
 uint8 ins_api_is_recording(void)
 {
     return ins_track_is_saving();
 }
 
-// @brief  æ˜¯å¦æ­£åœ¨å¾ªè¿¹
-// @return 1=å¾ªè¿¹ä¸­ï¼Œ0=æœªå¾ªè¿¹
+// @brief  ÊÇ·ñÕıÔÚÑ­¼£
+// @return 1=Ñ­¼£ÖĞ£¬0=Î´Ñ­¼£
 uint8 ins_api_is_following(void)
 {
     return ins_track_is_following();
 }
 
- //------------------------------------------- å¾ªè¿¹è½¬å‘è¾“å‡º ----------------------------------------------------
+ //------------------------------------------- Ñ­¼£×ªÏòÊä³ö ----------------------------------------------------
 
-// @brief  è·å–å¾ªè¿¹è¾“å‡ºçš„è½¬å‘è§’ï¼ˆåº¦ï¼‰
-// @return è½¬å‘è§’åº¦ï¼Œæœªå¾ªè¿¹æ—¶è¿”å› 0
+// @brief  »ñÈ¡Ñ­¼£Êä³öµÄ×ªÏò½Ç£¨¶È£©
+// @return ×ªÏò½Ç¶È£¬Î´Ñ­¼£Ê±·µ»Ø 0
 float ins_api_get_steer_angle_deg(void)
 {
     if (!ins_track_is_following())

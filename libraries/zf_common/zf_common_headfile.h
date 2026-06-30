@@ -99,7 +99,7 @@
 #include "zf_device_wifi_uart.h"
 #include "zf_device_wireless_uart.h"
 //===================================================外接设备驱动层===================================================
-
+#include "zf_device_lora3a22.h"
 //=====================================================组件应用层=====================================================
 #include "seekfree_assistant.h"
 #include "seekfree_assistant_interface.h"

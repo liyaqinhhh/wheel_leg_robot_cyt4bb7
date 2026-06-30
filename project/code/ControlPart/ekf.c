@@ -19,9 +19,9 @@ static matrix_t P;
 
 
 /**
- * @brief åˆå§‹åŒ– EKF çŠ¶æ€å‘é‡ã€è¿‡ç¨‹å™ªå£°ã€æµ‹é‡å™ªå£°å’Œåæ–¹å·®çŸ©é˜µ
- * @param void æ— 
- * @return void æ— è¿”å›å€¼
+ * @brief ³õÊ¼»¯ EKF ×´Ì¬ÏòÁ¿¡¢¹ı³ÌÔëÉù¡¢²âÁ¿ÔëÉùºÍĞ­·½²î¾ØÕó
+ * @param void ÎŞ
+ * @return void ÎŞ·µ»ØÖµ
  */
 void EKF_Init(void)
 {
@@ -35,9 +35,9 @@ void EKF_Init(void)
 
 
 /**
- * @brief å°†å½“å‰å››å…ƒæ•°å§¿æ€è½¬æ¢ä¸ºæ¬§æ‹‰è§’è¾“å‡º
- * @param void æ— 
- * @return void æ— è¿”å›å€¼
+ * @brief ½«µ±Ç°ËÄÔªÊı×ËÌ¬×ª»»ÎªÅ·À­½ÇÊä³ö
+ * @param void ÎŞ
+ * @return void ÎŞ·µ»ØÖµ
  */
 static inline void quaternion_to_euler(void)
 {
@@ -46,9 +46,9 @@ static inline void quaternion_to_euler(void)
     float q2 = (exf_x.data[2][0]);
     float q3 = (exf_x.data[3][0]);
 
-    euler_angle.pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * DEG_TO_RAD;                                  // å››å…ƒæ•°è½¬ä¿¯ä»°è§’
-    euler_angle.roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * DEG_TO_RAD;   // å››å…ƒæ•°è½¬æ¨ªæ»šè§’
-    euler_angle.yaw = atan2(2 * q1 * q2 + 2 * q0 * q3, -2 * q2 * q2 - 2 * q3 * q3 + 1) * DEG_TO_RAD;    // å››å…ƒæ•°è½¬åèˆªè§’
+    euler_angle.pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * DEG_TO_RAD;                                  // ËÄÔªÊı×ª¸©Ñö½Ç
+    euler_angle.roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * DEG_TO_RAD;   // ËÄÔªÊı×ªºá¹ö½Ç
+    euler_angle.yaw = atan2(2 * q1 * q2 + 2 * q0 * q3, -2 * q2 * q2 - 2 * q3 * q3 + 1) * DEG_TO_RAD;    // ËÄÔªÊı×ªÆ«º½½Ç
 }
 
 
@@ -59,16 +59,16 @@ static int16 imu660ra_acc_y_l = 0;
 static int16 imu660ra_acc_z_l = 0;
 
 /**
- * @brief è¯»å– IMU ä¼ æ„Ÿå™¨æ•°æ®å¹¶å®Œæˆä½é€šæ»¤æ³¢ä¸å•ä½æ¢ç®—
- * @param void æ— 
- * @return void æ— è¿”å›å€¼
+ * @brief ¶ÁÈ¡ IMU ´«¸ĞÆ÷Êı¾İ²¢Íê³ÉµÍÍ¨ÂË²¨Óëµ¥Î»»»Ëã
+ * @param void ÎŞ
+ * @return void ÎŞ·µ»ØÖµ
  */
 void imu_get_values(void)
 {
     imu660ra_get_gyro();
     imu660ra_get_acc();
 
-    // å¯¹åŠ é€Ÿåº¦åšä¸€é˜¶ä½é€šæ»¤æ³¢ï¼Œå‡å°é«˜é¢‘å™ªå£°å¯¹è§‚æµ‹æ›´æ–°çš„å½±å“
+    // ¶Ô¼ÓËÙ¶È×öÒ»½×µÍÍ¨ÂË²¨£¬¼õĞ¡¸ßÆµÔëÉù¶Ô¹Û²â¸üĞÂµÄÓ°Ïì
     imu_data.acc_x = Kk1 * imu660ra_acc_x + (1 - Kk1) * imu660ra_acc_x_l;
     imu_data.acc_y = Kk1 * imu660ra_acc_y + (1 - Kk1) * imu660ra_acc_y_l;
     imu_data.acc_z = Kk1 * imu660ra_acc_z + (1 - Kk1) * imu660ra_acc_z_l;
@@ -76,7 +76,7 @@ void imu_get_values(void)
     imu660ra_acc_y_l = (int16)imu_data.acc_y;
     imu660ra_acc_z_l = (int16)imu_data.acc_z;
 
-    // å°†é™€èºä»ªåŸå§‹é‡æ¢ç®—ä¸ºå¼§åº¦åˆ¶è§’é€Ÿåº¦ï¼Œä¾›å››å…ƒæ•°ç§¯åˆ†é¢„æµ‹ä½¿ç”¨
+    // ½«ÍÓÂİÒÇÔ­Ê¼Á¿»»ËãÎª»¡¶ÈÖÆ½ÇËÙ¶È£¬¹©ËÄÔªÊı»ı·ÖÔ¤²âÊ¹ÓÃ
     imu_data.gyro_x = imu660ra_gyro_x * PI / 180 / 16.384f;
     imu_data.gyro_y = imu660ra_gyro_y * PI / 180 / 16.384f;
     imu_data.gyro_z = imu660ra_gyro_z * PI / 180 / 16.384f;
@@ -87,9 +87,9 @@ void imu_get_values(void)
 
 
 /**
- * @brief æ‰§è¡Œä¸€æ¬¡å§¿æ€æ‰©å±•å¡å°”æ›¼æ»¤æ³¢æ›´æ–°
- * @param void æ— 
- * @return void æ— è¿”å›å€¼
+ * @brief Ö´ĞĞÒ»´Î×ËÌ¬À©Õ¹¿¨¶ûÂüÂË²¨¸üĞÂ
+ * @param void ÎŞ
+ * @return void ÎŞ·µ»ØÖµ
  */
 void EKF_UpData(void)
 {
@@ -108,10 +108,10 @@ void EKF_UpData(void)
     Z.data[1][0] = (matrix_type)imu_data.acc_y;
     Z.data[2][0] = (matrix_type)imu_data.acc_z;
 
-    // å¯¹åŠ é€Ÿåº¦è§‚æµ‹å‘é‡å½’ä¸€åŒ–ï¼Œä½¿å…¶ä»…è¡¨è¾¾é‡åŠ›æ–¹å‘ä¿¡æ¯
+    // ¶Ô¼ÓËÙ¶È¹Û²âÏòÁ¿¹éÒ»»¯£¬Ê¹Æä½ö±í´ïÖØÁ¦·½ÏòĞÅÏ¢
     normalize_vector(&Z);
 
-    // æ ¹æ®è§’é€Ÿåº¦æ„é€ ç¦»æ•£çŠ¶æ€è½¬ç§»çŸ©é˜µï¼Œå®Œæˆå››å…ƒæ•°å…ˆéªŒé¢„æµ‹
+    // ¸ù¾İ½ÇËÙ¶È¹¹ÔìÀëÉ¢×´Ì¬×ªÒÆ¾ØÕó£¬Íê³ÉËÄÔªÊıÏÈÑéÔ¤²â
     matrix_type f[4][4]= {{1, -0.5f * gx * dt, -0.5f * gy * dt, -0.5f * gz * dt},
                           {0.5f * gx * dt, 1, 0.5f * gz * dt, -0.5f * gy * dt},
                           {0.5f * gy * dt, -0.5f * gz * dt, 1, 0.5f * gx * dt},
@@ -121,9 +121,9 @@ void EKF_UpData(void)
     Matrix_From_Array(&F, (const matrix_type*)f, 4, 4);
     FT = Matrix_Transpose(&F);
 
-    // çŠ¶æ€é¢„æµ‹ï¼šX(k|k-1) = F * X(k-1|k-1)
+    // ×´Ì¬Ô¤²â£ºX(k|k-1) = F * X(k-1|k-1)
     exf_x = multiply_matrices(&F, &exf_x);
-    // å››å…ƒæ•°å¿…é¡»ä¿æŒå•ä½èŒƒæ•°ï¼Œå¦åˆ™å§¿æ€è§£ä¼šé€æ¸æ¼‚ç§»
+    // ËÄÔªÊı±ØĞë±£³Öµ¥Î»·¶Êı£¬·ñÔò×ËÌ¬½â»áÖğ½¥Æ¯ÒÆ
     normalize_vector(&exf_x);
 
     float q0 = (exf_x.data[0][0]);
@@ -131,7 +131,7 @@ void EKF_UpData(void)
     float q2 = (exf_x.data[2][0]);
     float q3 = (exf_x.data[3][0]);
 
-    // è®¡ç®—è§‚æµ‹æ¨¡å‹çš„é›…å¯æ¯”çŸ©é˜µ Hï¼Œå°†éçº¿æ€§é‡åŠ›è§‚æµ‹åœ¨çº¿æ€§åŒ–ç‚¹å¤„å±•å¼€
+    // ¼ÆËã¹Û²âÄ£ĞÍµÄÑÅ¿É±È¾ØÕó H£¬½«·ÇÏßĞÔÖØÁ¦¹Û²âÔÚÏßĞÔ»¯µã´¦Õ¹¿ª
     matrix_type h[3][4]={{-2 * q2, 2 * q3, -2 * q0, 2 * q1},
 					     {2 * q1, 2 * q0, 2 * q3, 2 * q2},
 					     {2 * q0, -2 * q1, -2 * q2, 2 * q3}};
@@ -141,13 +141,13 @@ void EKF_UpData(void)
     HT = Matrix_Transpose(&H);
     matrix_t PK_;
 
-    // åæ–¹å·®é¢„æµ‹ï¼šP(k|k-1) = F * P(k-1|k-1) * F^T + Q
+    // Ğ­·½²îÔ¤²â£ºP(k|k-1) = F * P(k-1|k-1) * F^T + Q
     PK_ = multiply_matrices(&F, &P);
     PK_ = multiply_matrices(&PK_, &FT);
     P = add_matrices(&PK_, &Q);
 
 
-    // åˆ›æ–°åæ–¹å·®ï¼šS = H * P(k|k-1) * H^T + R
+    // ´´ĞÂĞ­·½²î£ºS = H * P(k|k-1) * H^T + R
     matrix_t DK, invDK;
     DK = multiply_matrices(&H, &P);
     DK = multiply_matrices(&DK, &HT);
@@ -155,40 +155,40 @@ void EKF_UpData(void)
 
     if(inverse_matrix(&DK, &invDK))
     {
-		// è‹¥åˆ›æ–°åæ–¹å·®ä¸å¯é€†ï¼Œåˆ™ä»…ä¿ç•™é¢„æµ‹ç»“æœï¼Œè·³è¿‡æœ¬æ¬¡è§‚æµ‹æ›´æ–°
+		// Èô´´ĞÂĞ­·½²î²»¿ÉÄæ£¬Ôò½ö±£ÁôÔ¤²â½á¹û£¬Ìø¹ı±¾´Î¹Û²â¸üĞÂ
     	quaternion_to_euler();
     	return;
     }
 
-    // åˆ›æ–°é¡¹ï¼še = z - h(x)ï¼Œç”¨äºè¡¡é‡åŠ é€Ÿåº¦è§‚æµ‹ä¸é¢„æµ‹å§¿æ€çš„åå·®
+    // ´´ĞÂÏî£ºe = z - h(x)£¬ÓÃÓÚºâÁ¿¼ÓËÙ¶È¹Û²âÓëÔ¤²â×ËÌ¬µÄÆ«²î
     matrix_t EK, EKT;
     EK = multiply_matrices(&H, &exf_x);
     EK = subtract_matrices(&Z, &EK);
     EKT = Matrix_Transpose(&EK);
 
-    // é©¬æ°è·ç¦»æ£€éªŒï¼šå¼‚å¸¸è§‚æµ‹ä¼šä½¿æ®‹å·®èƒ½é‡è¿‡å¤§ï¼Œæ­¤æ—¶æ‹’ç»æ›´æ–°
+    // ÂíÊÏ¾àÀë¼ìÑé£ºÒì³£¹Û²â»áÊ¹²Ğ²îÄÜÁ¿¹ı´ó£¬´ËÊ±¾Ü¾ø¸üĞÂ
     error = multiply_matrices(&EKT, &invDK);
     error = multiply_matrices(&error, &EK);
 
     if(error.data[0][0] > r_yz)
     {
-		// å‰§çƒˆçº¿åŠ é€Ÿåº¦æˆ–ç¢°æ’ä¼šæ±¡æŸ“é‡åŠ›è§‚æµ‹ï¼Œè¶…é˜ˆå€¼æ—¶ç›´æ¥ä¸¢å¼ƒæœ¬æ¬¡é‡æµ‹
+		// ¾çÁÒÏß¼ÓËÙ¶È»òÅö×²»áÎÛÈ¾ÖØÁ¦¹Û²â£¬³¬ãĞÖµÊ±Ö±½Ó¶ªÆú±¾´ÎÁ¿²â
     	quaternion_to_euler();
     	return;
     }
 
-    // å¡å°”æ›¼å¢ç›Šï¼šK = P(k|k-1) * H^T * S^-1
+    // ¿¨¶ûÂüÔöÒæ£ºK = P(k|k-1) * H^T * S^-1
     matrix_t Kk;
     Kk = multiply_matrices(&P, &HT);
     Kk = multiply_matrices(&Kk, &invDK);
 
-    // çŠ¶æ€æ›´æ–°ï¼šX(k|k) = X(k|k-1) + K * e
+    // ×´Ì¬¸üĞÂ£ºX(k|k) = X(k|k-1) + K * e
     matrix_t temp;
     temp = multiply_matrices(&Kk, &EK);
     exf_x = add_matrices(&exf_x, &temp);
     normalize_vector(&exf_x);
 
-    // åæ–¹å·®æ›´æ–°ï¼šP(k|k) = (I - K * H) * P(k|k-1)
+    // Ğ­·½²î¸üĞÂ£ºP(k|k) = (I - K * H) * P(k|k-1)
     matrix_t I;
     Matrix_Identity(&I, 4);
     temp = multiply_matrices(&Kk, &H);
