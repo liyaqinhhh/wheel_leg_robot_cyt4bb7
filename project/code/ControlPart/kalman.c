@@ -155,28 +155,28 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
      *    B) 合加速度偏离因子: |resultant - 1g| 越大 → 越不可信 → R 增大
      * ================================================================ */
     //if(ins_open)
-     {
-        /* A: 偏航速率因子 (保留原有逻辑, 系数加大) */
-        float yaw_rate_dps = imu->gz * 180.0f / My_PI;
-        float yaw_factor = 1.0f + 0.01f * (yaw_rate_dps * yaw_rate_dps);
-        if (yaw_factor > 500.0f)
-            yaw_factor = 500.0f;
+    //  {
+    //     /* A: 偏航速率因子 (保留原有逻辑, 系数加大) */
+    //     float yaw_rate_dps = imu->gz * 180.0f / My_PI;
+    //     float yaw_factor = 1.0f + 0.01f * (yaw_rate_dps * yaw_rate_dps);
+    //     if (yaw_factor > 500.0f)
+    //         yaw_factor = 500.0f;
 
-        /* B: 合加速度偏离因子
-         * resultant 偏离 1.0g 越多, 加速度计测量越不可信
-         * 偏离 10% → factor≈2, 偏离 50% → factor≈26, 偏离 100% → factor≈101 */
-        float res_dev = fabsf(imu->resultant_acceleration - 1.0f);
-        float res_factor = 1.0f + 100.0f * res_dev * res_dev;
-        if (res_factor > 500.0f)
-            res_factor = 500.0f;
+    //     /* B: 合加速度偏离因子
+    //      * resultant 偏离 1.0g 越多, 加速度计测量越不可信
+    //      * 偏离 10% → factor≈2, 偏离 50% → factor≈26, 偏离 100% → factor≈101 */
+    //     float res_dev = fabsf(imu->resultant_acceleration - 1.0f);
+    //     float res_factor = 1.0f + 100.0f * res_dev * res_dev;
+    //     if (res_factor > 500.0f)
+    //         res_factor = 500.0f;
 
-        /* 叠加: R 同时受 yaw 和 resultant 影响, 取两者的保守值(max) */
-        float trust_factor = (yaw_factor > res_factor) ? yaw_factor : res_factor;
+    //     /* 叠加: R 同时受 yaw 和 resultant 影响, 取两者的保守值(max) */
+    //     float trust_factor = (yaw_factor > res_factor) ? yaw_factor : res_factor;
 
-        imu->R[0] = imu->R[0] * trust_factor; /* roll 测量噪声 */
-        imu->R[1] = imu->R[1] * trust_factor; /* pitch 测量噪声 */
-        /* R[2] 不变 —— yaw 无加速度计测量 */
-    }
+    //     imu->R[0] = imu->R[0] * trust_factor; /* roll 测量噪声 */
+    //     imu->R[1] = imu->R[1] * trust_factor; /* pitch 测量噪声 */
+    //     /* R[2] 不变 —— yaw 无加速度计测量 */
+    // }
 
     imu->Uk[0] = imu->gx + sin(imu->Xk[0]) * tan(imu->Xk[1]) * imu->gy + cos(imu->Xk[0]) * tan(imu->Xk[1]) * imu->gz;
     imu->Uk[1] = cos(imu->Xk[0]) * imu->gy - sin(imu->Xk[0]) * imu->gz;
