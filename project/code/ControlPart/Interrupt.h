@@ -53,7 +53,7 @@ extern Center_struct Yao; /* 全局中心控制结构体实例 */
 extern uint16_t flag_ai_open; /* AI调参模式开关 */
 
 /* ---- 系统标志 ---- */
-extern int16_t flag_main;  /* 主状态标志 */
+extern int16_t flag_main; /* 主状态标志 */
 extern int16_t flag_X_change;
 extern uint16_t flag_text; /* 文本显示标志 */
 extern uint8 flag_count;
@@ -78,10 +78,13 @@ extern volatile float angle_Z; /* 连续累计偏航角（度，可超过±180�
 
 /* ---- 惯导 ---- */
 extern uint8 ins_open; /* 惯导系统开关：0=关闭, 1=开启 */
-
+extern uint8 flag_subject2;   
+extern uint8 flag_subject3;    /* 第三个主题标志 */
 /* ---- 菜单 ---- */
 extern uint8 menu_open; /* 菜单模式：0=关闭, 1=打开菜单和Flash, 2=只读取不打开菜单 */
 extern uint8 ins_getdata;
+extern uint8 camera_open; 
+extern uint8 flag_main_test; /* Roll 零点独立调参模式：0=正常, 1=进入调参菜单 */
 /* ---- 标志位 ---- */
 extern uint8 flag_stop;             /* 停止标志：1=停止, 0=运行 */
 extern uint8 flag_yawan;            /* 偏航辅助使能：0=关闭, 1=开启 */
@@ -90,11 +93,16 @@ extern uint8 ins_telemetry_enable;  /* 惯导遥测使能：0=关闭, 1=开启 *
 extern uint8 jump_telemetry_enable; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
 extern uint8 angle_wireless;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
 extern uint8 kalman_wireless;       /* 卡尔曼诊断遥测使能：0=关闭, 1=开启（发送 $K 帧） */
-
+extern uint8 camera_wireless;       /* 摄像头遥测使能：0=关闭, 1=开启（发送 $C 帧） */
 /* ---- 定时器计数 ---- */
 extern uint16 TCount_4ms;     /* 4ms中断计数器（受TCount_falg_4ms控制） */
 extern uint16 TCount_40ms;    /* 40ms中断计数器（用于斑马线超时检测） */
 extern uint8 TCount_falg_4ms; /* 4ms计数使能标志 */
+
+
+extern uint8 g_exit2_delay_enable;
+extern uint8 g_exit2_delay_counter;
+extern uint8 g_exit2_timeout_flag;
 
 /* ---- GPS转向 ---- */
 extern volatile float steer_gps_target_bearing_deg;    /* GPS目标方位角（度, [0, 360)） */

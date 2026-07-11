@@ -59,8 +59,8 @@ void imu963ra_kalman_filter_init(imu963ra_struct *imu, float q, float r, float T
     imu->T = T; // 离散时间
     imu->resultant_acceleration = 0;
 
-    imu->imu_offset_fwd = 0.025f;  // 前+后-，当前=后方2.5cm（原注释"后方6cm -0.06"，需实测确认）
-    imu->imu_offset_left = -0.04f; // 左+右-，当前=左方4cm（原注释"右方4cm -0.04"，符号已翻转，需实测确认）
+    imu->imu_offset_fwd = 0.015f; // 前+后-，当前=后方2.5cm（原注释"后方6cm -0.06"，修正符号：IMU在旋转中心后方→离心力向前→需从ax中减去）
+    imu->imu_offset_left = 0.0f; // 左+右-，当前=左方4cm（原注释"右方4cm -0.04"，符号已翻转，需实测确认）
     imu->yaw_accel = 0;
     imu->yaw_rate_prev = 0;
 }
@@ -153,10 +153,17 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
      *  策略: 两个维度的信任度衰减, 乘法叠加到 R[0] R[1]:
      *    A) 偏航速率因子: |gz| 越大 → 离心力越大 → R 增大
      *    B) 合加速度偏离因子: |resultant - 1g| 越大 → 越不可信 → R 增大
+     *
+     *  自转(原地旋转)特殊处理:
+     *    前进转弯时离心力主要在侧向(ay方向), 俯仰(ax)受影响小;
+     *    但自转时IMU偏心导致ax也有向心分量, 若R[1]过大则滤波器无法
+     *    通过加速度计检测真实俯仰 → 后仰无法纠正。
+     *    检测条件: |gz|>30deg/s 且 |yaw_accel|<0.5rad/s² (稳态自转)
+     *    → R[1]取sqrt(trust_factor)温和衰减, R[0]保持原有逻辑。
      * ================================================================ */
-    //if(ins_open)
+    // if(!flag_main_test)
     //  {
-    //     /* A: 偏航速率因子 (保留原有逻辑, 系数加大) */
+    //     /* A: 偏航速率因子 (保留原有逻辑, 系数减半) */
     //     float yaw_rate_dps = imu->gz * 180.0f / My_PI;
     //     float yaw_factor = 1.0f + 0.01f * (yaw_rate_dps * yaw_rate_dps);
     //     if (yaw_factor > 500.0f)
@@ -164,9 +171,9 @@ void imu963ra_kalman_filter_update(imu963ra_struct *imu)
 
     //     /* B: 合加速度偏离因子
     //      * resultant 偏离 1.0g 越多, 加速度计测量越不可信
-    //      * 偏离 10% → factor≈2, 偏离 50% → factor≈26, 偏离 100% → factor≈101 */
+    //      * 偏离 10% → factor≈1.5, 偏离 50% → factor≈13.5, 偏离 100% → factor≈51 */
     //     float res_dev = fabsf(imu->resultant_acceleration - 1.0f);
-    //     float res_factor = 1.0f + 100.0f * res_dev * res_dev;
+    //     float res_factor = 1.0f + 50.0f * res_dev * res_dev;
     //     if (res_factor > 500.0f)
     //         res_factor = 500.0f;
 

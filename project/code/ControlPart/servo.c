@@ -168,7 +168,7 @@ int16 temp_d_b = 30;         // 后腿临时PWM值（调试用）
 float temp_y = 0;            // 缓冲阶段Y轴递减量
 float redord_gyro[4] = {0};  // 陀螺仪数据备份（未使用）
 float redord_angle[4] = {0}; // 角度数据备份（未使用）
-
+float temp_Pitch[5] = {0};   // erect_Angle_Pitch 备份数组
 /**
  * @brief 跳跃动作控制 - 四阶段状态机
  * @note  阶段流程：上升(T1) -> 收腿(T2) -> 放腿(T3) -> 缓冲(tt)
@@ -178,7 +178,7 @@ float redord_angle[4] = {0}; // 角度数据备份（未使用）
 void jump_control(void)
 {
     static uint8 flag_record = 0; // 初始化标志：确保只执行一次
-
+    //static float temp_Pitch = 0;       // 缓冲阶段Y轴递减量
     // ===== 跳跃初始化（仅首次进入时执行） =====
     if (flag_record == 0)
     {
@@ -188,8 +188,9 @@ void jump_control(void)
         // 降低陀螺仪/角度增益至1/3，防止跳跃瞬间姿态数据突变导致失控
         for (uint8 i = 0; i <= 4; i++)
         {
-            erect_Gyro_Pitch[i] = erect_Gyro_Pitch[i] / 3.0;
-            erect_Angle_Pitch[i] = erect_Angle_Pitch[i] / 3.0;
+            erect_Inc_X[i] = erect_Inc_X[i] / 5.0;
+            temp_Pitch[i] = erect_Angle_Pitch[i];
+            erect_Angle_Pitch[i] = 0;
         }
         // 可以考虑把转向积分清空
 
@@ -228,9 +229,9 @@ void jump_control(void)
         flag_jump_1 = 1; // 通知IK模块切换到跳跃放腿模式
         // 设置IK目标位置，腿部展开落地
         IKParam.XLeft = 2.5;
-        IKParam.YLeft = 9;
+        IKParam.YLeft = 8;
         IKParam.XRight = 2.5;
-        IKParam.YRight = 9;
+        IKParam.YRight = 8;
     }
     // ===== 阶段4：缓冲（恢复站立） =====
     else if ((T1 + T2 + T3) <= time_j)
@@ -240,7 +241,7 @@ void jump_control(void)
         if (time_temp == tt)
         {
             time_temp = 0;
-            temp_y += 0.05; // Y轴下降速度递增
+            temp_y += 0.005; // Y轴下降速度递增
         }
         // 持续降低腿部高度
         IKParam.YLeft -= temp_y;
@@ -252,8 +253,8 @@ void jump_control(void)
             // 恢复陀螺仪/角度增益至原始值（乘3还原）
             for (uint8 i = 0; i <= 4; i++)
             {
-                erect_Gyro_Pitch[i] = erect_Gyro_Pitch[i] * 3.0;
-                erect_Angle_Pitch[i] = erect_Angle_Pitch[i] * 3.0;
+                erect_Inc_X[i] = erect_Inc_X[i] * 5.0;
+                erect_Angle_Pitch[i] = temp_Pitch[i];
             }
             // 复位所有跳跃状态
             flag_jump_1 = 0;    // 清除放腿阶段标志

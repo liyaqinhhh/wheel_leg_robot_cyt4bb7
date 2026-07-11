@@ -17,7 +17,9 @@
 #include "Init.h"
 #include "small_driver_uart_control.h"
 #include "Ins.h"
-#include "ins_auto_record.h" /* 自动打点模块 */
+#include "ins_auto_record.h"         /* 自动打点模块 */
+#include "ins_special_event_utils.h" /* subject3 特殊事件工具 */
+#include "step_detect.h"             /* 跳跃检测模块 */
 
 /* 外部变量声明 */
 extern InsAuto_State g_ins_auto; /* 自动打点全局状态 */
@@ -41,15 +43,15 @@ void IPS200_Show1(void)
     // ips200_show_float( 120 , 16 ,  Yao.Outp_Gyro_Pitch  , 3 , 3 );
 
     ips200_show_string(0, 32, "YAW:");
-    ips200_show_float(60, 32, imu660ra.eulerAngle.roll, 3, 3);
+    ips200_show_float(60, 32, imu660ra.eulerAngle.yaw, 3, 3);
 
     ips200_show_string(0, 48, "PITCH:");
     ips200_show_float(60, 48, imu660ra.eulerAngle.pitch, 3, 3);
 
     ips200_show_string(0, 64, "X:");
-    ips200_show_float(60, 64, cod_realtime.x, 3, 3);
+    ips200_show_float(60, 64, erect_Angle_Pitch[1], 3, 3);
     ips200_show_string(0, 80, "Y:");
-    ips200_show_float(60, 80, cod_realtime.y, 3, 3);
+    // ips200_show_float(60, 80, temp_Pitch, 3, 3);
 
     /* 根据 ins_mode 切换显示内容 */
     if (ins_mode == 4 || ins_mode == 5)
@@ -72,6 +74,20 @@ void IPS200_Show1(void)
         ips200_show_float(60, 96, n, 3, 3);
         ips200_show_float(0, 128, (float)flag_save, 3, 3);
         ips200_show_float(60, 128, (float)target, 3, 3);
+    }
+
+    /* 特殊事件数据显示 */
+    if (flag_subject2)
+    {
+        ips200_show_string(0, 144, "SP2:");
+        ips200_show_float(60, 144, (float)g_ins_auto.sp_count, 3, 3);
+    }
+    if (flag_subject3)
+    {
+        ips200_show_string(0, 144, "SP3:");
+        ips200_show_float(60, 144, (float)g_ins_auto.sp2_count, 3, 3);
+        ips200_show_string(0, 160, "m:");
+        ips200_show_float(60, 160, (float)ins_special_event_get_m(), 3, 3);
     }
 
     // ips200_show_string(0 , 80 , "n:");
@@ -1313,4 +1329,185 @@ int key_detect(key_index_enum key_n, key_state_enum state)
     }
 
     return 0;
+}
+
+//=============================================================================
+// Roll 零点独立调参菜单
+//=============================================================================
+// 通过 flag_main_test 标志位控制是否进入调参模式。
+// 按键布局与原菜单一致：
+//   KEY_1       --> 增大 offset_angle.roll
+//   KEY_3       --> 减小 offset_angle.roll
+//   KEY_2(短按)  --> 退出编辑 / 返回光标模式
+//   KEY_2(长按)  --> 切换修改单位（switch_unit）
+//   KEY_4       --> 保存到 Flash Page 1 并 发车（flag_main = 0）
+//
+// 上电时从 Flash Page 1 自动加载已保存的 roll 零点。
+//=============================================================================
+
+#define ROLL_TUNE_FLASH_PAGE 1u /* 独立使用 Flash 第 1 页，与原菜单 Page 0 不冲突 */
+
+/* ---- 内部静态变量 ---- */
+static uint8 rt_key = 0;  /* 0=光标模式, 1=编辑模式 */
+static uint8 rt_key1 = 0; /* 0=编辑, 1=单位切换 */
+static int8 rt_unit = 2;  /* 默认单位=1 */
+static float rt_data_change = 1.0f;
+
+/**
+ * @brief   Roll 零点从 Flash 加载（上电时调用）
+ * @note    从 Flash Page 1 读取 float 值并写入 imu660ra.offset_angle.roll
+ *          如果 Flash 页为空，使用默认值（不修改）
+ */
+void roll_tune_load(void)
+{
+    flash_buffer_clear();
+    flash_read_page_to_buffer(0, ROLL_TUNE_FLASH_PAGE, 1);
+
+    /* 检查是否有效（Flash 空扇区读出为 0xFFFFFFFF，不是有效 float） */
+    uint32_t raw = flash_union_buffer[0].uint32_type;
+    if (raw != 0xFFFFFFFFUL)
+    {
+        imu660ra.offset_angle.roll = flash_union_buffer[0].float_type;
+    }
+    flash_buffer_clear();
+}
+
+/**
+ * @brief   Roll 零点保存到 Flash
+ * @note    擦除 Flash Page 1 并写入当前 imu660ra.offset_angle.roll
+ */
+void roll_tune_save(void)
+{
+    flash_buffer_clear();
+    flash_union_buffer[0].float_type = imu660ra.offset_angle.roll;
+    flash_erase_page(0, ROLL_TUNE_FLASH_PAGE);
+    flash_write_page_from_buffer(0, ROLL_TUNE_FLASH_PAGE, 1);
+    flash_buffer_clear();
+
+    /* 验证：读回并确认 */
+    flash_buffer_clear();
+    flash_read_page_to_buffer(0, ROLL_TUNE_FLASH_PAGE, 1);
+    float verify = flash_union_buffer[0].float_type;
+    flash_buffer_clear();
+
+    /* 屏幕提示保存结果 */
+    ips200_show_string(0, 20, "SAVED OK");
+    ips200_show_float(0, 21, verify, 3, 6);
+
+    system_delay_ms(300);
+}
+
+/**
+ * @brief   单位切换（独立于原 menu.c 的 switch_unit）
+ * @note    与原菜单逻辑完全一致，但使用独立的静态变量
+ */
+static void roll_tune_switch_unit(void)
+{
+    ips200_show_string(0, 6 * 8, "UNIT:");
+    ips200_show_float(60, 6 * 8, 123.45678f, 3, 5);
+
+    ips200_show_string(0, 7 * 8, "         ");
+    if (key_detect(KEY_1, KEY_SHORT_PRESS))
+        rt_unit += 1;
+    if (key_detect(KEY_3, KEY_SHORT_PRESS))
+        rt_unit -= 1;
+
+    if (rt_unit <= -1)
+        rt_unit = 7;
+    else if (rt_unit >= 8)
+        rt_unit = 0;
+
+    switch (rt_unit)
+    {
+    case 0:
+        ips200_show_string(0, 7 * 8, "^");
+        rt_data_change = 100.0f;
+        break;
+    case 1:
+        ips200_show_string(6, 7 * 8, "^");
+        rt_data_change = 10.0f;
+        break;
+    case 2:
+        ips200_show_string(12, 7 * 8, "^");
+        rt_data_change = 1.0f;
+        break;
+    case 3:
+        ips200_show_string(24, 7 * 8, "^");
+        rt_data_change = 0.1f;
+        break;
+    case 4:
+        ips200_show_string(30, 7 * 8, "^");
+        rt_data_change = 0.01f;
+        break;
+    case 5:
+        ips200_show_string(36, 7 * 8, "^");
+        rt_data_change = 0.001f;
+        break;
+    case 6:
+        ips200_show_string(42, 7 * 8, "^");
+        rt_data_change = 0.0001f;
+        break;
+    case 7:
+        ips200_show_string(48, 7 * 8, "^");
+        rt_data_change = 0.00001f;
+        break;
+    default:
+        break;
+    }
+
+    if (key_detect(KEY_2, KEY_SHORT_PRESS))
+    {
+        rt_key1 = 0;
+        ips200_clear();
+    }
+}
+
+/**
+ * @brief   Roll 零点调参主循环
+ * @note    由 main_cm7_0.c 在 flag_main_test==1 时调用
+ *          阻塞式运行，替代正常控制流
+ */
+void roll_tune_menu(void)
+{
+    ips200_show_string(0, 0 * 8, "ROLL TUNE");
+    ips200_show_string(0, 1 * 8, "roll offset:");
+    ips200_show_float(0, 2 * 8, imu660ra.offset_angle.roll, 3, 6);
+
+    if (!rt_key)
+    {
+        /* 光标模式：KEY_1/KEY_3 不修改值，KEY_2 进入编辑 */
+        if (key_detect(KEY_2, KEY_SHORT_PRESS))
+            rt_key = 1;
+        ips200_show_string(0, 2 * 8, ">>>");
+    }
+    else
+    {
+        ips200_show_string(0, 2 * 8, "---");
+
+        if (rt_key1)
+        {
+            /* 单位切换子模式 */
+            roll_tune_switch_unit();
+        }
+        else
+        {
+            /* 编辑模式：KEY_1 加，KEY_3 减 */
+            if (key_detect(KEY_1, KEY_SHORT_PRESS))
+                imu660ra.offset_angle.roll += rt_data_change;
+            if (key_detect(KEY_3, KEY_SHORT_PRESS))
+                imu660ra.offset_angle.roll -= rt_data_change;
+
+            /* 更新显示值 */
+            ips200_show_float(0, 2 * 8, imu660ra.offset_angle.roll, 3, 6);
+
+            /* KEY_2 长按 → 进入单位切换 */
+            if (key_detect(KEY_2, KEY_ONCE_LONG_PRESS))
+                rt_key1 = 1;
+            /* KEY_2 短按 → 退出编辑 */
+            if (key_detect(KEY_2, KEY_SHORT_PRESS))
+                rt_key = 0;
+        }
+    }
+
+    /* KEY_4 保存并发车 */
 }

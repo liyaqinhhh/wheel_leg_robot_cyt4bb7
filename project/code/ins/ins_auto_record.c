@@ -24,8 +24,15 @@ InsAuto_State g_ins_auto = {0};
 /* Flash 操作缓冲区 (extern from zf_driver_flash.h) */
 extern flash_data_union flash_union_buffer[FLASH_PAGE_LENGTH];
 
+/* Flash double 读写函数 (定义在 Ins.c) */
+extern void writeDoubleToFlash1(double data1, double data2, uint8 z);
+extern double readFlash_to_double1(bool a, uint8 x);
+
 /* 平均轮速，供自适应前瞻距离使用 (extern from Interrupt.c) */
 extern volatile float speed_MOTOR;
+
+/* exit2 延时恢复速度 (extern from Interrupt.c, 40ms 驱动) */
+
 
 /* ==================================================================
  *  Flash 读写辅助函数
@@ -75,6 +82,9 @@ void ins_auto_record_init(void)
     g_ins_auto.config.auto_record_enable = 1;
     g_ins_auto.config.adaptive_lookahead_enable = INS_AUTO_ADAPTIVE_LD_ENABLE;
 
+    /* subject3: 默认特殊事件速度 */
+    g_ins_auto.special_speed2 = INS_AUTO_SPECIAL_SPEED2_DEFAULT;
+
     /* 初始化 Pure Pursuit 模块 */
     ins_pure_pursuit_init();
 
@@ -94,6 +104,12 @@ void ins_auto_record_update(int speed, float yaw)
 {
     /* 检查是否启用自动录制 */
     if (!g_ins_auto.is_recording || !g_ins_auto.config.auto_record_enable)
+    {
+        return;
+    }
+
+    /* 特殊点模式下暂停自动打点 */
+    if (g_ins_auto.Special_point)
     {
         return;
     }
@@ -161,161 +177,6 @@ void ins_auto_record_stop(void)
 }
 
 /*
- * 保存航点数据到 Flash
- *
- * 以 Ins.c ins_mode=0 的 Flash 操作为模板
- * Flash 布局:
- *   页 60: 元数据 (magic + wp_count + config)
- *   页 61-63: 航点坐标数据 (3 页，每页 128 个航点，共 384 个容量)
- */
-// uint8 ins_auto_save_to_flash(void)
-// {
-//     uint16 i;
-
-//     /* ========== 1. 保存元数据到页 60 ========== */
-
-//     /* 先擦除旧数据 */
-//     if (flash_check(0, INS_AUTO_FLASH_PAGE_META))
-//         flash_erase_page(0, INS_AUTO_FLASH_PAGE_META);
-
-//     /* 写入元数据 */
-//     if (!flash_check(0, INS_AUTO_FLASH_PAGE_META))
-//     {
-//         /* 清空缓冲区 */
-//         memset(flash_union_buffer, 0xFF, sizeof(flash_union_buffer));
-
-//         /* 写入 Magic */
-//         //flash_union_buffer[0].uint32_type = INS_AUTO_MAGIC;
-
-//         /* 写入航点数量 */
-//         flash_union_buffer[1].uint32_type = g_ins_auto.wp_count;
-
-//         /* 写入配置参数 */
-//         write_double_to_flash(g_ins_auto.config.record_distance, 2);
-//         write_double_to_flash(g_ins_auto.config.lookahead_distance, 4);
-//         write_double_to_flash(g_ins_auto.config.arrival_threshold, 6);
-
-//         /* 写入 Flash */
-//         flash_write_page_from_buffer(0, INS_AUTO_FLASH_PAGE_META, FLASH_PAGE_LENGTH);
-//         flash_buffer_clear();
-//     }
-
-//     /* ========== 2. 保存航点数据到页 61-63 ========== */
-
-//     /* 计算需要的页数 (每页 128 个航点) */
-//     uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
-//     if (pages_needed > 3) pages_needed = 3;  /* 最多 3 页 */
-
-//     for (uint16 page_idx = 0; page_idx < pages_needed; page_idx++)
-//     {
-//         uint16 page_num = INS_AUTO_FLASH_PAGE_DATA + page_idx;
-
-//         /* 先擦除旧数据 */
-//         if (flash_check(0, page_num))
-//             flash_erase_page(0, page_num);
-
-//         /* 写入航点数据 */
-//         if (!flash_check(0, page_num))
-//         {
-//             /* 清空缓冲区 */
-//             memset(flash_union_buffer, 0xFF, sizeof(flash_union_buffer));
-
-//             /* 写入该页的航点数据 */
-//             uint16 wp_start = page_idx * 128;
-//             uint16 wp_end = wp_start + 128;
-//             if (wp_end > g_ins_auto.wp_count) {
-//                 wp_end = g_ins_auto.wp_count;
-//             }
-
-//             uint16 buffer_idx = 0;
-//             for (i = wp_start; i < wp_end; i++) {
-//                 write_double_to_flash(g_ins_auto.waypoints[i].x, buffer_idx);
-//                 write_double_to_flash(g_ins_auto.waypoints[i].y, buffer_idx + 2);
-//                 buffer_idx += 4;
-//             }
-
-//             /* 写入 Flash */
-//             flash_write_page_from_buffer(0, page_num, FLASH_PAGE_LENGTH);
-//             flash_buffer_clear();
-//         }
-//     }
-
-//     return 0;  /* 成功 */
-// }
-
-// /*
-//  * 从 Flash 加载航点数据
-//  *
-//  * 以 Ins.c ins_mode=1 的 Flash 操作为模板
-//  */
-// uint8 ins_auto_load_from_flash(void)
-// {
-//     uint16 i;
-
-//     /* ========== 1. 加载元数据从页 60 ========== */
-
-//     /* 读取元数据页 */
-//     flash_read_page_to_buffer(0, INS_AUTO_FLASH_PAGE_META, FLASH_PAGE_LENGTH);
-
-//     /* 校验 Magic */
-//     // if (flash_union_buffer[0].uint32_type != INS_AUTO_MAGIC) {
-//     //     flash_buffer_clear();
-//     //     return 1;  /* 无有效数据 */
-//     // }
-
-//     /* 读取航点数量 */
-//     g_ins_auto.wp_count = (uint16)flash_union_buffer[1].uint32_type;
-
-//     /* 限制航点数量在有效范围 */
-//     if (g_ins_auto.wp_count > INS_AUTO_MAX_WAYPOINTS) {
-//         g_ins_auto.wp_count = INS_AUTO_MAX_WAYPOINTS;
-//     }
-
-//     /* 读取配置参数 */
-//     g_ins_auto.config.record_distance = (float)read_double_from_flash(2);
-//     g_ins_auto.config.lookahead_distance = (float)read_double_from_flash(4);
-//     g_ins_auto.config.arrival_threshold = (float)read_double_from_flash(6);
-
-//     flash_buffer_clear();
-
-//     /* ========== 2. 加载航点数据从页 61-63 ========== */
-
-//     if (g_ins_auto.wp_count == 0) {
-//         return 0;  /* 无航点数据 */
-//     }
-
-//     /* 计算需要的页数 */
-//     uint16 pages_needed = (g_ins_auto.wp_count + 127) / 128;
-//     if (pages_needed > 3) pages_needed = 3;
-
-//     for (uint16 page_idx = 0; page_idx < pages_needed; page_idx++)
-//     {
-//         uint16 page_num = INS_AUTO_FLASH_PAGE_DATA + page_idx;
-
-//         /* 读取 Flash 页 */
-//         flash_read_page_to_buffer(0, page_num, FLASH_PAGE_LENGTH);
-
-//         /* 读取该页的航点数据 */
-//         uint16 wp_start = page_idx * 128;
-//         uint16 wp_end = wp_start + 128;
-//         if (wp_end > g_ins_auto.wp_count) {
-//             wp_end = g_ins_auto.wp_count;
-//         }
-
-//         uint16 buffer_idx = 0;
-//         for (i = wp_start; i < wp_end; i++) {
-//             g_ins_auto.waypoints[i].x = read_double_from_flash(buffer_idx);
-//             g_ins_auto.waypoints[i].y = read_double_from_flash(buffer_idx + 2);
-//             buffer_idx += 4;
-//         }
-
-//         flash_buffer_clear();
-//     }
-
-//     return 0;
-// }
-
-/*
  * 清空 Flash 数据
  */
 void ins_auto_clear_flash(void)
@@ -341,6 +202,25 @@ void ins_auto_clear_flash(void)
 void ins_auto_record_navigation(void)
 {
     /* 检查是否正在导航 */
+
+    /* 特殊点自转模式: 暂停常规巡点逻辑 (subject2) */
+    if (g_ins_auto.Special_point_get)
+    {
+        return;
+    }
+
+    /* subject3 特殊事件模式: 暂停常规巡点逻辑 */
+    if (g_ins_auto.Special_point_get2)
+    {
+        return;
+    }
+
+    /* exit2 延时到时: 恢复 subject3 之前备份的速度 */
+    // if (g_exit2_timeout_flag)
+    // {
+    //     g_exit2_timeout_flag = 0;
+    //     Target_Speed = temp_speed2;
+    // }
 
     /* 检查当前航点索引是否有效 */
     if (g_ins_auto.wp_current >= g_ins_auto.wp_count)
@@ -541,6 +421,411 @@ void ins_auto_nav_stop(void)
 /* ==================================================================
  *  配置和辅助函数
  * ================================================================== */
+
+/* ==================================================================
+ *  特殊事件点功能实现
+ * ================================================================== */
+
+/*
+ * 保存特殊点到 Flash
+ * - 将当前实时坐标记录为特殊点
+ * - 写入页 93 (元数据: sp_count) 和页 94 (坐标)
+ */
+void ins_auto_special_point_save(void)
+{
+    if (g_ins_auto.sp_count >= INS_AUTO_MAX_SPECIAL_POINTS)
+    {
+        return; /* 已满 */
+    }
+
+    /* 记录当前坐标 */
+    g_ins_auto.special_points[g_ins_auto.sp_count] = cod_realtime;
+    g_ins_auto.sp_count++;
+
+    /* 擦除并写入页 93 (元数据: sp_count) */
+    if (flash_check(0, INS_AUTO_FLASH_PAGE_SP_META))
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP_META);
+
+    flash_buffer_clear();
+    flash_union_buffer[0].uint16_type = g_ins_auto.sp_count;
+    flash_write_page_from_buffer(0, INS_AUTO_FLASH_PAGE_SP_META, FLASH_PAGE_LENGTH);
+
+    /* 擦除并写入页 94 (特殊点坐标) */
+    if (flash_check(0, INS_AUTO_FLASH_PAGE_SP_DATA))
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP_DATA);
+
+    flash_buffer_clear();
+    for (uint16 i = 0; i < g_ins_auto.sp_count; i++)
+    {
+        uint8 buffer_idx = i;
+        writeDoubleToFlash1(g_ins_auto.special_points[i].x,
+                            g_ins_auto.special_points[i].y, buffer_idx);
+    }
+    flash_write_page_from_buffer(0, INS_AUTO_FLASH_PAGE_SP_DATA, FLASH_PAGE_LENGTH);
+}
+
+/*
+ * 从 Flash 读取所有特殊点
+ * - 在导航启动时（KEY_1 按下）调用
+ * - 读取页 93-94 到 g_ins_auto.special_points[]
+ */
+void ins_auto_special_point_load(void)
+{
+    /* 读取页 93: 特殊点数量 */
+    flash_read_page_to_buffer(0, INS_AUTO_FLASH_PAGE_SP_META, FLASH_PAGE_LENGTH);
+    g_ins_auto.sp_count = flash_union_buffer[0].uint16_type;
+    flash_buffer_clear();
+
+    /* 校验数量 */
+    if (g_ins_auto.sp_count == 0 || g_ins_auto.sp_count > INS_AUTO_MAX_SPECIAL_POINTS)
+    {
+        g_ins_auto.sp_count = 0;
+        return;
+    }
+
+    /* 读取页 94: 特殊点坐标 */
+    flash_read_page_to_buffer(0, INS_AUTO_FLASH_PAGE_SP_DATA, FLASH_PAGE_LENGTH);
+    for (uint16 i = 0; i < g_ins_auto.sp_count; i++)
+    {
+        uint8 buffer_idx = i;
+        g_ins_auto.special_points[i].x = readFlash_to_double1(0, buffer_idx);
+        g_ins_auto.special_points[i].y = readFlash_to_double1(1, buffer_idx);
+    }
+    flash_buffer_clear();
+
+    /* 初始化状态 */
+    g_ins_auto.sp_current = 0;
+    g_ins_auto.Special_point_get = 0;
+    g_ins_auto.rotate_count = 0;
+    g_ins_auto.rotate_state = 0;
+    g_ins_auto.rotate_timeout = 0;
+}
+
+/*
+ * 特殊点导航更新 (每 16ms 由中断调用)
+ * - 检测到当前特殊点的距离
+ * - 20cm 以内: 判定到达，触发自转
+ */
+float temp_speed = 0;
+float temp_speed2 = 0; /* subject3 专用速度备份, 与 subject2 的 temp_speed 解耦 */
+void ins_auto_special_point_update(void)
+{
+    /* 没有特殊点或已全部处理完 → 退出 */
+    if (g_ins_auto.sp_count == 0 || g_ins_auto.sp_current >= g_ins_auto.sp_count)
+    {
+        return;
+    }
+
+    /* 已在自转模式中 → 执行自转状态机 */
+    if (g_ins_auto.Special_point_get && flag_subject2)
+    {
+        ins_auto_special_point_rotate();
+        return;
+    }
+
+    /* 计算到当前特殊点的距离 */
+    Coordinates sp = g_ins_auto.special_points[g_ins_auto.sp_current];
+    double dx = sp.x - cod_realtime.x;
+    double dy = sp.y - cod_realtime.y;
+    double dist_to_sp = sqrt(dx * dx + dy * dy);
+
+    /* 20cm 以内: 判定到达，触发自转 */
+    if (dist_to_sp < 20.0 && dist_to_sp > 0.001)
+    {
+        g_ins_auto.Special_point_get = 1;
+
+        /* 设置目标速度为0，停止巡点转向 */
+        temp_speed = Target_Speed; /* 保存当前速度 */
+        Target_Speed = 0;
+        yaw_ins = 0;
+
+        /* 保存当前 yaw 角作为自转起始角 */
+        g_ins_auto.temp_yaw = imu660ra.eulerAngle.yaw;
+
+        /* 设置转向输出为 100（正转） */
+        Yao.Outp_turn = TURN_SPEED;
+
+        /* 初始化自转状态 */
+        g_ins_auto.rotate_count = 0;
+        g_ins_auto.rotate_state = 1; /* 等待离开 temp_yaw */
+        g_ins_auto.rotate_timeout = 0;
+    }
+}
+
+/*
+ * 特殊点自转状态机 (由 ins_auto_special_point_update 每 16ms 调用)
+ *
+ * 状态机:
+ *   状态 1 (等待离开 temp_yaw):
+ *     Outp_turn 已设为 100，小车开始旋转
+ *     等待 yaw 角偏离 temp_yaw 超过 20°（表示已经开始转）
+ *     → 切换到状态 2
+ *
+ *   状态 2 (等待再次进入 temp_yaw):
+ *     每当 yaw 角经过 temp_yaw（±10°窗口）计一圈
+ *     防漏检: 使用穿越方向判断，而不是窗口内停留判断
+ *     超时: 5 秒内未能完成 → 强制退出
+ *     → 圈数 >= 2 且 yaw 在 temp_yaw±10°内 → 完成
+ */
+void ins_auto_special_point_rotate(void)
+{
+    float current_yaw = imu660ra.eulerAngle.yaw;
+    float delta;
+
+    /* 超时保护: 5 秒 (5000ms / 16ms = 312 帧) */
+    g_ins_auto.rotate_timeout++;
+    if (g_ins_auto.rotate_timeout > OUT_Time)
+    {
+        /* 超时强制退出 */
+        g_ins_auto.Special_point_get = 0;
+        Yao.Outp_turn = 0;
+        Target_Yaw = current_yaw;
+        turn_mode = 7;
+
+        /* 跳到下一个特殊点 */
+        g_ins_auto.sp_current++;
+        return;
+    }
+
+    switch (g_ins_auto.rotate_state)
+    {
+    case 1: /* 等待离开 temp_yaw */
+        delta = current_yaw - g_ins_auto.temp_yaw;
+        if (delta > 180.0f)
+            delta -= 360.0f;
+        if (delta < -180.0f)
+            delta += 360.0f;
+
+        if (func_abs(delta) > 20.0f)
+        {
+            /* 已离开 temp_yaw 超过 20°，进入圈数计数状态 */
+            g_ins_auto.rotate_state = 2;
+        }
+        break;
+
+    case 2: /* 等待再次经过 temp_yaw，计数圈数 */
+    {
+        /* 计算 yaw 角与 temp_yaw 的差值 */
+        delta = current_yaw - g_ins_auto.temp_yaw;
+        if (delta > 180.0f)
+            delta -= 360.0f;
+        if (delta < -180.0f)
+            delta += 360.0f;
+
+        /* 使用穿越标志防漏检/误检:
+         *   用上一帧的 delta 和当前帧的 delta 判断是否穿越了 temp_yaw
+         *   delta_prev 和 delta_curr 符号不同(或 delta_curr≈0) → 穿过了 temp_yaw */
+        static float delta_prev = 0.0f;
+        static uint8 delta_prev_valid = 0;
+
+        if (!delta_prev_valid)
+        {
+            delta_prev = delta;
+            delta_prev_valid = 1;
+        }
+
+        /* 检测穿越: delta 从正变负或从负变正（且差值足够大，防止抖动） */
+        if ((delta_prev > 10.0f && delta < -10.0f) ||
+            (delta_prev < -10.0f && delta > 10.0f) ||
+            func_abs(delta) < 5.0f)
+        {
+            /* 防止同一穿越多次计数: 要求 delta_prev 的绝对值较大 */
+            if (func_abs(delta_prev) > 10.0f || func_abs(delta) < 5.0f)
+            {
+                /* 在 temp_yaw±10°窗口内才计数 */
+                if (func_abs(delta) < 10.0f)
+                {
+                    g_ins_auto.rotate_count++;
+                }
+            }
+
+            /* 重置 delta_prev 防止连续计数 */
+            delta_prev = current_yaw - g_ins_auto.temp_yaw;
+            if (delta_prev > 180.0f)
+                delta_prev -= 360.0f;
+            if (delta_prev < -180.0f)
+                delta_prev += 360.0f;
+        }
+
+        delta_prev = current_yaw - g_ins_auto.temp_yaw;
+        if (delta_prev > 180.0f)
+            delta_prev -= 360.0f;
+        if (delta_prev < -180.0f)
+            delta_prev += 360.0f;
+
+        /* 完成条件: 圈数 >= 2 且 yaw 在 temp_yaw±10°内 */
+        if (g_ins_auto.rotate_count >= 2 && func_abs(delta) < 10.0f)
+        {
+            /* 自转完成 */
+            g_ins_auto.Special_point_get = 0;
+            Yao.Outp_turn = 0;
+            g_ins_auto.rotate_count = 0;
+            g_ins_auto.rotate_state = 0;
+            g_ins_auto.rotate_timeout = 0;
+            delta_prev_valid = 0;
+            turn_mode = 7;
+            Target_Speed = temp_speed; /* 恢复之前的速度 */
+
+            /* 跳到下一个特殊点 */
+            g_ins_auto.sp_current++;
+
+            /* 跳到下一个常规航点 */
+            if (g_ins_auto.wp_current < g_ins_auto.wp_count)
+            {
+                g_ins_auto.wp_current++;
+            }
+
+            /* 恢复惯导转向模式 */
+            // Target_Yaw = current_yaw;
+        }
+        break;
+    }
+    }
+}
+
+/* ==================================================================
+ *  subject3 特殊事件点功能实现 (flag_subject3 控制)
+ *  - 与 subject2 自转模式完全解耦，独立 Flash 区域 (页 95-96)
+ *  - Flash 读写仅在 ins_mode=4 KEY_2 / ins_mode=5 KEY_1 统一执行
+ *  - 打点阶段: 录制中每次 KEY_3 按下记录一个坐标点到 RAM
+ *  - 循迹阶段: 到达进入点(n)后坐标跳变到退出点(n+1)，关闭/恢复惯导
+ * ================================================================== */
+
+/*
+ * subject3: 保存特殊点到 Flash (页 95-96)
+ * - 仅在 ins_mode=4 KEY_2 按下时统一调用（与现有航点保存一起执行）
+ */
+void ins_auto_special_point_save2(void)
+{
+    if (g_ins_auto.sp2_count == 0)
+    {
+        return; /* 无数据，不保存 */
+    }
+
+    /* 擦除并写入页 95 (元数据: sp2_count) */
+    if (flash_check(0, INS_AUTO_FLASH_PAGE_SP2_META))
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP2_META);
+
+    flash_buffer_clear();
+    flash_union_buffer[0].uint16_type = g_ins_auto.sp2_count;
+    flash_write_page_from_buffer(0, INS_AUTO_FLASH_PAGE_SP2_META, FLASH_PAGE_LENGTH);
+
+    /* 擦除并写入页 96 (特殊点坐标) */
+    if (flash_check(0, INS_AUTO_FLASH_PAGE_SP2_DATA))
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP2_DATA);
+
+    flash_buffer_clear();
+    for (uint16 i = 0; i < g_ins_auto.sp2_count; i++)
+    {
+        uint8 buffer_idx = i;
+        writeDoubleToFlash1(g_ins_auto.special_points2[i].x,
+                            g_ins_auto.special_points2[i].y, buffer_idx);
+    }
+    flash_write_page_from_buffer(0, INS_AUTO_FLASH_PAGE_SP2_DATA, FLASH_PAGE_LENGTH);
+}
+
+/*
+ * subject3: 从 Flash 读取特殊点 (页 95-96)
+ * - 仅在 ins_mode=5 首次进入 (flag_1==1) 时统一调用
+ */
+void ins_auto_special_point_load2(void)
+{
+    /* 读取页 95: 特殊点数量 */
+    flash_read_page_to_buffer(0, INS_AUTO_FLASH_PAGE_SP2_META, FLASH_PAGE_LENGTH);
+    g_ins_auto.sp2_count = flash_union_buffer[0].uint16_type;
+    flash_buffer_clear();
+
+    /* 校验数量 */
+    if (g_ins_auto.sp2_count == 0 || g_ins_auto.sp2_count > INS_AUTO_MAX_SPECIAL_POINTS2)
+    {
+        g_ins_auto.sp2_count = 0;
+        return;
+    }
+
+    /* 读取页 96: 特殊点坐标 */
+    flash_read_page_to_buffer(0, INS_AUTO_FLASH_PAGE_SP2_DATA, FLASH_PAGE_LENGTH);
+    for (uint16 i = 0; i < g_ins_auto.sp2_count; i++)
+    {
+        uint8 buffer_idx = i;
+        g_ins_auto.special_points2[i].x = readFlash_to_double1(0, buffer_idx);
+        g_ins_auto.special_points2[i].y = readFlash_to_double1(1, buffer_idx);
+    }
+    flash_buffer_clear();
+
+    /* 初始化导航状态 */
+    g_ins_auto.sp2_current = 0;
+    g_ins_auto.Special_point_get2 = 0;
+}
+
+/*
+ * subject3: 特殊点导航更新 (每 16ms 调用)
+ * - 检测到达进入点 → 触发坐标跳变
+ */
+void ins_auto_special_point_update2(void)
+{
+    if (g_ins_auto.sp2_count == 0 || g_ins_auto.sp2_current >= g_ins_auto.sp2_count)
+        return;
+
+    if (g_ins_auto.Special_point_get2)
+        return;
+
+    Coordinates sp = g_ins_auto.special_points2[g_ins_auto.sp2_current];
+    double dx = sp.x - cod_realtime.x;
+    double dy = sp.y - cod_realtime.y;
+    double dist_to_sp = sqrt(dx * dx + dy * dy);
+
+    /* 20cm 以内: 到达进入点 */
+    if (dist_to_sp < 20.0 && dist_to_sp > 0.001)
+    {
+        ins_auto_special_point_enter2(0);
+    }
+}
+
+/*
+ * subject3: 进入特殊事件模式
+ * - Special_point_get2=1 关闭惯导/坐标计算/惯导转向
+ * - 将退出点(n+1)坐标替换小车当前位置
+ * - sp2_current+=2 指向下一事件进入点
+ */
+void ins_auto_special_point_enter2(float special_speed)
+{
+    g_ins_auto.Special_point_get2 = 1;
+
+    /* 关闭惯导转向 */
+    yaw_ins = 0;
+    Yao.Outp_turn = 0;
+
+    /* 保存当前速度到 subject3 专用备份, 设置特殊事件速度 */
+    temp_speed2 = Target_Speed;
+    Target_Speed = special_speed;
+
+    /* 用退出点坐标(n+1)替换当前坐标 */
+    if (g_ins_auto.sp2_current + 1 < g_ins_auto.sp2_count)
+    {
+        cod_realtime = g_ins_auto.special_points2[g_ins_auto.sp2_current + 1];
+    }
+
+    /* 跳到下一个事件的进入点(n+2) */
+    g_ins_auto.sp2_current += 2;
+}
+
+/*
+ * subject3: 退出特殊事件模式
+ * - 恢复惯导转向和坐标计算
+ * - 启动 40ms 延时计时，确保小车稳定后再恢复速度
+ */
+void ins_auto_special_point_exit2(void)
+{
+    g_ins_auto.Special_point_get2 = 0;
+    Target_Speed = 0;
+    yaw_ins = 0;
+    turn_mode = 7; /* 恢复惯导转向模式 */
+
+    /* 启动 40ms 延时计时: 25 次 × 40ms = 1000ms = 1 秒后到时 */
+    g_exit2_delay_enable = 1;
+    g_exit2_delay_counter = 0;
+    g_exit2_timeout_flag = 0;
+}
 
 /* ==================================================================
  *  调试输出函数 (40ms 中断调用)

@@ -375,9 +375,9 @@
                     <state>$PROJ_DIR$\..\..\code</state>
                     <state>$PROJ_DIR$\..\..\code\ControlPart</state>
                     <state>$PROJ_DIR$\..\..\code\Menu</state>
-                    <state>$PROJ_DIR$\..\..\code\VersionPart</state>
                     <state>$PROJ_DIR$\..\..\code\ins</state>
                     <state>$PROJ_DIR$\..\..\user</state>
+                    <state>$PROJ_DIR$\..\..\code\VersionPart</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1226,6 +1226,12 @@
             <file>
                 <name>$PROJ_DIR$\..\..\code\ins\ins_pure_pursuit.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_special_event_utils.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\ins\ins_special_event_utils.h</name>
+            </file>
         </group>
         <group>
             <name>Menu</name>
@@ -1249,6 +1255,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\code\VersionPart\ips.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\VersionPart\step_detect.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\code\VersionPart\step_detect.h</name>
             </file>
         </group>
         <file>

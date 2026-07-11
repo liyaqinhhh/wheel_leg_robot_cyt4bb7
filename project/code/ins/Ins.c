@@ -384,13 +384,41 @@ void ins_navigation(void)
      *    flag_save: 是否已保存到 Flash
      * ================================================================ */
     case 4:
-        /* KEY_3 短按: 开始自动定距打点 */
+        /* KEY_3 短按: 录制控制 + 特殊事件存点 (三步) */
         if (key_get_state(KEY_3) == KEY_SHORT_PRESS)
         {
             key_clear_state(KEY_3);
-            ins_auto_record_start(); /* 开始录制，清空航点数组，重置距离计数器 */
-            flag_save = 0;           /* 清除保存标志 */
-            ins_getdata = 1;         /* 标记有新数据 (供其他模块查询) */
+
+            if (!g_ins_auto.is_recording)
+            {
+                /* 未在录制中 → 开始自动定距打点 */
+                ins_auto_record_start();
+                flag_save = 0;
+                ins_getdata = 1;
+            }
+            else if (flag_subject3)
+            {
+                /* subject3: 录制中每次 KEY_3 记录一个坐标点到 special_points2[] */
+                if (g_ins_auto.sp2_count < INS_AUTO_MAX_SPECIAL_POINTS2)
+                {
+                    g_ins_auto.special_points2[g_ins_auto.sp2_count] = cod_realtime;
+                    g_ins_auto.sp2_count++;
+                    ins_getdata = 1;
+                }
+            }
+            else if (!g_ins_auto.Special_point && flag_subject2)
+            {
+                /* 步骤一+二: 录制中且非特殊点模式 → 进入特殊点模式, 暂停自动打点 & 存坐标 */
+                g_ins_auto.Special_point = 1;
+
+                /* 保存当前位置坐标到 Flash (特殊点) */
+                ins_auto_special_point_save();
+            }
+            else
+            {
+                /* 步骤三: Special_point=1 → 退出特殊点模式, 恢复自动打点 */
+                g_ins_auto.Special_point = 0;
+            }
         }
 
         /* KEY_2 短按: 结束打点，保存到 Flash */
@@ -453,6 +481,10 @@ void ins_navigation(void)
             }
 
             flag_save = 1; /* 标记已保存 */
+
+            /* subject3: 同时保存特殊事件点到 Flash (页 95-96) */
+            if (flag_subject3)
+                ins_auto_special_point_save2();
         }
 
         /* KEY_1 短按: 从 Flash 读取航点，开始 Pure Pursuit 导航 */
@@ -500,7 +532,18 @@ void ins_navigation(void)
                 }
 
                 flash_buffer_clear();
+                 
+            if (flag_subject2)
+            ins_auto_special_point_load();
+
+            /* subject3: 读取特殊事件点 (页 95-96, 进入/退出坐标跳变模式) */
+            if (flag_subject3)
+                ins_auto_special_point_load2();
+
             }
+
+            /* 读取特殊事件点 (页 93-94, subject2 自转模式) */
+            
 
             ins_auto_nav_start();
             flag_1 = 0; /* 加载完成, 后续帧不再加载 */

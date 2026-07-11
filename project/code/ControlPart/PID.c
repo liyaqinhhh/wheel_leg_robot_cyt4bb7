@@ -90,8 +90,8 @@ volatile uint16 spin3_hold_ticks = 40;    /* 到位后需保持的控制周期�
 // float erect_Gyro_Pitch[4]   = {  23.6  ,  0  ,  17  ,  0  };
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };
-float erect_Gyro_Pitch[4] = {0.9, 0, 0, 0};   /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
-float erect_Angle_Pitch[4] = {280, 0, 40, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
+float erect_Gyro_Pitch[4] = {1.2, 0, 0, 0};   /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
+float erect_Angle_Pitch[4] = {305, 0, 40, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
 float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* 俯仰速度环:   {KP, KP2, KD, 积分限幅} */
 
 /* ---- 翻滚角平衡参数 ----
@@ -109,7 +109,7 @@ float erect_turn[4] = {0, 0, 0, 0}; /* 转向PID */
 /* ---- 偏航控制参数 ---- */
 float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* 偏航角速度环 */
 float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* 偏航角度环1（主） */
-float erect_Angle_Yaw_2[4] = {90, 0, 0, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
+float erect_Angle_Yaw_2[4] = {50, 0, 0, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
 float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* 偏航角度环3（视觉融合用） */
 float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合用） */
 
@@ -119,7 +119,7 @@ float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合�
  * erect_Inc_Roll: 翻滚稳定控制，通过左右腿Y坐标差实现侧倾补偿。
  */
 // 速度环，改变机械零点
-float erect_Inc_X[4] = {0.004, 0, 0, 0}; /* X位移: {KP, KI, KD, 积分限幅} */ // 2.7
+float erect_Inc_X[4] = {0.004, 0, 0, 0}; /* X位移: {KP, KI, KD, 积分限幅} */ // 0.004
 float erect_Inc_Y[3] = {1.0, 0, 0};                                          /* Y高度:  {KP, KI, KD} */
 float erect_Inc_Roll[3] = {0.15, 0, 0.1};                                    /* 翻滚:   {KP, KI, KD} */
 float erect_yawan[3] = {0, 0, 0};                                            /* 偏航辅助: {KP, KI, KD} */

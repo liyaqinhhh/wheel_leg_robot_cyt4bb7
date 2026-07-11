@@ -21,8 +21,8 @@
  * 开发环境：IAR 9.40.1
  * 适用平台：CYT4BB
  * 店铺链接：https://seekfree.taobao.com/*/
- 
- #include "zf_common_headfile.h"
+
+#include "zf_common_headfile.h"
 #include "menu.h"
 #include "PID.h"
 #include "Interrupt.h"
@@ -37,7 +37,6 @@
 #include "AI_Pid_Tuner.h"
 #include "kalman.h"
 
-
 // **************************** 代码区域 ****************************
 
 /**
@@ -48,11 +47,8 @@
  */
 extern volatile float y1;
 
-
-   
-int main(void)
+   int main(void)
 {
-  
 
   clock_init(SYSTEM_CLOCK_250M); /* 时钟配置：250MHz主频 <务必保留，首先执行> */
   debug_init();                  /* 调试串口初始化：用于printf调试输出 */
@@ -73,31 +69,38 @@ int main(void)
   // uint32 i = 0;
   // debug_init();
   // extern int16_t flag_main;
-  //gpio_init(P19_0,GPO,1,GPO_PUSH_PULL);
+  // gpio_init(P19_0,GPO,1,GPO_PUSH_PULL);
   /* ===== 第四阶段：主循环 ===== */
-  //uint8_t sum;
-  // pit_ms_init(PIT_CH0, 1);
-  // imu660rb_init();
-  //servo_init();
-    // ips200_set_font(IPS200_6X8_FONT);             // 璁剧疆瀛椾綋澶у皬涓?6 * 8鍍忕�?
-    // ips200_set_color(RGB565_BLACK, RGB565_WHITE); // 璁剧疆棰滆壊涓哄僵鑹?
-    // ips200_set_dir(IPS200_PORTAIT);               // 璁剧疆涓虹珫灞忔樉绀?
-    // ips200_init(IPS200_TYPE_SPI);           // 鍙屾帓骞跺彛娆惧�?
-    // servo_init();
-    // small_driver_uart_init();
+  // uint8_t sum;
+  //  pit_ms_init(PIT_CH0, 1);
+  //  imu660rb_init();
+  // servo_init();
+  //  ips200_set_font(IPS200_6X8_FONT);             // 璁剧疆瀛椾綋澶у皬涓?6 * 8鍍忕�?
+  //  ips200_set_color(RGB565_BLACK, RGB565_WHITE); // 璁剧疆棰滆壊涓哄僵鑹?
+  //  ips200_set_dir(IPS200_PORTAIT);               // 璁剧疆涓虹珫灞忔樉绀?
+  //  ips200_init(IPS200_TYPE_SPI);           // 鍙屾帓骞跺彛娆惧�?
+  //  servo_init();
+  //  small_driver_uart_init();
   while (true)
   {
-    /* 0. 中断任务调度（将原 ISR 中的定时任务迁至主函数轮询执行）
+    /* 0. Roll 零点独立调参模式：flag_main_test==1 时运行调参菜单 */
+    if (flag_main_test)
+    {
+      roll_tune_menu();
+      continue;
+    }
+
+    /* 1. 中断任务调度（将原 ISR 中的定时任务迁至主函数轮询执行）
      * 每次调用检查各时间级标志位，有积压则执行一次并递减
      */
     Run_Interrupt_Tasks();
-    //small_driver_set_duty(-500,500);
-    //Interrupt_40ms();
-    // imu660rb_get_gyro();
-    // imu660rb_get_acc();
-    //printf("imu660rb_gyro_z: %d, imu660rb_gyro_x: %d,imu660rb_gyro_y: %d,imu660rb_acc_z: %d\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y, imu660rb_acc_z);
-     /* AI调参示例：发送实时俯仰角速度数据到上位机 */
-    
+    // small_driver_set_duty(-500,500);
+    // Interrupt_40ms();
+    //  imu660rb_get_gyro();
+    //  imu660rb_get_acc();
+    // printf("imu660rb_gyro_z: %d, imu660rb_gyro_x: %d,imu660rb_gyro_y: %d,imu660rb_acc_z: %d\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y, imu660rb_acc_z);
+    /* AI调参示例：发送实时俯仰角速度数据到上位机 */
+
     //    while(1)
     // {
     //     if(imu660rb_init())
@@ -111,7 +114,6 @@ int main(void)
     //     //gpio_toggle_level(LED1);                                                // 翻转 LED 引脚输出电平 控制 LED 亮灭 初始化出错这个灯会闪的很慢
     // }
     // 此处编写用户代码 例如外设初始化代码等
-    
   }
 }
 // **************************** 代码区域 ****************************

@@ -13,6 +13,7 @@
 #include "servo.h"
 #include "ekf.h"
 #include "small_driver_uart_control.h"
+#include "seekfree_assistant_interface.h"
 #include "ins_auto_record.h" /* 自动打点模块 */
 
 void Init_All(void)
@@ -27,7 +28,8 @@ void Init_All(void)
     pwm_init(TCPWM_CH28_P10_0, 3000, 0);
     key_init(10);         // 鎸夐�?
     wireless_uart_init(); // 鏃犵嚎涓插彛
-                          //   lora3a22_init();//遥控初始化
+    seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_WIRELESS_UART);
+    //   lora3a22_init();//遥控初始化
     dl1b_init();
     imu660rb_init();                      // 闄€铻轰�?
                                           //  gyroOffset_init();
@@ -39,7 +41,7 @@ void Init_All(void)
     ips200_set_font(IPS200_6X8_FONT);             // 璁剧疆瀛椾綋澶у皬涓?6 * 8鍍忕�?
     ips200_set_color(RGB565_BLACK, RGB565_WHITE); // 璁剧疆棰滆壊涓哄僵鑹?
     ips200_set_dir(IPS200_PORTAIT);               // 璁剧疆涓虹珫灞忔樉绀?
-    ips200_init(IPS200_TYPE_SPI);           // 鍙屾帓骞跺彛娆惧�?
+    ips200_init(IPS200_TYPE_SPI);                 // 鍙屾帓骞跺彛娆惧�?
 
     flash_init();
     // Init_Nag();
@@ -60,14 +62,25 @@ void Init_All(void)
 
     // TODO: offset_angle 沿用 IMU660RA 标定值，IMU660RB 需重新标定
     imu660ra.offset_angle.pitch = 1.6; // �??5�??.1
-    imu660ra.offset_angle.roll = -1.0; //-0.75
-    //Yao.Target_Speed = 0;
+    imu660ra.offset_angle.roll = -2.8; //-0.75
+    // Yao.Target_Speed = 0;
     Yao.Target_height = 3;
     Target_Yaw = 0;
-    Target_Speed = 0;
+    Target_Speed = 300;
     ins_open = 1;
+    ins_mode = 4;
     turn_mode = 7;
+    // 按键3占用,科目1,2要关掉
+    camera_open = 0;
+    flag_subject2 = 1;
+    flag_subject3 = 0;
 
+    telemetry_enable = 1;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+    ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
+    jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
+    angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
+    kalman_wireless = 0;
+    camera_wireless = 0;
 
     pid_para_init(&PID_all.Pid_Gyro_Pitch);
     pid_para_init(&PID_all.Pid_Angle_Pitch);
@@ -78,12 +91,17 @@ void Init_All(void)
     pid_para_init(&PID_all.Pid_Angle_Yaw);
 
     // // 鑿滃�?
-    
+
     //    mt9v03x_init();                                     // 鎬婚捇椋?
 
     // 鑸垫満PWM鍒濆鍖?
     servo_init();
     EKF_Init();
+
+    system_delay_ms(100);
+
+    if (camera_open)
+        mt9v03x_init();
 
     small_driver_uart_init();
 
@@ -159,6 +177,11 @@ void Init_All(void)
 
     // 自动打点模块初始化（ins_mode=4 使用）
     ins_auto_record_init();
+
+    if (flag_main_test)
+    {
+        roll_tune_load();
+    }
 
     // cpu_wait_event_ready();
 }

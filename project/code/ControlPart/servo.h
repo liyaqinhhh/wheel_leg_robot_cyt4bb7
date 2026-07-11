@@ -29,6 +29,7 @@ extern uint8 T1; // 上升阶段持续时间
 extern uint8 T2; // 收腿阶段持续时间
 extern uint8 T3; // 放腿阶段持续时间
 extern float Single_Height;
+//extern float temp_Pitch;
 
 void servo_init(void);
 void servo_set_angle(leg_enum leg, float angle);

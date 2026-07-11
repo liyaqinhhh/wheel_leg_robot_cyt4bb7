@@ -49,6 +49,18 @@
 #define INS_AUTO_FLASH_PAGE_DATA 61  /* 航点数据起始页 (页 61-92，共 32 页) */
 #define INS_AUTO_FLASH_PAGE_COUNT 32 /* 航点数据页数 */
 
+/* 特殊事件点 Flash 页分配 (subject2: 自转模式) */
+#define INS_AUTO_FLASH_PAGE_SP_META 93 /* 特殊点元数据页 (sp_count) */
+#define INS_AUTO_FLASH_PAGE_SP_DATA 94 /* 特殊点坐标数据页 (每页128个，远超需求) */
+#define INS_AUTO_MAX_SPECIAL_POINTS 20 /* 最大特殊点数 */
+
+/* 特殊事件点 Flash 页分配 (subject3: 进入/退出坐标跳变模式) */
+#define INS_AUTO_FLASH_PAGE_SP2_META 95     /* subject3 特殊点元数据页 (sp2_count) */
+#define INS_AUTO_FLASH_PAGE_SP2_DATA 96     /* subject3 特殊点坐标数据页 */
+#define INS_AUTO_MAX_SPECIAL_POINTS2 40     /* subject3 最大特殊点数 (20个事件 × 每事件2点) */
+#define INS_AUTO_SPECIAL_SPEED2_DEFAULT 200 /* subject3 特殊事件默认速度 */
+
+#define OUT_Time 3750 // 超时保护
 /*
  * Magic Number = 0x4155544F = ASCII "AUTO"
  * 用于校验 Flash 数据有效性
@@ -105,7 +117,7 @@
  * 安全距离：只有航点在 PASS_GUARD_MAX_DIST 以内才允许点乘强制切换
  *           防止坐标系跳变导致远距离航点误触发
  */
-#define INS_AUTO_PASS_GUARD_ENABLE 1       /* 1=启用过线检测, 0=停用 */
+#define INS_AUTO_PASS_GUARD_ENABLE 1        /* 1=启用过线检测, 0=停用 */
 #define INS_AUTO_PASS_GUARD_MAX_DIST 100.0f /* 点乘生效的最大距离 (cm)，超出此距离不做强制切换 */
 /* ==================================================================
  *  数据结构
@@ -140,6 +152,24 @@ typedef struct
     uint8 is_navigating; /* 是否正在导航: 0=停止, 1=导航中 */
     uint8 nav_finished;  /* 导航是否完成: 0=未完成, 1=已完成 */
 
+    /* 特殊事件点状态 (subject2: 自转模式) */
+    uint8 Special_point;                                     /* 特殊点录制模式: 0=关闭, 1=录制中(自动打点暂停) */
+    uint8 Special_point_get;                                 /* 特殊点到达标志: 0=未到达, 1=已到达(自转中) */
+    Coordinates special_points[INS_AUTO_MAX_SPECIAL_POINTS]; /* 特殊点坐标数组 */
+    uint16 sp_count;                                         /* 特殊点总数 */
+    uint16 sp_current;                                       /* 当前目标特殊点索引 */
+    float temp_yaw;                                          /* 自转起始偏航角（度） */
+    uint8 rotate_count;                                      /* 已完成自转圈数 */
+    uint8 rotate_state;                                      /* 自转状态机: 0=空闲, 1=等待离开temp_yaw, 2=等待再次进入 */
+    uint16 rotate_timeout;                                   /* 自转超时计数器 */
+
+    /* 特殊事件点状态 (subject3: 进入/退出坐标跳变模式) */
+    uint8 Special_point_get2;                                  /* subject3 特殊点到达标志: 0=未到达, 1=已到达(关闭惯导中) */
+    Coordinates special_points2[INS_AUTO_MAX_SPECIAL_POINTS2]; /* subject3 特殊点坐标数组 (交替: 进入点/退出点) */
+    uint16 sp2_count;                                          /* subject3 特殊点总数 */
+    uint16 sp2_current;                                        /* subject3 当前目标特殊点索引 (指向进入点) */
+    int16 special_speed2;                                      /* subject3 特殊事件期间速度设定 */
+
     /* 配置参数 */
     InsAuto_Config config;
 
@@ -150,6 +180,8 @@ typedef struct
  * ================================================================== */
 
 extern InsAuto_State g_ins_auto; /* 全局状态实例 */
+extern float temp_speed;
+extern float temp_speed2;
 
 /* ==================================================================
  *  API 函数声明
@@ -248,7 +280,87 @@ void ins_auto_set_config(float record_dist, float lookahead, float arrival_thres
  * - 用于屏幕显示
  */
 uint16 ins_auto_get_current_wp(void);
+
+/* ==================================================================
+ *  特殊事件点 API 函数声明
+ * ================================================================== */
+
+/*
+ * 保存特殊点到 Flash
+ * - 将当前实时坐标记录为特殊点
+ * - 写入页 93 (元数据) 和页 94 (坐标)
+ */
+void ins_auto_special_point_save(void);
+
+/*
+ * 从 Flash 读取所有特殊点
+ * - 在导航启动时（KEY_1 按下）调用
+ * - 读取页 93-94 到 g_ins_auto.special_points[]
+ */
+void ins_auto_special_point_load(void);
+
+/*
+ * 特殊点导航更新 (每 16ms 由中断调用)
+ * - 检测到当前特殊点的距离
+ * - 20cm 以内: 判定到达，触发自转
+ */
+void ins_auto_special_point_update(void);
+
+/*
+ * 特殊点自转状态机 (由 ins_auto_special_point_update 内部调用)
+ */
+void ins_auto_special_point_rotate(void);
+
+/*
+ * 特殊点导航更新 (每 16ms 由中断调用)
+ * - 检测到当前特殊点的距离
+ * - 50cm 以内: 放弃常规航点，转向特殊点
+ * - 20cm 以内: 判定到达，触发自转
+ */
+void ins_auto_special_point_update(void);
 uint16 ins_auto_get_total_wp(void);
+
+/* ==================================================================
+ *  subject3 特殊事件点 API 函数声明 (flag_subject3 控制)
+ *  - 与 subject2 自转模式完全解耦，独立 Flash 区域
+ *  - Flash 读写仅在 ins_mode=4 KEY_2(保存) / ins_mode=5 KEY_1(加载) 统一执行
+ * ================================================================== */
+
+/*
+ * subject3: 保存特殊点到 Flash (页 95-96)
+ * - 仅在 ins_mode=4 KEY_2 按下时统一调用
+ */
+void ins_auto_special_point_save2(void);
+
+/*
+ * subject3: 从 Flash 读取所有特殊点 (页 95-96)
+ * - 仅在 ins_mode=5 首次进入 (flag_1==1) 时统一调用
+ */
+void ins_auto_special_point_load2(void);
+
+/*
+ * subject3: 特殊点导航更新 (每 16ms 由中断调用)
+ * - 检测是否到达当前进入点
+ * - 到达后调用 ins_auto_special_point_enter2()
+ */
+void ins_auto_special_point_update2(void);
+
+/*
+ * subject3: 进入特殊事件模式
+ * - 设置 Special_point_get2 = 1
+ * - 关闭惯导转向、设置 yaw_ins=0、设置速度
+ * - 将退出点坐标替换小车当前坐标
+ * - sp2_current += 2 (指向下一事件的进入点)
+ * 参数: special_speed - 特殊事件期间目标速度
+ */
+void ins_auto_special_point_enter2(float special_speed);
+
+/*
+ * subject3: 退出特殊事件模式
+ * - 设置 Special_point_get2 = 0
+ * - 恢复惯导转向和位置计算 (各模块通过 !Special_point_get2 门控自动恢复)
+ */
+void ins_auto_special_point_exit2(void);
 
 /*
  * 调试输出函数 (40ms 中断调用)

@@ -113,6 +113,8 @@ void ins_navigation(void);
 
 /* ---- 全局变量 extern ---- */
 
+#define TURN_SPEED 500
+
 extern Coordinates cod_realtime;   /* 实时坐标: 由 get_realtime_coordinate 不断累加 */
 extern Coordinates cod_saved[30];  /* 录制暂存: ins_mode=0 按键录点时暂存, 最多30个 */
 extern Coordinates cod_target[30]; /* 导航目标: ins_mode=1 从 Flash 加载的航点 */
