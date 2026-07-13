@@ -83,6 +83,8 @@ uint8 flag_save = 0;
 
 extern flash_data_union flash_union_buffer[FLASH_PAGE_LENGTH];
 
+/***************************flash_basic****************************** */
+
 /*
  * 将一对 double 坐标写入 flash_union_buffer。
  *   data1: X 坐标 (double)
@@ -143,7 +145,9 @@ double readFlash_to_double1(bool a, uint8 x)
 
     return result;
 }
+/******************************************************************** */
 
+/****************************ins_basic**************************************** */
 /* ==================================================================
  *  3. 实时坐标更新 (航位推算)
  *
@@ -482,6 +486,13 @@ void ins_navigation(void)
 
             flag_save = 1; /* 标记已保存 */
 
+            /* subject2: 特殊点存点为零时擦除 Flash 历史 (页 93-94) */
+            if (flag_subject2 && g_ins_auto.sp_count == 0)
+            {
+                flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP_META);
+                flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP_DATA);
+            }
+
             /* subject3: 同时保存特殊事件点到 Flash (页 95-96) */
             if (flag_subject3)
                 ins_auto_special_point_save2();
@@ -534,7 +545,7 @@ void ins_navigation(void)
                 flash_buffer_clear();
                  
             if (flag_subject2)
-            ins_auto_special_point_load();
+                ins_auto_special_point_load();
 
             /* subject3: 读取特殊事件点 (页 95-96, 进入/退出坐标跳变模式) */
             if (flag_subject3)
@@ -584,3 +595,4 @@ void ins_navigation(void)
         break;
     }
 }
+/*************************************************** */

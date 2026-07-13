@@ -31,6 +31,22 @@
 uint16 ins_special_event_get_m(void);
 
 /* ==================================================================
+ *  定向直走状态机数据结构
+ * ================================================================== */
+typedef struct
+{
+    uint8 active;         /* 0=空闲, 1=运行中 */
+    float target_dist_cm; /* 目标距离 (cm) */
+    int16 target_speed;   /* 目标速度 (编码器单位) */
+    float accum_dist_cm;  /* 已行驶距离 (cm) */
+} InsStraightMotion;
+
+extern InsStraightMotion g_straight;
+extern uint32_t time_layer;
+extern uint8 flag_time_layer;
+extern float dist; /* 预留: 暂未使用 */
+
+/* ==================================================================
  *  定向直走函数 (不依赖 get_realtime_coordinate / ins_auto_record_update)
  * ================================================================== */
 

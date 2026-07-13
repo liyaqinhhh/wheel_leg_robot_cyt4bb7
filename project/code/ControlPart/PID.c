@@ -91,7 +91,7 @@ volatile uint16 spin3_hold_ticks = 40;    /* 到位后需保持的控制周期�
 // float erect_Angle_Pitch[4]  = {  18  ,  0  ,  12.9  ,  0  };
 // float erect_Speed_Pitch[4]  = {  0.01  ,  0.000009  ,  0.004  ,  0  };
 float erect_Gyro_Pitch[4] = {1.2, 0, 0, 0};   /* 俯仰角速度环: {KP, KP2, KD, 积分限幅} */
-float erect_Angle_Pitch[4] = {305, 0, 40, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
+float erect_Angle_Pitch[4] = {290, 0, 40, 0}; /* 俯仰角度环:   {KP, KP2, KD, 积分限幅} */
 float erect_Speed_Pitch[4] = {0, 0, 0, 0};    /* 俯仰速度环:   {KP, KP2, KD, 积分限幅} */
 
 /* ---- 翻滚角平衡参数 ----
@@ -109,7 +109,7 @@ float erect_turn[4] = {0, 0, 0, 0}; /* 转向PID */
 /* ---- 偏航控制参数 ---- */
 float erect_Gyro_Yaw[4] = {1, 0, 0, 0};     /* 偏航角速度环 */
 float erect_Angle_Yaw[4] = {650, 0, 0, 0};  /* 偏航角度环1（主） */
-float erect_Angle_Yaw_2[4] = {50, 0, 0, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
+float erect_Angle_Yaw_2[4] = {100, 0, 0, 0}; /* 偏航角度环2（备用，历史值300,0,0,0） */
 float erect_Angle_Yaw_3[4] = {0, 0, 0, 0};  /* 偏航角度环3（视觉融合用） */
 float erect_Angle_Yaw_4[4] = {0, 0, 0, 0};  /* 偏航角度环4（惯导融合用） */
 
@@ -305,7 +305,6 @@ void inverseKinematics()
     servo_set_angle(RF, servoRightFront);
     servo_set_angle(LB, servoLeftRear);
     servo_set_angle(RB, servoRightRear);
-    
 
     // servo_set_angle(RF, 180); servo_set_angle(RB, 0);
     // servo_set_angle(LF, 225); servo_set_angle(LB, -45);
@@ -383,10 +382,7 @@ void Adapt_Terrain(void)
             X_change = 1.5;
         }
         else
-        X_change = 0;
-
-
-
+            X_change = 0;
 
         if (flag_jump == 0)
         {
@@ -439,7 +435,6 @@ void Adapt_Terrain(void)
         IKParam.YRight = Y;
     }
 
-    
     if (Single_state == 1 && flag_Single_HighState == 0) // 减速
     {
         //        TCount_falg_4ms= 1;

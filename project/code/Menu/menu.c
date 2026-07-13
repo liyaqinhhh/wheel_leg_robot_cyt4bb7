@@ -81,6 +81,8 @@ void IPS200_Show1(void)
     {
         ips200_show_string(0, 144, "SP2:");
         ips200_show_float(60, 144, (float)g_ins_auto.sp_count, 3, 3);
+        ips200_show_string(0, 160, "g_ins_auto.rotate_count:");
+        ips200_show_float(60, 160, (float)g_ins_auto.rotate_count, 3, 3);
     }
     if (flag_subject3)
     {

@@ -47,7 +47,7 @@
  */
 extern volatile float y1;
 
-   int main(void)
+int main(void)
 {
 
   clock_init(SYSTEM_CLOCK_250M); /* 时钟配置：250MHz主频 <务必保留，首先执行> */

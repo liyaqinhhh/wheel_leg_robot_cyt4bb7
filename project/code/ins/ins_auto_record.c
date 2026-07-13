@@ -34,6 +34,7 @@ extern volatile float speed_MOTOR;
 /* exit2 延时恢复速度 (extern from Interrupt.c, 40ms 驱动) */
 
 
+/*************************flash_basic****************************************** */
 /* ==================================================================
  *  Flash 读写辅助函数
  * ================================================================== */
@@ -62,10 +63,15 @@ static double read_double_from_flash(uint16 index)
     uint64_t u64 = ((uint64_t)hi << 32) | lo;
     return *(double *)&u64;
 }
+/*************************************************************** */
+
+
 
 /* ==================================================================
  *  自动打点核心逻辑
  * ================================================================== */
+
+
 
 /*
  * 初始化自动打点模块
@@ -423,9 +429,10 @@ void ins_auto_nav_stop(void)
  * ================================================================== */
 
 /* ==================================================================
- *  特殊事件点功能实现
+ *  特殊事件点功能实现，科目二
  * ================================================================== */
 
+ /***************************flash*************************************** */
 /*
  * 保存特殊点到 Flash
  * - 将当前实时坐标记录为特殊点
@@ -500,7 +507,7 @@ void ins_auto_special_point_load(void)
     g_ins_auto.rotate_state = 0;
     g_ins_auto.rotate_timeout = 0;
 }
-
+/******************************************************************* */
 /*
  * 特殊点导航更新 (每 16ms 由中断调用)
  * - 检测到当前特殊点的距离
@@ -508,6 +515,7 @@ void ins_auto_special_point_load(void)
  */
 float temp_speed = 0;
 float temp_speed2 = 0; /* subject3 专用速度备份, 与 subject2 的 temp_speed 解耦 */
+uint8 flag_off = 0;
 void ins_auto_special_point_update(void)
 {
     /* 没有特殊点或已全部处理完 → 退出 */
@@ -530,7 +538,7 @@ void ins_auto_special_point_update(void)
     double dist_to_sp = sqrt(dx * dx + dy * dy);
 
     /* 20cm 以内: 判定到达，触发自转 */
-    if (dist_to_sp < 20.0 && dist_to_sp > 0.001)
+    if (dist_to_sp < 10.0 && dist_to_sp > 0.001)
     {
         g_ins_auto.Special_point_get = 1;
 
@@ -540,12 +548,13 @@ void ins_auto_special_point_update(void)
         yaw_ins = 0;
 
         /* 保存当前 yaw 角作为自转起始角 */
-        g_ins_auto.temp_yaw = imu660ra.eulerAngle.yaw;
+        g_ins_auto.temp_yaw = imu660ra.eulerAngle.yaw ;
 
         /* 设置转向输出为 100（正转） */
         Yao.Outp_turn = TURN_SPEED;
 
         /* 初始化自转状态 */
+
         g_ins_auto.rotate_count = 0;
         g_ins_auto.rotate_state = 1; /* 等待离开 temp_yaw */
         g_ins_auto.rotate_timeout = 0;
@@ -633,9 +642,10 @@ void ins_auto_special_point_rotate(void)
             if (func_abs(delta_prev) > 10.0f || func_abs(delta) < 5.0f)
             {
                 /* 在 temp_yaw±10°窗口内才计数 */
-                if (func_abs(delta) < 10.0f)
+                if (func_abs(delta) < 0.5f)
                 {
                     g_ins_auto.rotate_count++;
+                    
                 }
             }
 
@@ -657,6 +667,7 @@ void ins_auto_special_point_rotate(void)
         if (g_ins_auto.rotate_count >= 2 && func_abs(delta) < 10.0f)
         {
             /* 自转完成 */
+            imu660ra.eulerAngle.yaw = g_ins_auto.temp_yaw;
             g_ins_auto.Special_point_get = 0;
             Yao.Outp_turn = 0;
             g_ins_auto.rotate_count = 0;
@@ -665,6 +676,9 @@ void ins_auto_special_point_rotate(void)
             delta_prev_valid = 0;
             turn_mode = 7;
             Target_Speed = temp_speed; /* 恢复之前的速度 */
+
+            /* 补偿自转N圈yaw角漂移：每圈约5度，按实际圈数补偿 */
+            imu660ra.eulerAngle.yaw = g_ins_auto.temp_yaw + er_yaw;
 
             /* 跳到下一个特殊点 */
             g_ins_auto.sp_current++;
@@ -699,7 +713,10 @@ void ins_auto_special_point_save2(void)
 {
     if (g_ins_auto.sp2_count == 0)
     {
-        return; /* 无数据，不保存 */
+        /* 无特殊点: 擦除 Flash 历史数据, 防止导航时加载旧数据 */
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP2_META);
+        flash_erase_page(0, INS_AUTO_FLASH_PAGE_SP2_DATA);
+        return;
     }
 
     /* 擦除并写入页 95 (元数据: sp2_count) */

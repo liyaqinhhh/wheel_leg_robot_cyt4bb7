@@ -12,6 +12,48 @@
 
 imu660_struct imu660ra;
 
+
+/**
+ * @brief  陀螺仪零偏校准
+ * @param  无
+ * @return 无
+ * @note   上电后调用，需要保持车辆静止
+ *         读取 CALIBRATION_SAMPLES 次数据，取平均值作为零偏
+ */
+#define CALIBRATION_SAMPLES     3500     // 校准采样次数
+#define CALIBRATION_DELAY_MS    2       // 每次采样间隔(ms)
+
+// static float gyro_x_offset = 0.0f;
+// static float gyro_y_offset = 0.0f;
+static float gyro_z_offset = 0.0f;
+static uint8_t gyro_calibrated = 0;
+
+void imu_calibrate_gyro(void)
+{
+    int32_t sum_x = 0, sum_y = 0, sum_z = 0;
+    uint16_t i;
+
+    // 等待传感器稳定
+    system_delay_ms(100);
+
+    // 读取多次数据
+    for (i = 0; i < CALIBRATION_SAMPLES; i++)
+    {
+        imu660rb_get_gyro();
+        // sum_x += imu660rb_gyro_x;
+        // sum_y += imu660rb_gyro_y;
+        sum_z += imu660rb_gyro_z;
+        system_delay_ms(CALIBRATION_DELAY_MS);
+    }
+
+    // 计算平均值作为零偏（保持原始值，不转换单位）
+    // gyro_x_offset = (float)sum_x / CALIBRATION_SAMPLES;
+    // gyro_y_offset = (float)sum_y / CALIBRATION_SAMPLES;
+    gyro_z_offset = (float)sum_z / CALIBRATION_SAMPLES;
+    //printf("%f,%f,%f\r\n",gyro_x_offset,gyro_y_offset,gyro_z_offset);
+    // 标记校准完成
+    gyro_calibrated = 1;
+}
 //-------------------------------------------------------------------------------------------------------------------
 //  @brief      单位转换，数据预处理
 //  @param      六轴数据输入
@@ -38,7 +80,7 @@ void date_handle(void)
         imu660rb_gyro_y -= 2.5;
     if (imu660rb_gyro_x < 5.1 && imu660rb_gyro_x > -1.1)
         imu660rb_gyro_x -= 1.8;
-    if (imu660rb_gyro_z <= 2 && imu660rb_gyro_z >= -5)
+    if (imu660rb_gyro_z <= 1 && imu660rb_gyro_z >= 6)
         imu660rb_gyro_z = 0;
 
     // 单位转换
@@ -51,16 +93,16 @@ void date_handle(void)
     // TODO: RB ±2000dps 量程因子 = 14.3（原 RA 为 16.4）；gyro 偏移值沿用 RA 标定
     imu660ra.data_Ripen.gyro_x = ((float)imu660rb_gyro_x - 19.0f /*- GyroOffset.Xdata*/) * M_PI / 180 / 14.3f;
     imu660ra.data_Ripen.gyro_y = (-(float)imu660rb_gyro_y + 76.0f /*- GyroOffset.Ydata*/) * M_PI / 180 / 14.3f;
-    imu660ra.data_Ripen.gyro_z = ((float)imu660rb_gyro_z /*- GyroOffset.Zdata*/) * M_PI / 180 / 14.3f;
+    imu660ra.data_Ripen.gyro_z = ((float)imu660rb_gyro_z  /*- GyroOffset.Zdata*/) * M_PI / 180 / 14.3f;
 
     imu660ra.data_Raw.acc_x = (float)imu660rb_acc_x;
     imu660ra.data_Raw.acc_y = (float)imu660rb_acc_y;
     imu660ra.data_Raw.acc_z = (float)imu660rb_acc_z;
     // 单位dps
-    // TODO: RB ±2000dps 量程因子 = 14.3（原 RA 为 16.4）
+    // TODO: RB ±250dps 量程因子 = 114.3
     imu660ra.data_Raw.gyro_x = ((float)imu660rb_gyro_x - 19.0f) / 14.3f;
     imu660ra.data_Raw.gyro_y = ((float)imu660rb_gyro_y + 76.0f) / 14.3f;
-    imu660ra.data_Raw.gyro_z = ((float)imu660rb_gyro_z) / 14.3f;
+    imu660ra.data_Raw.gyro_z = ((float)imu660rb_gyro_z - gyro_z_offset) / 14.3f;
 }
 
 static unsigned int count_imu = 0;

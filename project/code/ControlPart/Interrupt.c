@@ -35,6 +35,7 @@
 #include "ins_pure_pursuit.h" /* Pure Pursuit 算法模块 */
 
 #include "Ins.h" // 惯导系统（yaw_ins）
+#include "ins_special_event_utils.h"
 
 /* 全局中心控制结构体实例 */
 Center_struct Yao;
@@ -236,6 +237,7 @@ void control_main(void)
     }
     else if (flag_main == 2)
     {
+        Target_Speed = 0;
         small_driver_set_duty((int16)((Yao.Outp_Gyro_Pitch)), // 右轮发送占空比
                               (int16)((Yao.Outp_Gyro_Pitch)));
     }
@@ -445,6 +447,7 @@ void Interrupt_2ms(void)
     // imu660rb_get_gyro();
     // imu660rb_get_acc();
     /* 4. IMU数据读取与姿态解算 */
+
     date_handle();
 
     // /* 6. 串级PID角速度环（最内层） */
@@ -466,6 +469,7 @@ float Target_Speed = 0; /* 目标速度 */
 float V_trans = 0;                                       /* 横向速度（预留） */
 uint8 TCount_falg_4ms = 0;                               /* 4ms计数使能标志 */
 uint16 TCount_4ms = 0;                                   /* 4ms周期计数器 */
+uint16 TCount_16ms = 0;
 float dt = 0.004f;                                       /* 控制周期（4ms=0.004秒） */
 float desired_yaw = 0.0f;                                /* 期望偏航角（视觉/GPS模式） */
 float raw_vision_yaw = 0.0f;                             /* 视觉原始偏航角（避锥调整前） */
@@ -525,6 +529,7 @@ void Interrupt_4ms(void)
 int16 recordL = 0; /* 左轮记录值（预留） */
 int16 recordR = 0; /* 右轮记录值（预留） */
 float vv2 = 0;     /* 轮速差滤波值（预留） */
+uint8 flag_road_test = 0; /* 道路测试标志（外部控制） */
 
 /**
  * @brief   8ms中断服务函数
@@ -593,6 +598,7 @@ volatile float aa11 = 0;        /* 轮速差低通滤波值（用于速度环输
 volatile float speed_MOTOR = 0; /* 平均轮速（用于惯导坐标更新） */
 float wheel_distance_cm = 0;    /* 轮速积分累积行驶距离（厘米）, 轮半径3.5cm */
 
+
 /**
  * @brief   16ms中断服务函数
  *
@@ -611,8 +617,14 @@ void Interrupt_16ms(void)
     /* 1. 惯导坐标更新 */
     Update_INS_Coordinate();
 
+    //ins_straight_update(); /* 惯导直线行驶修正（turn_mode=7时） */
+
     /* 2. 速度环PID（最外环） */
     Update_Speed_PID_Loop();
+
+    if (flag_road_test)
+    ins_straight_start(300, 200);
+
 }
 
 /* ---- 40ms中断用 ---- */
@@ -630,234 +642,9 @@ uint8 ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
 uint8 jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
 uint8 angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
 uint8 kalman_wireless = 0;       /* 卡尔曼诊断遥测使能：0=关闭, 1=开启（发送 $K 帧） */
-
+uint8 road_wireless = 0;         /* 道路检测遥测使能：0=关闭, 1=开启（发送 $R 帧） */
 /* ---- 摄像头图传控制 ---- */
 uint8 camera_wireless = 0; /* 无线摄像头图传：0=关闭, 1=开启 */
-
-/**
- * @brief   自转测试状态机 (40ms中断调用)
- *
- * 测试流程: 转一圈 → 原地平衡2秒 → 再转一圈 → 完成
- *
- * 圈数计算逻辑: 与 ins_auto_special_point_rotate() 完全一致
- *   target_yaw = 0 (current_yaw 设为0)
- *   状态1: 等待离开 target_yaw (|delta| > 20°)
- *   状态2: 使用 delta_prev 穿越检测计数
- *         每次穿越 target_yaw(±10°窗口) → count++
- *         count >= 2 且 |delta| < 10° → 一圈完成
- */
-static void Test_Rotate_StateMachine(void)
-{
-    if (!test_rotate_enable)
-        return;
-
-    float current_yaw = imu660ra.eulerAngle.yaw;
-    const float target_yaw = 0.0f; /* current_yaw 设为 0 */
-    float delta;
-
-    /* 状态变量 (static 保持跨帧) */
-    static uint8 state = 0; /* 0=待初始化, 1=第一圈等待离开, 2=第一圈计数, 3=平衡等待, 4=第二圈等待离开, 5=第二圈计数, 6=完成 */
-    static uint8 circle_count = 0;
-    static uint16 balance_timer = 0; /* 40ms 计数, 2s = 50 ticks */
-    static uint16 timeout = 0;
-    static float delta_prev = 0.0f;
-    static uint8 delta_prev_valid = 0;
-
-    /* 首次进入: 初始化 */
-    if (state == 0)
-    {
-        state = 1;
-        circle_count = 0;
-        balance_timer = 0;
-        timeout = 0;
-        delta_prev = 0.0f;
-        delta_prev_valid = 0;
-        test_rotate_balancing = 0; /* 确保旋转中 */
-    }
-
-    /* 超时保护: 5秒 (5000ms / 40ms = 125 帧), 仅旋转阶段有效 */
-    // if (state == 1 || state == 2 || state == 4 || state == 5)
-    // {
-    //     timeout++;
-    //     if (timeout > 125)
-    //     {
-    //         /* 超时强制退出 */
-    //         test_rotate_enable = 0;
-    //         test_rotate_balancing = 0;
-    //         Yao.Outp_turn = 0;
-    //         state = 0;
-    //         return;
-    //     }
-    // }
-    // else
-    // {
-    //     timeout = 0;
-    // }
-
-    switch (state)
-    {
-    case 1: /* 第一圈: 等待离开 target_yaw */
-        delta = current_yaw - target_yaw;
-        if (delta > 180.0f)
-            delta -= 360.0f;
-        if (delta < -180.0f)
-            delta += 360.0f;
-
-        if (func_abs(delta) > 20.0f)
-        {
-            state = 2;
-            circle_count = 0;
-            delta_prev_valid = 0;
-            timeout = 0;
-        }
-        break;
-
-    case 2: /* 第一圈: 计数圈数 */
-    {
-        delta = current_yaw - target_yaw;
-        if (delta > 180.0f)
-            delta -= 360.0f;
-        if (delta < -180.0f)
-            delta += 360.0f;
-
-        if (!delta_prev_valid)
-        {
-            delta_prev = delta;
-            delta_prev_valid = 1;
-        }
-
-        /* 穿越检测: 与 ins_auto_special_point_rotate 完全一致 */
-        if ((delta_prev > 10.0f && delta < -10.0f) ||
-            (delta_prev < -10.0f && delta > 10.0f) ||
-            func_abs(delta) < 5.0f)
-        {
-            if (func_abs(delta_prev) > 10.0f || func_abs(delta) < 5.0f)
-            {
-                if (func_abs(delta) < 10.0f)
-                {
-                    circle_count++;
-                }
-            }
-
-            delta_prev = current_yaw - target_yaw;
-            if (delta_prev > 180.0f)
-                delta_prev -= 360.0f;
-            if (delta_prev < -180.0f)
-                delta_prev += 360.0f;
-        }
-
-        delta_prev = current_yaw - target_yaw;
-        if (delta_prev > 180.0f)
-            delta_prev -= 360.0f;
-        if (delta_prev < -180.0f)
-            delta_prev += 360.0f;
-
-        /* 一圈完成: count >= 2 且 |delta| < 10° */
-        if (circle_count >= 2 && func_abs(delta) < 10.0f)
-        {
-            /* 第一圈完成, 进入平衡阶段 */
-            state = 3;
-            test_rotate_balancing = 1; /* 停止偏航旋转 */
-            balance_timer = 0;
-            Yao.Outp_turn = 0;
-            circle_count = 0;
-            delta_prev_valid = 0;
-            flag_main = 2;
-        }
-        break;
-    }
-
-    case 3: /* 平衡等待 2 秒 */
-        balance_timer++;
-        if (balance_timer >= 100) /* 50 × 40ms = 2000ms = 2s */
-        {
-            /* 平衡结束, 开始第二圈 */
-            state = 4;
-            test_rotate_balancing = 0; /* 恢复旋转 */
-            circle_count = 0;
-            delta_prev_valid = 0;
-            timeout = 0;
-            flag_main = 0;
-        }
-        break;
-
-    case 4: /* 第二圈: 等待离开 target_yaw */
-        delta = current_yaw - target_yaw;
-        if (delta > 180.0f)
-            delta -= 360.0f;
-        if (delta < -180.0f)
-            delta += 360.0f;
-
-        if (func_abs(delta) > 20.0f)
-        {
-            state = 5;
-            circle_count = 0;
-            delta_prev_valid = 0;
-            timeout = 0;
-        }
-        break;
-
-    case 5: /* 第二圈: 计数圈数 */
-    {
-        delta = current_yaw - target_yaw;
-        if (delta > 180.0f)
-            delta -= 360.0f;
-        if (delta < -180.0f)
-            delta += 360.0f;
-
-        if (!delta_prev_valid)
-        {
-            delta_prev = delta;
-            delta_prev_valid = 1;
-        }
-
-        /* 穿越检测: 与 ins_auto_special_point_rotate 完全一致 */
-        if ((delta_prev > 10.0f && delta < -10.0f) ||
-            (delta_prev < -10.0f && delta > 10.0f) ||
-            func_abs(delta) < 5.0f)
-        {
-            if (func_abs(delta_prev) > 10.0f || func_abs(delta) < 5.0f)
-            {
-                if (func_abs(delta) < 10.0f)
-                {
-                    circle_count++;
-                }
-            }
-
-            delta_prev = current_yaw - target_yaw;
-            if (delta_prev > 180.0f)
-                delta_prev -= 360.0f;
-            if (delta_prev < -180.0f)
-                delta_prev += 360.0f;
-        }
-
-        delta_prev = current_yaw - target_yaw;
-        if (delta_prev > 180.0f)
-            delta_prev -= 360.0f;
-        if (delta_prev < -180.0f)
-            delta_prev += 360.0f;
-
-        /* 一圈完成 */
-        if (circle_count >= 2 && func_abs(delta) < 10.0f)
-        {
-            /* 第二圈完成, 测试结束 */
-            state = 6;
-            test_rotate_enable = 0;
-            test_rotate_balancing = 0;
-            Yao.Outp_turn = 0;
-            circle_count = 0;
-            delta_prev_valid = 0;
-            flag_main = 0;
-        }
-        break;
-    }
-
-    case 6: /* 测试完成, 空闲 */
-        break;
-    default:
-        break;
-    }
-}
 
 /**
  * @brief   40ms中断服务函数
@@ -881,7 +668,7 @@ void Interrupt_40ms(void)
     // Update_Zebra_Timeout();
 
     /* 2. 偏航角慢漂补偿 */
-    imu660ra.eulerAngle.yaw += 0.002;
+    // imu660ra.eulerAngle.yaw += 0.002;
     flag_count++;
     flag_count %= 3;
 
@@ -914,48 +701,47 @@ void Interrupt_40ms(void)
         ips200_show_int(0, 266, motor_value.receive_left_speed_data, 5);
         ips200_show_int(60, 266, motor_value.receive_right_speed_data, 5);
     }
-    //printf("motor_value.receive_left_speed_data:%d\n", motor_value.receive_left_speed_data);
-    // printf("TEMP_PITCH: %.2f, erect_Angle_Pitch: %.2f\n", temp_Pitch, erect_Angle_Pitch[1]);
-    // printf("servoLeftFront: %f, servoLeftRear: %f, servoRightFront: %f, servoRightRear: %f\n",servoLeftFront, servoLeftRear, servoRightFront, servoRightRear);
+    /*******************惯导*********************** */
+    // printf("ins_yaw:%.2f",yaw_ins);
     //  printf("g_ins_auto.nav_finished=%d, flag_mian=%d\r\n", g_ins_auto.nav_finished, flag_main);
     //  printf("imu660ra.eulerAngle.yaw: %.2f\n", imu660ra.eulerAngle.yaw, Target_Yaw, Yao.Outp_turn);
-    //   printf("Yaw: %.2f, Yao.Outp_Gyro_Yaw: %.2f, Target_Yaw: %.2f, Yao.Outp_turn: %.2f,imu660rb_gyro_z: %d\n",imu660ra.eulerAngle.yaw, Yao.Outp_Gyro_Yaw, Target_Yaw, Yao.Outp_turn, imu660rb_gyro_z);
-    //    printf("imu660rb_gyro_z: %.2f, imu660rb_gyro_x: %.2f,imu660rb_gyro_y: %.2f,imu660rb_acc_z: %.2f\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y, imu660rb_acc_z);
-    //    printf("g_isr_flag_2ms=%d\r\n", g_isr_flag_2ms);
-    //    if(menu_open == 1)
-    //        menu();
-    //    else
-    //        menu_mode = 1;
+    /*********************************************** */
 
-    // printf("Yaw: %.2f\n", imu660ra.eulerAngle.yaw);
+    /********************VOFA************************** */
+    //printf("A: %.2f,%.2f\n", imu660ra.eulerAngle.yaw, imu660ra.data_Raw.gyro_z);
+    // printf("A: %d\n", imu660rb_gyro_z);
+    //   printf("A: %.d, %.d, %.d\n", imu660rb_gyro_z, imu660rb_gyro_x, imu660rb_gyro_y);
+    /*********************************************** */
 
-    /******************************* */
+    /**********************driver************************** */
+    // printf("motor_value.receive_left_speed_data:%d\n", motor_value.receive_left_speed_data);
+    // printf("servoLeftFront: %f, servoLeftRear: %f, servoRightFront: %f, servoRightRear: %f\n",servoLeftFront, servoLeftRear, servoRightFront, servoRightRear);
+    //  printf("imu660ra.eulerAngle.yaw: %.2f\n", imu660ra.eulerAngle.yaw, Target_Yaw, Yao.Outp_turn);
+    /*********************************************** */
+
+
+    /***************定距离**************** */
     // Count++;
-    // if(Count >= 250)
+    // if (Count == 500)
     // {
-    //     flag_jump = 1;
-    //     Count = 0;
+    //     flag_road_test = 1;
+        
+    // }
+    
+    /******************************* */
+
+    /***************跳跃**************** */
+    // Count++;
+    // if (Count == 500)
+    // {
+        
+    //          flag_jump = 1;
+    //         Count = 0;
     // }
     /******************************* */
 
-    // if (ins_open == 0)
-    // {
-    //     if (key_detect(KEY_1, KEY_SHORT_PRESS))
-    //     {
-    //         test_mode_turn = ~test_mode_turn;
-    //         Count = 0;
-    //     }
-
-    //     if (key_detect(KEY_2, KEY_SHORT_PRESS))
-    //     {
-    //         test_mode_jump = ~test_mode_jump;
-    //         Count = 0;
-    //     }
-
-    //     if (test_mode_turn)
-    //     {
-    // if(menu_mode == 1)
-    // {
+    /***************定角度**************** */
+    
     // Count++;
     //     if (Count >= 50)
     //     {
@@ -970,21 +756,9 @@ void Interrupt_40ms(void)
 
     // }
 
-    // if (test_mode_jump)
-    // {
-    //     Count++;
-    //     if (Count >= 100)
-    //     {
-    //         flag_jump = 1;
-    //         Count = 0;
-    //     }
-    // }
-
     /******************************** */
-    // printf("falg_1: %d ,flag_2: %d ,ins_mode: %d\n", flag_1, flag_2, ins_mode);
-    /******************************** */
-    // printf("Left Speed: %d, Right Speed: %d\n", motor_value.receive_left_speed_data, motor_value.receive_right_speed_data);
-    //}
+    
+    
 }
 /* ========================================================================
    内部API函数实现（按中断时间分组）
@@ -1086,8 +860,8 @@ void Update_Gyro_PID_Loop(void)
     Yao.Outp_Gyro_Pitch = -limit(Cascade_gyro_Pitch(&PID_all.Pid_Gyro_Pitch, erect_Gyro_Pitch, y1, -Yao.Outp_Angle_Pitch), 8000.0f);
 
     /* 偏航角速度环PID（内环） */
-     Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, -Yao.Outp_turn), 8000.0f);
-    //Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, 500.0f), 8000.0f);
+    Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, -Yao.Outp_turn), 8000.0f);
+    // Yao.Outp_Gyro_Yaw = limit(Cascade_gyro_Yaw(&PID_all.Pid_Gyro_Yaw, erect_Gyro_Yaw, imu660rb_gyro_z, 1000.0f), 8000.0f);
 }
 
 /* ---- 4ms中断API函数 ---- */
@@ -1472,6 +1246,17 @@ void Update_Telemetry_Send(void)
         if (len > 0 && len < (int)sizeof(angle_buf))
         {
             wireless_uart_send_string_nonblock(angle_buf);
+        }
+    }
+
+    if (road_wireless)
+    {
+        char road_buf[128];
+        int len = sprintf(road_buf,
+                          "R: %d,%d,%.1f,%.1f\n", turn_mode, ins_straight_update(), g_straight.target_dist_cm, g_straight.accum_dist_cm);
+        if (len > 0 && len < (int)sizeof(road_buf))
+        {
+            wireless_uart_send_string_nonblock(road_buf);
         }
     }
     /* $J 跳跃诊断遥测帧 (每40ms发送一次)

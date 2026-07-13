@@ -46,10 +46,10 @@ void Init_All(void)
     flash_init();
     // Init_Nag();
     //     imu963ra_kalman_filter_init(&imu, 0.000001, 0.1, 4 / 1000.0f);
-    // imu963ra_kalman_filter_init(&imu, 0.00001, 0.05, 4 / 1000.0f);  // Q=1e-5, K=1.38% acc
+    imu963ra_kalman_filter_init(&imu, 0.00001, 0.05, 4 / 1000.0f); // Q=1e-5, K=1.38% acc
     // imu963ra_kalman_filter_init(&imu, 0.00005, 0.05, 4 / 1000.0f);  // Q=5e-5, K=3.02% acc
     // imu963ra_kalman_filter_init(&imu, 0.0000003, 0.03, 4 / 1000.0f); // BUG: 3e-7 not 3e-5!
-    imu963ra_kalman_filter_init(&imu, 0.000006, 0.3, 4 / 1000.0f); // Q=3e-5, R=0.03, K=3.02%
+    // imu963ra_kalman_filter_init(&imu, 0.000006, 0.3, 4 / 1000.0f); // Q=3e-5, R=0.03, K=3.02%
 
     //    wifi_spi_init_all();
     //    wifi_spi_init("team", "12345qwert",WIFI_SPI_STATION);
@@ -62,8 +62,29 @@ void Init_All(void)
 
     // TODO: offset_angle 沿用 IMU660RA 标定值，IMU660RB 需重新标定
     imu660ra.offset_angle.pitch = 1.6; // �??5�??.1
-    imu660ra.offset_angle.roll = -2.8; //-0.75
+    imu660ra.offset_angle.roll = -4.0; //-0.75
     // Yao.Target_Speed = 0;
+    /*****************************科目一************************************** */
+    // Yao.Target_height = 3;
+    // Target_Yaw = 0;
+    // Target_Speed = 600;
+    // ins_open = 1;
+    // ins_mode = 4;
+    // turn_mode = 7;
+    // // 按键3占用,科目1,2要关掉
+    // camera_open = 0;
+    // flag_subject2 = 0;
+    // flag_subject3 = 0;
+
+    // telemetry_enable = 0;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+    // ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
+    // jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
+    // angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
+    // kalman_wireless = 0;
+    // camera_wireless = 0;
+    /*************************************************************************** */
+
+    /*******************************科目二************************************ */
     Yao.Target_height = 3;
     Target_Yaw = 0;
     Target_Speed = 300;
@@ -75,12 +96,53 @@ void Init_All(void)
     flag_subject2 = 1;
     flag_subject3 = 0;
 
-    telemetry_enable = 1;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+    telemetry_enable = 0;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
     ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
     jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
     angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
     kalman_wireless = 0;
     camera_wireless = 0;
+    /*************************************************************************** */
+
+    /*******************************科目三************************************ */
+    // Yao.Target_height = 3;
+    // Target_Yaw = 0;
+    // Target_Speed = 0;
+    // ins_open = 1;
+    // ins_mode = 4;
+    // turn_mode = 3;
+    // // 按键3占用,科目1,2要关掉
+    // camera_open = 0;
+    // flag_subject2 = 0;
+    // flag_subject3 = 1;
+
+    // telemetry_enable = 0;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+    // ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
+    // jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
+    // angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
+    // kalman_wireless = 0;
+    // camera_wireless = 0;
+    /*************************************************************************** */
+
+    /*******************************test************************************ */
+    // Yao.Target_height = 3;
+    // Target_Yaw = 0;
+    // Target_Speed = 0;
+    // ins_open = 1;
+    // ins_mode = 4;
+    // turn_mode = 3;
+    // // 按键3占用,科目1,2要关掉
+    // camera_open = 0;
+    // flag_subject2 = 1;
+    // flag_subject3 = 0;
+
+    // telemetry_enable = 0;      /* 遥测使能：0=关闭, 1=开启（通过无线串口发送调试数据） */
+    // ins_telemetry_enable = 0;  /* 惯导遥测使能：0=关闭, 1=开启 */
+    // jump_telemetry_enable = 0; /* 跳跃遥测使能：0=关闭, 1=开启（发送 $J 帧） */
+    // angle_wireless = 0;        /* 姿态角遥测使能：0=关闭, 1=开启（发送 A 帧） */
+    // kalman_wireless = 0;
+    // camera_wireless = 0;
+    /*************************************************************************** */
 
     pid_para_init(&PID_all.Pid_Gyro_Pitch);
     pid_para_init(&PID_all.Pid_Angle_Pitch);
@@ -105,35 +167,7 @@ void Init_All(void)
 
     small_driver_uart_init();
 
-    // if (menu_open && !flash_check(0, 1)) // Flash page 1 非空白才加载
-    //     store_or_read_DATA(READ);
-
-    // system_delay_ms(100);
-    // if (menu_open)
-    // {
-    //     store_or_read_DATA(READ);
-    // }
-
-    // 启动开机角度校准
-    // calibrate_state = 1;
-    // calibrate_count = 0;
-    // calibrate_sum = 0;
-    // calibrate_offset = 0;
-    // 閫傚綋鐨勫欢鏃跺悗鍦ㄨ繘琛屽垵濮嬪寲
-    // system_delay_ms(100);
-
-    // mt9v03x_init();                                     // 鎬婚捇椋?
-
-    // 涓€鍒囧噯澶囧氨�??鏃犲埛椹卞姩鍒濆鍖?
-    // Initialize GNSS driver for steering fusion fallback.
-    // This does not require waypoint planner yet.
-    // gnss_init(TAU1201);
-
-    // Initialize steering fusion placeholders and debug outputs.
-    // Subject-1 background default:
-    // - no fixed track
-    // - pure vision localization + cone avoidance
-    // steer_turn_init();
+    imu_calibrate_gyro(); // 陀螺仪零偏标定
 
     // 全部 GPIO 引脚推挽输出拉高
     //  {
@@ -167,13 +201,6 @@ void Init_All(void)
     //          gpio_init(all_pins[i], GPO, GPIO_LOW, GPO_PUSH_PULL);
     //      }
     //  }
-
-    // small_driver_uart_init();
-
-    // INS 惯导初始化
-    // ins_core_init();
-    // ins_track_init();
-    // ins_api_load_imu_bias();  // 从 Flash 加载陀螺仪零偏
 
     // 自动打点模块初始化（ins_mode=4 使用）
     ins_auto_record_init();

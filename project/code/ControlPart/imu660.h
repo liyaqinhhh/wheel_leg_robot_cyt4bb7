@@ -29,13 +29,14 @@ typedef struct
 typedef struct
 {
     euler_param offset_angle;
-    imu_param data_Raw;            // 采集的数据
-    imu_param data_Ripen;          // 处理过后的数据
-    euler_param eulerAngle;        // 单位是角度
+    imu_param data_Raw;     // 采集的数据
+    imu_param data_Ripen;   // 处理过后的数据
+    euler_param eulerAngle; // 单位是角度
 } imu660_struct;
 
-extern imu660_struct imu660ra;     // 总结构体
+extern imu660_struct imu660ra; // 总结构体
 
+void imu_calibrate_gyro(void);
 void date_handle(void);
 void date_raw(void);
 void get_eulerAngle(void);

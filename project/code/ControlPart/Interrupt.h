@@ -96,6 +96,7 @@ extern uint8 kalman_wireless;       /* 卡尔曼诊断遥测使能：0=关闭, 1
 extern uint8 camera_wireless;       /* 摄像头遥测使能：0=关闭, 1=开启（发送 $C 帧） */
 /* ---- 定时器计数 ---- */
 extern uint16 TCount_4ms;     /* 4ms中断计数器（受TCount_falg_4ms控制） */
+extern uint16 TCount_16ms;    /* 16ms中断计数器 */
 extern uint16 TCount_40ms;    /* 40ms中断计数器（用于斑马线超时检测） */
 extern uint8 TCount_falg_4ms; /* 4ms计数使能标志 */
 
@@ -118,6 +119,7 @@ extern volatile float calibrate_offset;   /* 校准角度偏移量（度） */
 extern volatile uint16_t calibrate_count; /* 校准采样计数 */
 extern volatile float calibrate_sum;      /* 校准角度累加和 */
 extern float Target_Speed;                /* 目标速度 */
+extern uint8 flag_road_test; /* 道路测试标志（外部控制） */
 #define CALIBRATE_SAMPLES 500             /* 校准采样数（500个样本@2ms=1秒） */
 
 /* 中断任务调度（标志位由 ISR 累加，主函数消费执行） */

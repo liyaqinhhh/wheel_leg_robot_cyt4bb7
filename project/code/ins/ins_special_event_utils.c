@@ -30,15 +30,10 @@ extern volatile float speed_MOTOR; /* 平均轮速 */
  *    (与 get_realtime_coordinate 使用相同的物理模型)
  * ================================================================== */
 
-typedef struct
-{
-    uint8 active;         /* 0=空闲, 1=运行中 */
-    float target_dist_cm; /* 目标距离 (cm) */
-    int16 target_speed;   /* 目标速度 (编码器单位) */
-    float accum_dist_cm;  /* 已行驶距离 (cm) */
-} InsStraightMotion;
-
-static InsStraightMotion g_straight = {0};
+InsStraightMotion g_straight = {0};
+uint32_t time_layer = 0.0f; /* 预留: 暂未使用 */
+float dist = 0.0f;        /* 预留: 暂未使用 */
+uint8 flag_time_layer = 0;   /* 预留: 暂未使用 */
 
 /*
  * 启动定向直走
@@ -47,28 +42,54 @@ void ins_straight_start(int16 speed, float dist_cm)
 {
     if (dist_cm <= 0.0f || speed == 0)
         return;
+    
+    //time_layer = (uint32_t)(dist_cm / (fabsf(speed) * 0.016f * WHEEL_CIRCUMFERENCE_CM));
 
     // 这个地方如果是视觉的话要改
     /* 锁定当前 yaw 角为前进方向 */
     Target_Yaw = imu660ra.eulerAngle.yaw;
 
-    /* 切换到偏航角度闭环走直线模式 */
+    flag_time_layer = 1;
+
     turn_mode = 3;
 
     /* 设置目标速度 */
     Target_Speed = speed;
+    if (flag_time_layer)
+    {
+        TCount_16ms++;
+        dist += speed_MOTOR * 0.016f * WHEEL_CIRCUMFERENCE_CM;
+    }
 
+    if(dist >= dist_cm && dist_cm != 0)
+    {
+        flag_time_layer = 0;
+        Target_Speed = 0;
+        flag_road_test = 0;
+        TCount_16ms = 0;
+        Target_Yaw = 0;
+        turn_mode = 7;
+        yaw_ins = 0;
+        
+        
+
+
+        //test
+        flag_main = 2;  
+        dist = 0.0f;  
+    }
+
+    
+    
     /* 初始化状态 */
-    g_straight.active = 1;
-    g_straight.target_dist_cm = dist_cm;
-    g_straight.target_speed = speed;
-    g_straight.accum_dist_cm = 0.0f;
+    
 }
 
 /*
  * 定向直走状态更新 (每 16ms 调用)
  * 返回: 0=进行中, 1=已完成
  */
+//弃用
 uint8 ins_straight_update(void)
 {
     if (!g_straight.active)
@@ -94,6 +115,7 @@ uint8 ins_straight_update(void)
 /*
  * 查询是否正在运行
  */
+//弃用
 uint8 ins_straight_is_active(void)
 {
     return g_straight.active;
